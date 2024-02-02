@@ -5,8 +5,14 @@
 #include <optional>
 #include <vector>
 
+#include "vulkanApp.hpp"
+
 class Pipeline;
 using PipelinePtr = std::shared_ptr<Pipeline>;
+
+struct PipelineConfigInfo{
+
+};
 
 class Pipeline{
     // shaders
@@ -17,50 +23,34 @@ class Pipeline{
             std::string _Path;
             GraphicsShaderCode _Code;
 
-            bool exists(){
-                return _Code.has_value();
-            }
+            bool exists(){return _Code.has_value();}
 
-            static GraphicsShader init(const std::string& path){
-                return {
-                    ._Path = path,
-                    ._Code = readShaderFile(path)
-                };
+            void init(const std::string& path){
+                _Path = path,
+                _Code = readShaderFile(path);
             }
         };
 
-        struct GraphicsShaders{
-            GraphicsShader _VertexShader;
-            GraphicsShader _FragmentShader;
-            GraphicsShader _TesselationControlShader;
-            GraphicsShader _TesselationEvaluationShader;
-            GraphicsShader _GeometryShader;
-        };
-
-    private:
-        GraphicsShaders _GraphicsShaders = {};
+        GraphicsShader _VertexShader = {};
+        GraphicsShader _FragmentShader = {};
+        GraphicsShader _TesselationControlShader = {};
+        GraphicsShader _TesselationEvaluationShader = {};
+        GraphicsShader _GeometryShader = {};
 
     public:
-        Pipeline(const std::string& vert, const std::string& frag, 
-            const std::string& control = "", 
-            const std::string& evaluation = "",
-            const std::string& geom = "");
+        Pipeline(){};
+        
+        void initVertexShader(const std::string& vert){_VertexShader.init(vert);} 
+        void initFragmentShader(const std::string& frag){_FragmentShader.init(frag);} 
+        void initControlShader(const std::string& cont){_TesselationControlShader.init(cont);} 
+        void initEvaluationhader(const std::string& eval){_TesselationEvaluationShader.init(eval);} 
+        void initGeometryShader(const std::string& geom){_GeometryShader.init(geom);} 
+        
+        void init();        
 
     private:
         static std::vector<char> readShaderFile(const std::string& filepath);
 
-        void createGraphicsShaders(
-            const std::string& vert, const std::string& frag, 
-            const std::string& control, 
-            const std::string& evaluation,
-            const std::string& geom
-        );
-
-        void createGraphicsPipeline(
-            const std::string& vert, const std::string& frag, 
-            const std::string& control, 
-            const std::string& evaluation,
-            const std::string& geom
-        );
+        void createGraphicsPipeline();
 
 };

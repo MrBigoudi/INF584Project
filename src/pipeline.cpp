@@ -22,41 +22,15 @@ std::vector<char> Pipeline::readShaderFile(const std::string& filepath){
     return buffer;
 }
 
-Pipeline::Pipeline(const std::string& vert, const std::string& frag, 
-    const std::string& control, 
-    const std::string& evaluation,
-    const std::string& geom
-    ){
-
-    createGraphicsPipeline(vert, frag, control, evaluation, geom);
-
+void Pipeline::createGraphicsPipeline(){
+    if(!_VertexShader.exists() || !_FragmentShader.exists()){
+        ErrorHandler::handle(
+            ErrorCode::NOT_INITIALIZED_ERROR,
+            "Can't create a graphics pipeline without a vertex and a fragment shader!\n"
+        );
+    }
 }
 
-
-void Pipeline::createGraphicsShaders(
-    const std::string& vert, const std::string& frag, 
-    const std::string& control, 
-    const std::string& evaluation,
-    const std::string& geom
-    ){
-    
-    _GraphicsShaders = {};
-    _GraphicsShaders._VertexShader = GraphicsShader::init(vert);
-    _GraphicsShaders._FragmentShader = GraphicsShader::init(frag);
-    if(control != "")
-        _GraphicsShaders._TesselationControlShader = GraphicsShader::init(control);
-    if(evaluation != "")
-        _GraphicsShaders._TesselationEvaluationShader = GraphicsShader::init(evaluation);
-    if(geom != "")
-        _GraphicsShaders._GeometryShader = GraphicsShader::init(geom);
-}
-
-void Pipeline::createGraphicsPipeline(
-    const std::string& vert, const std::string& frag, 
-    const std::string& control, 
-    const std::string& evaluation,
-    const std::string& geom
-    ){
-    createGraphicsShaders(vert, frag, control, evaluation, geom);
-
+void Pipeline::init(){
+    createGraphicsPipeline();
 }

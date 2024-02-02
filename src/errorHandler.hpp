@@ -23,6 +23,7 @@ enum ErrorCode{
     GLFW_ERROR,
     VULKAN_ERROR,
     IO_ERROR,
+    NOT_INITIALIZED_ERROR,
 };
 
 /**

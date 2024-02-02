@@ -49,10 +49,8 @@ void Application::initWindow(){
 }
 
 void Application::initPipeline(){
-    _Pipeline = PipelinePtr(
-        new Pipeline(
-            "shaders/compiled/basicTriangleVert.spv",
-            "shaders/compiled/basicTriangleFrag.spv"
-        )
-    );
+    _Pipeline = PipelinePtr(new Pipeline());
+    _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
+    _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
+    _Pipeline->init();
 }

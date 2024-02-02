@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "application.hpp"
+#include "pipeline.hpp"
 #include "types.hpp"
 #include "vulkanApp.hpp"
 #include "window.hpp"
@@ -8,6 +9,7 @@
 void Application::init(){
     initWindow();
     initVulkan();
+    initPipeline();
 }
 
 void Application::initVulkan(){
@@ -44,4 +46,13 @@ void Application::initWindow(){
         new Window(WINDOW_WIDTH, WINDOW_HEIGHT, "hello vulkan")
     );
     _Window->init();
+}
+
+void Application::initPipeline(){
+    _Pipeline = PipelinePtr(
+        new Pipeline(
+            "shaders/compiled/basicTriangleVert.spv",
+            "shaders/compiled/basicTriangleFrag.spv"
+        )
+    );
 }

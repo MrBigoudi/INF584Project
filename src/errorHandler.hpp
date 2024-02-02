@@ -18,10 +18,11 @@ enum ErrorLevel{
 /**
  * The abstract error codes
 */
-enum ErrorCodes{
+enum ErrorCode{
     NO_ERROR, 
     GLFW_ERROR,
     VULKAN_ERROR,
+    IO_ERROR,
 };
 
 /**
@@ -41,7 +42,7 @@ class ErrorHandler{
          * @param msg The error message to display
          * @param level The error level
         */
-        static void handle(ErrorCodes error, const std::string& msg = "", ErrorLevel level = FATAL){
+        static void handle(ErrorCode error, const std::string& msg = "", ErrorLevel level = FATAL){
             switch(error){
                 case NO_ERROR:
                     break;

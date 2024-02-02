@@ -1,11 +1,12 @@
 #pragma once
 
-#include "errorHandler.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <cstdint>
 #include <string>
+
+#include "errorHandler.hpp"
 
 class Window;
 using WindowPtr = std::shared_ptr<Window>;
@@ -51,6 +52,10 @@ class Window{
 
             // Make the window's context current
             glfwMakeContextCurrent(_Window);
+        }
+
+        VkResult createWindowSurface(VkInstance instance, VkSurfaceKHR& surface){
+            return glfwCreateWindowSurface(instance, _Window, nullptr, &surface);
         }
 
 };

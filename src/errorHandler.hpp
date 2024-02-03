@@ -24,6 +24,7 @@ enum ErrorCode{
     VULKAN_ERROR,
     IO_ERROR,
     NOT_INITIALIZED_ERROR,
+    UNKNOWN_VALUE_ERROR,
 };
 
 /**

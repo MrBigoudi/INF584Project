@@ -25,6 +25,7 @@ void Application::mainLoop(){
 }
 
 void Application::cleanUp(){
+    _Pipeline->cleanUp();
     _VulkanApp->cleanUp();
     _Window->cleanUp();
 }
@@ -49,8 +50,10 @@ void Application::initWindow(){
 }
 
 void Application::initPipeline(){
-    _Pipeline = PipelinePtr(new Pipeline());
+    _Pipeline = PipelinePtr(new Pipeline(_VulkanApp));
     _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
     _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
-    _Pipeline->init();
+    _Pipeline->init(
+        Pipeline::defaultPipelineConfigInfo(WINDOW_WIDTH, WINDOW_HEIGHT)
+    );
 }

@@ -20,7 +20,6 @@ struct PipelineConfigInfo{
     VkPipelineInputAssemblyStateCreateInfo _InputAssemblyInfo{};
     VkViewport _Viewport{};
     VkRect2D _Scissor{};
-    VkPipelineViewportStateCreateInfo _ViewportInfo{};
     VkPipelineRasterizationStateCreateInfo _RasterizationInfo{};
     VkPipelineMultisampleStateCreateInfo _MultisampleInfo{};
     VkPipelineDepthStencilStateCreateInfo _DepthStencilInfo{};
@@ -57,7 +56,7 @@ class GraphicsShader{
         VkShaderModule getModule() const {
             return _Module;
         }
-        
+
         void createModule(const VulkanAppPtr vulkanApp);
         
         bool exists(){return _Code.has_value();}

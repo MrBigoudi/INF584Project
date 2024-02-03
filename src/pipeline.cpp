@@ -46,13 +46,21 @@ void Pipeline::createGraphicsPipeline(PipelineConfigInfo configInfo){
     vertexInputInfo.vertexAttributeDescriptionCount = 0;
     vertexInputInfo.pVertexAttributeDescriptions = nullptr;
 
+    VkPipelineViewportStateCreateInfo viewportInfo{};
+    viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportInfo.viewportCount = 1;
+    viewportInfo.pViewports = &configInfo._Viewport; // not dynamic
+    viewportInfo.scissorCount = 1;
+    viewportInfo.pScissors = &configInfo._Scissor; // not dynamic
+
+
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = nbShaderStages;
     pipelineInfo.pStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &configInfo._InputAssemblyInfo;
-    pipelineInfo.pViewportState = &configInfo._ViewportInfo;
+    pipelineInfo.pViewportState = &viewportInfo;
     pipelineInfo.pRasterizationState = &configInfo._RasterizationInfo;
     pipelineInfo.pMultisampleState = &configInfo._MultisampleInfo;
     pipelineInfo.pDepthStencilState = &configInfo._DepthStencilInfo;
@@ -113,13 +121,6 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
     configInfo._Scissor = {};
     configInfo._Scissor.offset = {0, 0};
     configInfo._Scissor.extent = {width, height};
-
-    configInfo._ViewportInfo = {};
-    configInfo._ViewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    configInfo._ViewportInfo.viewportCount = 1;
-    configInfo._ViewportInfo.pViewports = &configInfo._Viewport; // not dynamic
-    configInfo._ViewportInfo.scissorCount = 1;
-    configInfo._ViewportInfo.pScissors = &configInfo._Scissor; // not dynamic
 
     configInfo._RasterizationInfo = {};
     configInfo._RasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;

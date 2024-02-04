@@ -1,4 +1,6 @@
+#include <cstdint>
 #include <iostream>
+#include <array>
 #include <vulkan/vulkan_core.h>
 
 #include "application.hpp"
@@ -28,17 +30,29 @@ void Application::mainLoop(){
         glfwPollEvents();
         drawFrame();
     }
+    vkDeviceWaitIdle(_VulkanApp->getDevice());
 }
 
 void Application::cleanUp(){
     _Pipeline->cleanUp();
     vkDestroyPipelineLayout(_VulkanApp->getDevice(), _PipelineLayout, nullptr);
+    
     _SwapChain->cleanUp();
     _VulkanApp->cleanUp();
     _Window->cleanUp();
 }
 
 void Application::drawFrame(){
+    uint32_t imageIndex = 0;
+    VkResult result = _SwapChain->acquireNextImage(&imageIndex);
+    if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR){
+        ErrorHandler::handle(ErrorCode::VULKAN_ERROR, "Failed to acquire next swap chain image!\n");
+    }
+
+    result = _SwapChain->submitCommandBuffers(&_CommandBuffers[imageIndex], &imageIndex);
+    ErrorHandler::vulkanError(result, "Failed to present swap chain image!\n");
+
+
 }
 
 void Application::run(){
@@ -95,5 +109,46 @@ void Application::initPipelineLayout(){
 }
 
 void Application::initCommandBuffers(){
+    _CommandBuffers.resize(_SwapChain->getImageCount());
+    VkCommandBufferAllocateInfo allocateInfo = {};
+    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocateInfo.commandPool = _VulkanApp->getCommandPool();
+    allocateInfo.commandBufferCount = static_cast<uint32_t>(_CommandBuffers.size());
+
+    VkResult result = vkAllocateCommandBuffers(_VulkanApp->getDevice(), &allocateInfo, _CommandBuffers.data());
+    ErrorHandler::vulkanError(result, "Failed to allocate the command buffers!\n");
+
+    for(int i=0; i<_CommandBuffers.size(); i++){
+        VkCommandBufferBeginInfo beginInfo{};
+        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        
+        result = vkBeginCommandBuffer(_CommandBuffers[i], &beginInfo);
+        ErrorHandler::vulkanError(result, "Failed to begin recording command buffer!\n");
+
+        // begin render pass command
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = _SwapChain->getRenderPass();
+        renderPassInfo.framebuffer = _SwapChain->getFrameBuffer(i);
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = _SwapChain->getSwapChainExtent();
+
+        std::array<VkClearValue, 2> clearValues{};
+        // in pipeline, 0 is the color attachement, 1 is the depths
+        clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.f};
+        clearValues[1].depthStencil = {1.f, 0};
+
+        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassInfo.pClearValues = clearValues.data();
+
+        vkCmdBeginRenderPass(_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        _Pipeline->bind(_CommandBuffers[i]);
+        vkCmdDraw(_CommandBuffers[i], 3, 1, 0, 0);
+
+        vkCmdEndRenderPass(_CommandBuffers[i]);
+        result = vkEndCommandBuffer(_CommandBuffers[i]);
+        ErrorHandler::vulkanError(result, "Failed to record command buffer!\n");
+    }
 
 }

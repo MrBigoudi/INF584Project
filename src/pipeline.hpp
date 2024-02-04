@@ -151,7 +151,9 @@ class Pipeline{
         } 
         
         void init(PipelineConfigInfo configInfo);
-        void cleanUp();        
+        void cleanUp();   
+
+        void bind(VkCommandBuffer commandBuffer);     
 
     private:
         void createGraphicsPipeline(PipelineConfigInfo configInfo);

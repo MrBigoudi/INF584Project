@@ -9,6 +9,7 @@
 #include "window.hpp"
 #include "pipeline.hpp"
 #include "swapChain.hpp"
+#include "model.hpp"
 
 class Application{
     public:
@@ -19,6 +20,8 @@ class Application{
         WindowPtr _Window = nullptr;
         VulkanAppPtr _VulkanApp = nullptr;
         SwapChainPtr _SwapChain = nullptr;
+
+        ModelPtr _Model = nullptr;
 
         PipelinePtr _Pipeline = nullptr;
         VkPipelineLayout _PipelineLayout;
@@ -32,6 +35,8 @@ class Application{
         void initPipeline();
         void initPipelineLayout();
         void initCommandBuffers();
+
+        void initModels();
 
         void mainLoop();
         void cleanUp();

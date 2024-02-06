@@ -25,6 +25,7 @@ enum ErrorCode{
     IO_ERROR,
     NOT_INITIALIZED_ERROR,
     UNKNOWN_VALUE_ERROR,
+    BAD_VALUE_ERROR,
 };
 
 /**

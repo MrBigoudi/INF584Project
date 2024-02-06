@@ -7,6 +7,8 @@
 #include <fstream>
 #include <vulkan/vulkan_core.h>
 
+#include "model.hpp"
+
 void Pipeline::createGraphicsPipeline(PipelineConfigInfo configInfo){
     if(!_VertexShader->exists() || !_FragmentShader->exists()){
         ErrorHandler::handle(
@@ -37,14 +39,16 @@ void Pipeline::createGraphicsPipeline(PipelineConfigInfo configInfo){
         shaderStages[i] = shaderStagesVector[i];
     }
 
+    auto bindingDescriptions = VertexData::getBindingDescriptions();
+    auto attributeDescriptions = VertexData::getAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+    vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineViewportStateCreateInfo viewportInfo{};
     viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

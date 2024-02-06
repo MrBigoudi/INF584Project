@@ -5,6 +5,7 @@
 
 #include "application.hpp"
 #include "errorHandler.hpp"
+#include "model.hpp"
 #include "pipeline.hpp"
 #include "swapChain.hpp"
 #include "types.hpp"
@@ -15,6 +16,7 @@ void Application::init(){
     initWindow();
     initVulkan();
     initSwapChain();
+    initModels();
     initPipelineLayout();
     initPipeline();
     initCommandBuffers();
@@ -34,6 +36,7 @@ void Application::mainLoop(){
 }
 
 void Application::cleanUp(){
+    _Model->cleanUp();
     _Pipeline->cleanUp();
     vkDestroyPipelineLayout(_VulkanApp->getDevice(), _PipelineLayout, nullptr);
     
@@ -144,11 +147,23 @@ void Application::initCommandBuffers(){
 
         vkCmdBeginRenderPass(_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         _Pipeline->bind(_CommandBuffers[i]);
-        vkCmdDraw(_CommandBuffers[i], 3, 1, 0, 0);
+        // vkCmdDraw(_CommandBuffers[i], 3, 1, 0, 0);
+        _Model->bind(_CommandBuffers[i]);
+        _Model->draw(_CommandBuffers[i]);
 
         vkCmdEndRenderPass(_CommandBuffers[i]);
         result = vkEndCommandBuffer(_CommandBuffers[i]);
         ErrorHandler::vulkanError(result, "Failed to record command buffer!\n");
     }
 
+}
+
+void Application::initModels(){
+    std::vector<VertexData> vertices{
+        {{0.f, -0.5f, 0.f}, {1.f, 0.f, 0.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}},
+        {{0.5f, 0.5f, 0.f}, {0.f, 1.f, 0.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}},
+        {{-0.5f, 0.5f, 0.f}, {0.f, 0.f, 1.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}}
+    };
+
+    _Model = ModelPtr(new Model(_VulkanApp, vertices));
 }

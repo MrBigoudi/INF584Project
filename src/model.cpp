@@ -32,10 +32,9 @@ const std::vector<VkFormat> VertexData::FORMATS = {
     VK_FORMAT_R32G32_SFLOAT
 };
 
-const std::vector<size_t> VertexData::SIZES = {
-    0,
-    sizeof(VertexData::_Pos),
-    sizeof(VertexData::_Col),
-    sizeof(VertexData::_Norm),
-    sizeof(VertexData::_Tex)
+const std::vector<size_t> VertexData::OFFSETS = {
+    offsetof(VertexData, _Pos),
+    offsetof(VertexData, _Col),
+    offsetof(VertexData, _Norm),
+    offsetof(VertexData, _Tex),
 };

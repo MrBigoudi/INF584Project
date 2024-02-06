@@ -22,7 +22,7 @@ struct VertexData{
 
     static const uint32_t NB_LAYOUTS = 4;
     static const std::vector<VkFormat> FORMATS;
-    static const std::vector<size_t> SIZES;
+    static const std::vector<size_t> OFFSETS;
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions(){
         std::vector<VkVertexInputBindingDescription> bindingDescription(1);
@@ -38,7 +38,7 @@ struct VertexData{
             attributeDescription[i].binding = 0;
             attributeDescription[i].location = i;
             attributeDescription[i].format = FORMATS[i];
-            attributeDescription[i].offset = SIZES[i];
+            attributeDescription[i].offset = OFFSETS[i];
         }
         return attributeDescription;
     }

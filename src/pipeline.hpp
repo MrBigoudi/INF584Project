@@ -17,14 +17,17 @@ using PipelinePtr = std::shared_ptr<Pipeline>;
 using GraphicsShaderPtr = std::shared_ptr<GraphicsShader>;
 
 struct PipelineConfigInfo{
+    VkPipelineViewportStateCreateInfo _ViewportInfo{};
     VkPipelineInputAssemblyStateCreateInfo _InputAssemblyInfo{};
-    VkViewport _Viewport{};
-    VkRect2D _Scissor{};
     VkPipelineRasterizationStateCreateInfo _RasterizationInfo{};
     VkPipelineMultisampleStateCreateInfo _MultisampleInfo{};
     VkPipelineDepthStencilStateCreateInfo _DepthStencilInfo{};
     VkPipelineColorBlendAttachmentState _ColorBlendAttachment{};
     VkPipelineColorBlendStateCreateInfo _ColorBlendingInfo{};
+
+    VkPipelineDynamicStateCreateInfo _DynamicStateInfo{};
+    std::vector<VkDynamicState> _DynamicStateEnables;
+
     VkPipelineLayout _PipelineLayout{};
     VkRenderPass _RenderPass{};
     uint32_t _Subpass = 0;
@@ -102,7 +105,7 @@ class GraphicsShader{
 class Pipeline{
 
     public:
-        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+        static PipelineConfigInfo defaultPipelineConfigInfo();
 
     private:
         GraphicsShaderPtr _VertexShader = GraphicsShaderPtr(new GraphicsShader(VERTEX_STAGE));

@@ -37,10 +37,19 @@ class SwapChain{
         std::vector<VkFence> _ImagesInFlight;
         size_t _CurrentFrame = 0;
 
+        SwapChainPtr _OldSwapChain = nullptr;
+
     public:
         SwapChain(VulkanAppPtr vulkanApp, VkExtent2D extent) 
             : _VulkanApp(vulkanApp), _WindowExtent(extent){
+        }
 
+        SwapChain(VulkanAppPtr vulkanApp, VkExtent2D extent, SwapChainPtr oldSwapChain) 
+            : _VulkanApp(vulkanApp), _WindowExtent(extent), _OldSwapChain(oldSwapChain){
+            if(_OldSwapChain->_OldSwapChain != nullptr){
+                _OldSwapChain->_OldSwapChain->cleanUp();
+                _OldSwapChain->_OldSwapChain = nullptr;
+            }
         }
 
         void init();

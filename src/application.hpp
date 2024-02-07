@@ -11,6 +11,10 @@
 #include "swapChain.hpp"
 #include "model.hpp"
 
+struct SimplePushConstantData{
+    alignas(4) float _Random;
+};
+
 class Application{
     public:
         static const uint32_t WINDOW_WIDTH = 800;
@@ -40,7 +44,12 @@ class Application{
 
         void mainLoop();
         void cleanUp();
+
+        void cleanUpCommandBuffers();
         void drawFrame();
+
+        void recreateSwapChain();
+        void recordCommandBuffer(int imageIndex);
 
     public:
         Application(){};

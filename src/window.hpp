@@ -17,6 +17,8 @@ class Window{
         uint32_t _Width = 0;
         uint32_t _Height = 0;
         std::string _Title = "";
+        bool _FrameBufferResized = false;
+
         GLFWwindow* _Window = nullptr;
 
     public:
@@ -39,6 +41,7 @@ class Window{
 
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+            // glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
             _Window = glfwCreateWindow(
                 _Width, _Height, 
@@ -50,7 +53,9 @@ class Window{
                 ErrorHandler::glfwError("Failed to init GLFW window!\n");
             }
 
-            // Make the window's context current
+            glfwSetWindowUserPointer(_Window, this);
+            glfwSetWindowSizeCallback(_Window, frameBufferResizeCallback);
+
             glfwMakeContextCurrent(_Window);
         }
 
@@ -76,4 +81,19 @@ class Window{
             }
         }
 
+        bool wasWindowResized(){
+            return _FrameBufferResized;
+        }
+
+        void resetWindowResizedFlag(){
+            _FrameBufferResized = false;
+        }
+
+    private:
+        static void frameBufferResizeCallback(GLFWwindow* window, int width, int height){
+            auto newWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+            newWindow->_FrameBufferResized = true;
+            newWindow->_Width = static_cast<uint32_t>(width);
+            newWindow->_Height = static_cast<uint32_t>(height);
+        }
 };

@@ -7,7 +7,11 @@ layout(location = 3) in vec2 vTex;
 
 layout(location = 0) out vec4 fCol;
 
+layout(push_constant) uniform Push{
+    float random;
+}push;
+
 void main() {
     gl_Position = vec4(vPos, 1.f);
-    fCol = vCol;
+    fCol = (sin(push.random * (1+gl_VertexIndex)) * 0.5f + 0.5f) * vCol;
 }

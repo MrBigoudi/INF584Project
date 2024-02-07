@@ -1,11 +1,13 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_core.h>
 #include <vulkanApp.hpp>
 #include <cstdint>
 #include <vector>
 #include <memory>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_ONE

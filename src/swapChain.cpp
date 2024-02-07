@@ -13,6 +13,10 @@ void SwapChain::init(){
 }
 
 void SwapChain::cleanUp(){
+    if(_OldSwapChain != nullptr){
+        _OldSwapChain->cleanUp();
+    }
+
     for (auto imageView : _SwapChainImageViews) {
         vkDestroyImageView(_VulkanApp->getDevice(), imageView, nullptr);
     }
@@ -165,7 +169,10 @@ void SwapChain::createSwapChain() {
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    createInfo.oldSwapchain = _OldSwapChain == nullptr 
+        ? VK_NULL_HANDLE
+        : _OldSwapChain->_SwapChain
+    ;
 
     VkResult result = vkCreateSwapchainKHR(_VulkanApp->getDevice(), &createInfo, nullptr, &_SwapChain);
     ErrorHandler::vulkanError(result, "Failed to create swap chain!\n");

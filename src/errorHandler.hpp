@@ -26,6 +26,7 @@ enum ErrorCode{
     NOT_INITIALIZED_ERROR,
     UNKNOWN_VALUE_ERROR,
     BAD_VALUE_ERROR,
+    OUT_OF_RANGE_ERROR,
 };
 
 /**

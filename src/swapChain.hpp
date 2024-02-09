@@ -9,10 +9,10 @@ class SwapChain;
 using SwapChainPtr = std::shared_ptr<SwapChain>;
 
 class SwapChain{
+    public:
+        static const int VULKAN_MAX_FRAMES_IN_FLIGHT = 2;
 
     private:
-        const int VULKAN_MAX_FRAMES_IN_FLIGHT = 2;
-
         VulkanAppPtr _VulkanApp = nullptr;
 
         VkFormat _SwapChainImageFormat;

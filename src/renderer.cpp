@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 
 #include "errorHandler.hpp"
+#include "swapChain.hpp"
 #include "vulkanApp.hpp"
 
 Renderer::Renderer(WindowPtr window, VulkanAppPtr vulkanApp)
@@ -128,8 +129,9 @@ void Renderer::endFrame(){
     ){
         _Window->resetWindowResizedFlag();
         recreateSwapChain();
+    } else {
+        ErrorHandler::vulkanError(result, "Failed to present swap chain image!\n");
     }
-    ErrorHandler::vulkanError(result, "Failed to present swap chain image!\n");
 
     _IsFrameStarted = false;
 }

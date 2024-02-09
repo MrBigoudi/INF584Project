@@ -1,6 +1,6 @@
-file(GLOB SOURCE_FILES "*.cpp")
+file(GLOB ECS_SYSTEMS_SOURCE_FILES "*.cpp")
 
-target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_FILES})
+target_sources(${PROJECT_NAME} PUBLIC ${ECS_SYSTEMS_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC
@@ -8,5 +8,3 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>
     PRIVATE
 )
-
-add_subdirectory(entityComponentSystem)

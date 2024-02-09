@@ -3,6 +3,9 @@
 #include <array>
 #include <vulkan/vulkan_core.h>
 
+#include "entity.hpp"
+#include "gameObject.hpp"
+#include "renderSystem.hpp"
 #include "window.hpp"
 #include "application.hpp"
 #include "errorHandler.hpp"
@@ -11,12 +14,14 @@
 #include "swapChain.hpp"
 #include "types.hpp"
 #include "vulkanApp.hpp"
+#include "gameCoordinator.hpp"
 
 void Application::init(){
     initWindow();
     initVulkan();
     // initSwapChain();
-    initModels();
+    // initModels();
+    initGameObjects();
     initPipelineLayout();
     recreateSwapChain();
     initCommandBuffers();
@@ -48,7 +53,9 @@ void Application::cleanUpCommandBuffers(){
 
 void Application::cleanUp(){
     cleanUpCommandBuffers();
-    _Model->cleanUp();
+    // _Model->cleanUp();
+    cleanUpGameObjects();
+
     _Pipeline->cleanUp();
     vkDestroyPipelineLayout(_VulkanApp->getDevice(), _PipelineLayout, nullptr);
     
@@ -181,14 +188,51 @@ void Application::initCommandBuffers(){
     ErrorHandler::vulkanError(result, "Failed to allocate the command buffers!\n");
 }
 
-void Application::initModels(){
+// void Application::initModels(){
+//     std::vector<VertexData> vertices{
+//         {{0.f, -0.5f, 0.f}, {1.f, 0.f, 0.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}},
+//         {{0.5f, 0.5f, 0.f}, {0.f, 1.f, 0.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}},
+//         {{-0.5f, 0.5f, 0.f}, {0.f, 0.f, 1.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}}
+//     };
+
+//     _Model = ModelPtr(new Model(_VulkanApp, vertices));
+// }
+
+void Application::initGameObjects(){
     std::vector<VertexData> vertices{
         {{0.f, -0.5f, 0.f}, {1.f, 0.f, 0.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}},
         {{0.5f, 0.5f, 0.f}, {0.f, 1.f, 0.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}},
         {{-0.5f, 0.5f, 0.f}, {0.f, 0.f, 1.f, 1.f}, {0.f,0.f,0.f}, {0.f,0.f}}
     };
 
-    _Model = ModelPtr(new Model(_VulkanApp, vertices));
+    ModelPtr model = ModelPtr(new Model(_VulkanApp, vertices));
+
+    GameCoordinator::registerComponent<EntityModel>();
+    GameCoordinator::registerComponent<EntityTransform>();
+
+    _RenderSystem = GameCoordinator::registerSystem<RenderSystem>();
+    GameObjectSignature signature;
+    signature.set(GameCoordinator::getComponentType<EntityModel>());
+    signature.set(GameCoordinator::getComponentType<EntityTransform>());
+    GameCoordinator::setSystemSignature<RenderSystem>(signature);
+
+    GameObject triangle = GameCoordinator::createObject();
+
+    _GameObjects.push_back(triangle);
+    GameCoordinator::addComponent(
+        triangle, 
+        EntityModel{
+            ._Model = model
+        }
+    );
+    GameCoordinator::addComponent(
+        triangle, 
+        EntityTransform{}
+    );
+}
+
+void Application::cleanUpGameObjects(){
+    _RenderSystem->cleanUpGameObjects();
 }
 
 void Application::recreateSwapChain(){
@@ -247,21 +291,7 @@ void Application::recordCommandBuffer(int imageIndex){
     scissor.extent = _SwapChain->getSwapChainExtent();
     vkCmdSetScissor(_CommandBuffers[imageIndex], 0, 1, &scissor);
     
-    _Pipeline->bind(_CommandBuffers[imageIndex]);
-    _Model->bind(_CommandBuffers[imageIndex]);
-
-    SimplePushConstantData push{};
-    push._Random = static_cast<float>(glfwGetTime());
-    vkCmdPushConstants(
-        _CommandBuffers[imageIndex], 
-        _PipelineLayout, 
-        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
-        0, 
-        sizeof(SimplePushConstantData), 
-        &push
-    );
-
-    _Model->draw(_CommandBuffers[imageIndex]);
+    _RenderSystem->renderGameObjects(this, _CommandBuffers[imageIndex]);
 
     vkCmdEndRenderPass(_CommandBuffers[imageIndex]);
     result = vkEndCommandBuffer(_CommandBuffers[imageIndex]);

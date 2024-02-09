@@ -7,15 +7,23 @@
 #include <queue>
 #include <array>
 
+class GameCoordinator;
+
 class GameObjectManager;
 using GameObjectManagerPtr = std::shared_ptr<GameObjectManager>;
 
-static const uint32_t MAX_NB_GAME_OBJECTS = 8192;
+const uint32_t MAX_NB_GAME_OBJECTS = 8192;
+
+using GameComponentType = std::uint8_t;
+const GameComponentType MAX_NB_GAME_COMPONENTS = 32;
+
 using GameObject = uint32_t;
-using GameObjectSignature = std::bitset<MAX_NB_GAME_OBJECTS>;
+using GameObjectSignature = std::bitset<MAX_NB_GAME_COMPONENTS>;
 
 
 class GameObjectManager{
+
+    friend GameCoordinator;
 
     private:
         GameObjectManager(){
@@ -47,7 +55,7 @@ class GameObjectManager{
         // singleton dp
         static GameObjectManagerPtr _GameObjectManager;
 
-    public:
+    private:
         static GameObject createObject();
         static void destroyObject(GameObject object);
         static void setSignature(GameObject object, GameObjectSignature signature);

@@ -2,6 +2,11 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_ONE
+#include <glm/glm.hpp>
+
 #include <cstdint>
 #include <vector>
 
@@ -9,13 +14,17 @@
 #include "window.hpp"
 #include "pipeline.hpp"
 #include "swapChain.hpp"
-#include "model.hpp"
+
+#include "renderSystem.hpp"
 
 struct SimplePushConstantData{
     alignas(4) float _Random;
+    alignas(16) glm::mat4 _Model;
 };
 
 class Application{
+    friend RenderSystem;
+
     public:
         static const uint32_t WINDOW_WIDTH = 800;
         static const uint32_t WINDOW_HEIGHT = 600;
@@ -25,7 +34,9 @@ class Application{
         VulkanAppPtr _VulkanApp = nullptr;
         SwapChainPtr _SwapChain = nullptr;
 
-        ModelPtr _Model = nullptr;
+        // ModelPtr _Model = nullptr;
+        RenderSystemPtr _RenderSystem = nullptr;
+        std::vector<GameObject> _GameObjects{};
 
         PipelinePtr _Pipeline = nullptr;
         VkPipelineLayout _PipelineLayout;
@@ -40,7 +51,9 @@ class Application{
         void initPipelineLayout();
         void initCommandBuffers();
 
-        void initModels();
+        // void initModels();
+        void initGameObjects();
+        void cleanUpGameObjects();
 
         void mainLoop();
         void cleanUp();

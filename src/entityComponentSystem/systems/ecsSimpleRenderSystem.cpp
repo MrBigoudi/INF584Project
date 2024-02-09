@@ -1,12 +1,14 @@
-#include "renderSystem.hpp"
-#include "application.hpp"
+#include "ecsSimpleRenderSystem.hpp"
+
 #include "gameCoordinator.hpp"
 #include "entity.hpp"
 #include "gameObject.hpp"
 #include "model.hpp"
 
-void RenderSystem::renderGameObjects(const Application* app, VkCommandBuffer commandBuffer){
-    app->_Pipeline->bind(commandBuffer);
+#include "simpleRenderSubSystem.hpp"
+
+void ECSSimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, PipelinePtr pipeline, VkPipelineLayout pipelineLayout){
+    pipeline->bind(commandBuffer);
 
     for(auto const& object : _Objects){
         SimplePushConstantData push{};
@@ -15,7 +17,7 @@ void RenderSystem::renderGameObjects(const Application* app, VkCommandBuffer com
         
         vkCmdPushConstants(
             commandBuffer, 
-            app->_PipelineLayout, 
+            pipelineLayout, 
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
             0, 
             sizeof(SimplePushConstantData), 
@@ -28,7 +30,7 @@ void RenderSystem::renderGameObjects(const Application* app, VkCommandBuffer com
     }
 }
 
-void RenderSystem::cleanUpGameObjects(){
+void ECSSimpleRenderSystem::cleanUpGameObjects(){
     for(auto const& object : _Objects){
         ModelPtr model = GameCoordinator::getComponent<EntityModel>(object)._Model;
         model->cleanUp();

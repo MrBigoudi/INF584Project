@@ -36,25 +36,8 @@ void Application::initGameObjects(){
 
     ModelPtr model = ModelPtr(new Model(_VulkanApp, vertices));
 
-    GameCoordinator::registerComponent<EntityModel>();
-    GameCoordinator::registerComponent<EntityTransform>();
-
-    _RenderSystem = GameCoordinator::registerSystem<RenderSystem>();
-    if(_RenderSystem == nullptr){
-        ErrorHandler::handle(
-            ErrorCode::NOT_INITIALIZED_ERROR,
-            "Failed to initialize the ECS render system!\n"
-        );
-    }
-
-    GameObjectSignature signature;
-    signature.set(GameCoordinator::getComponentType<EntityModel>());
-    signature.set(GameCoordinator::getComponentType<EntityTransform>());
-    GameCoordinator::setSystemSignature<RenderSystem>(signature);
-
     GameObject triangle = GameCoordinator::createObject();
 
-    _GameObjects.push_back(triangle);
     GameCoordinator::addComponent(
         triangle, 
         EntityModel{
@@ -65,36 +48,6 @@ void Application::initGameObjects(){
         triangle, 
         EntityTransform{}
     );
-}
-void Application::initPipelineLayout(){
-    if(_VulkanApp == nullptr){
-        ErrorHandler::handle(
-            ErrorCode::NOT_INITIALIZED_ERROR, 
-            "Can't create a pipeline layout without a vulkan app!\n"
-        );
-    }
-
-    VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = 
-        VK_SHADER_STAGE_VERTEX_BIT
-        | VK_SHADER_STAGE_FRAGMENT_BIT;
-    pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
-
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pSetLayouts = nullptr;
-    pipelineLayoutInfo.pushConstantRangeCount = 1;
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-
-    VkResult result = vkCreatePipelineLayout(
-        _VulkanApp->getDevice(), 
-        &pipelineLayoutInfo, 
-        nullptr, 
-        &_PipelineLayout
-    );
-    ErrorHandler::vulkanError(result, "Failed to create pipeline layout!\n");
 }
 void Application::initRenderer(){
     if(_Window == nullptr){
@@ -115,39 +68,19 @@ void Application::initRenderer(){
                 _VulkanApp)
     );
 }
-void Application::initPipeline(){
-    if(_Pipeline != nullptr){
-        _Pipeline->cleanUp();
-    }
-
-    if(_VulkanApp == nullptr){
-        ErrorHandler::handle(
-            ErrorCode::NOT_INITIALIZED_ERROR, 
-            "Can't create a pipeline without a vulkan app!\n"
-        );
-    }
-
-    if(_PipelineLayout == nullptr){
-        ErrorHandler::handle(
-            ErrorCode::NOT_INITIALIZED_ERROR, 
-            "Can't create a pipeline without a pipeline layout!\n"
-        );
-    }
-
+void Application::initRenderSubSystem(){
     if(_Renderer == nullptr){
         ErrorHandler::handle(
             ErrorCode::NOT_INITIALIZED_ERROR, 
-            "Can't create a pipeline without a renderer!\n"
+            "Can't create a render subsystem without a renderer!\n"
         );
     }
-
-    _Pipeline = PipelinePtr(new Pipeline(_VulkanApp));
-    _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
-    _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
-    auto pipelineConfig = Pipeline::defaultPipelineConfigInfo();
-    pipelineConfig._RenderPass = _Renderer->getSwapChainRenderPass();
-    pipelineConfig._PipelineLayout = _PipelineLayout;
-    _Pipeline->init(pipelineConfig);
+    _RenderSubSystem = SimpleRenderSubSystemPtr(
+                        new SimpleRenderSubSystem(
+                            _VulkanApp, 
+                            _Renderer->getSwapChainRenderPass()
+                            )
+                        );
 }
 
 
@@ -158,17 +91,11 @@ void Application::cleanUpWindow(){
 void Application::cleanUpVulkan(){
     _VulkanApp->cleanUp();
 }
-void Application::cleanUpGameObjects(){
-    _RenderSystem->cleanUpGameObjects();
-}
-void Application::cleanUpPipelineLayout(){   
-    vkDestroyPipelineLayout(_VulkanApp->getDevice(), _PipelineLayout, nullptr);
-}
 void Application::cleanUpRenderer(){
     _Renderer->cleanUp();
 }
-void Application::cleanUpPipeline(){
-    _Pipeline->cleanUp();
+void Application::cleanUpRenderSubSystem(){
+    _RenderSubSystem->cleanUp();
 }
 
 
@@ -180,7 +107,7 @@ void Application::mainLoop(){
         auto commandBuffer = _Renderer->beginFrame();
         if(commandBuffer){
             _Renderer->beginSwapChainRenderPass(commandBuffer);
-            _RenderSystem->renderGameObjects(this, commandBuffer);
+            _RenderSubSystem->renderGameObjects(commandBuffer);
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();
         }

@@ -3,27 +3,18 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_ONE
-#include <glm/glm.hpp>
-
 #include <cstdint>
 #include <vector>
 
 #include "types.hpp"
 #include "window.hpp"
-#include "pipeline.hpp"
 
-#include "renderSystem.hpp"
 #include "renderer.hpp"
 
-struct SimplePushConstantData{
-    alignas(4) float _Random;
-    alignas(16) glm::mat4 _Model;
-};
+#include "simpleRenderSubSystem.hpp"
+
 
 class Application{
-    friend RenderSystem;
 
     public:
         static const uint32_t WINDOW_WIDTH = 800;
@@ -34,12 +25,7 @@ class Application{
         VulkanAppPtr _VulkanApp = nullptr;
         RendererPtr _Renderer = nullptr;
 
-        PipelinePtr _Pipeline = nullptr;
-        VkPipelineLayout _PipelineLayout;
-
-        // ECS test
-        RenderSystemPtr _RenderSystem = nullptr;
-        std::vector<GameObject> _GameObjects{};
+        SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
 
     private:
         void initWindow();
@@ -49,30 +35,23 @@ class Application{
         void cleanUpVulkan();
 
         void initGameObjects();
-        void cleanUpGameObjects();
 
         void initRenderer();
         void cleanUpRenderer();
 
-        void initPipelineLayout();
-        void cleanUpPipelineLayout();
-
-        void initPipeline();
-        void cleanUpPipeline();
+        void initRenderSubSystem();
+        void cleanUpRenderSubSystem();
 
     private:
         void init(){
             initWindow();
             initVulkan();
             initRenderer();
-            initPipelineLayout();
-            initPipeline();
+            initRenderSubSystem();
             initGameObjects();
         }
         void cleanUp(){
-            cleanUpGameObjects();
-            cleanUpPipeline();
-            cleanUpPipelineLayout();
+            cleanUpRenderSubSystem();
             cleanUpRenderer();
             cleanUpVulkan();
             cleanUpWindow();

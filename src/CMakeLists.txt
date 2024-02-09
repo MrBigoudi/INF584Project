@@ -10,3 +10,4 @@ target_include_directories(${PROJECT_NAME}
 )
 
 add_subdirectory(entityComponentSystem)
+add_subdirectory(renderSubSystems)

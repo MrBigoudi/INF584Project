@@ -295,6 +295,7 @@ void SwapChain::createFramebuffers() {
 
 void SwapChain::createDepthResources() {
     VkFormat depthFormat = findDepthFormat();
+    _SwapChainDepthFormat = depthFormat;
     VkExtent2D swapChainExtent = getSwapChainExtent();
 
     const uint32_t imageCount = getImageCount();
@@ -447,4 +448,9 @@ VkFormat SwapChain::findDepthFormat() {
       VK_IMAGE_TILING_OPTIMAL,
       VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
     );
+}
+
+bool SwapChain::compareSwapFormat(const SwapChainPtr swapChain) const {
+    return swapChain->_SwapChainDepthFormat == _SwapChainDepthFormat &&
+           swapChain->_SwapChainImageFormat == _SwapChainImageFormat;
 }

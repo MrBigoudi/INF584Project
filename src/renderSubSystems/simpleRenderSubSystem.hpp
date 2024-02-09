@@ -8,7 +8,6 @@
 #define GLM_FORCE_DEPTH_ZERO_ONE
 #include <glm/glm.hpp>
 
-
 struct SimplePushConstantData{
     alignas(4) float _Random;
     alignas(16) glm::mat4 _Model;

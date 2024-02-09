@@ -35,15 +35,22 @@ void Renderer::initSwapChain(){
             )
         );
     } else {
+        SwapChainPtr oldSwapChain = _SwapChain;
         _SwapChain = SwapChainPtr(
             new SwapChain(
                 _VulkanApp,
                 _Window->getExtent(_VulkanApp->getSwapChainSupport().capabilities),
-                _SwapChain
+                oldSwapChain
             )
         );
+
+        if(!oldSwapChain->compareSwapFormat(_SwapChain)){
+            ErrorHandler::handle(
+                ErrorCode::UNEXPECTED_VALUE_ERROR,
+                "Swap chain image or depth format has changed!\n"
+            );
+        }
     }
-    _SwapChain->init();
 }
 
 

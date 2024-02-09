@@ -16,6 +16,8 @@ class SwapChain{
         VulkanAppPtr _VulkanApp = nullptr;
 
         VkFormat _SwapChainImageFormat;
+        VkFormat _SwapChainDepthFormat;
+
         VkExtent2D _SwapChainExtent;
         std::vector<VkFramebuffer> _SwapChainFramebuffers;
         std::vector<VkImage> _SwapChainImages;
@@ -42,6 +44,7 @@ class SwapChain{
     public:
         SwapChain(VulkanAppPtr vulkanApp, VkExtent2D extent) 
             : _VulkanApp(vulkanApp), _WindowExtent(extent){
+            init();
         }
 
         SwapChain(VulkanAppPtr vulkanApp, VkExtent2D extent, SwapChainPtr oldSwapChain) 
@@ -50,9 +53,9 @@ class SwapChain{
                 _OldSwapChain->_OldSwapChain->cleanUp();
                 _OldSwapChain->_OldSwapChain = nullptr;
             }
+            init();
         }
 
-        void init();
         void cleanUp();
 
         VkFramebuffer getFrameBuffer(int index) const { 
@@ -95,7 +98,10 @@ class SwapChain{
         VkResult acquireNextImage(uint32_t *imageIndex);
         VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
+        bool compareSwapFormat(const SwapChainPtr swapChain) const;
+
     private:
+        void init();
         void createSwapChain();
         void createImageViews();
         void createDepthResources();

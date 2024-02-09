@@ -38,6 +38,7 @@ void Application::initGameObjects(){
 
     GameObject triangle = GameCoordinator::createObject();
 
+    // check components in ecs render system and render sub system
     GameCoordinator::addComponent(
         triangle, 
         EntityModel{

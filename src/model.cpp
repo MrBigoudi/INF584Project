@@ -102,3 +102,127 @@ const std::vector<size_t> VertexData::OFFSETS = {
     offsetof(VertexData, _Norm),
     offsetof(VertexData, _Tex),
 };
+
+void VertexDataBuilder::loadObjModel(const std::string& filePath){
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+
+    std::string warn;
+    std::string error;
+
+    auto result = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &error, filePath.c_str());
+    if(!result){
+        ErrorHandler::handle(
+            ErrorCode::TINYOBJ_ERROR,
+            "Failed to load .obj model: " + filePath + "!\n"
+        );
+    }
+
+    _Vertices.clear();
+    _Indices.clear();
+
+    for(const auto& shape : shapes){
+        for(const auto& index : shape.mesh.indices){
+            VertexData vertex{};
+
+            if(index.vertex_index >= 0){
+                vertex._Pos = {
+                    attrib.vertices[3 * index.vertex_index + 0],
+                    attrib.vertices[3 * index.vertex_index + 1],
+                    attrib.vertices[3 * index.vertex_index + 2]
+                };
+
+                auto colorIndex = 3 * index.vertex_index + 2;
+                if(colorIndex < attrib.colors.size()){
+                    vertex._Col = {
+                        attrib.vertices[colorIndex - 2],
+                        attrib.vertices[colorIndex - 1],
+                        attrib.vertices[colorIndex - 0],
+                        1.f
+                    };
+                } else {
+                    // default color
+                    vertex._Col = {0.f, 0.f, 0.f, 1.f};
+                }
+            }
+
+            if(index.normal_index >= 0){
+                vertex._Norm = {
+                    attrib.normals[3 * index.normal_index + 0],
+                    attrib.normals[3 * index.normal_index + 1],
+                    attrib.normals[3 * index.normal_index + 2]
+                };
+            }
+
+            if(index.texcoord_index >= 0){
+                vertex._Tex = {
+                    attrib.texcoords[2 * index.texcoord_index + 0],
+                    attrib.texcoords[2 * index.texcoord_index + 1]
+                };
+            }
+
+            _Vertices.push_back(vertex);
+
+        }
+    }
+}
+
+void VertexDataBuilder::loadOffModel(const std::string& filePath){
+    fprintf(stdout, "Loading model: %s ...\n", filePath.c_str());
+	std::ifstream file(filePath.c_str());
+    if(!file){
+        ErrorHandler::handle(
+            ErrorCode::IO_ERROR,
+            "Failed to load off model: " + filePath + "!\n"
+        );
+    }
+	
+    std::string line;
+    std::getline(file, line);
+    if(line.find("OFF") == std::string::npos){
+        ErrorHandler::handle(
+            ErrorCode::BAD_VALUE_ERROR,
+            "Trying to load a non .off file: " + filePath + "!\n"
+        );
+    }
+
+    std::getline(file, line);
+
+    std::istringstream iss(line);
+    int numVertices, numFaces, numCells;
+    iss >> numVertices >> numFaces >> numCells;
+
+    _Vertices.clear();
+    _Indices.clear();
+
+    // vertices
+    for(int i = 0; i < numVertices; i++){
+        VertexData vertex = {};
+        std::getline(file, line);
+        std::istringstream iss(line);
+        float x, y, z;
+        iss >> x >> y >> z;
+        vertex._Pos = {x, y, z};
+        _Vertices.push_back(vertex);
+    }
+
+    // indices
+    for(int i=0; i<numFaces; i++){
+        int numIndicesPerFace = 0;
+        file >> numIndicesPerFace;
+        for(int j=0; j<numIndicesPerFace; j++){
+            int idx = 0;
+            file >> idx;
+            _Indices.push_back(idx);
+        }
+    }
+
+    file.close();
+    fprintf(stdout, "Done loading the model!\n");
+}
+
+const std::map<std::string, Model::ModelExtension> Model::MODEL_EXTENSIONS_MAP = {
+    {"off", OFF},
+    {"obj", OBJ},
+};

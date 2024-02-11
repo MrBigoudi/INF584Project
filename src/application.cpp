@@ -35,76 +35,22 @@ void Application::initGameObjects(){
         );
     }
 
-    VertexDataBuilder builder{};
+    ModelPtr loadedModel = ModelPtr(
+        // new Model(_VulkanApp, "resources/models/colored_cube.obj")
+        new Model(_VulkanApp, "resources/models/sphere.off")
+    );
 
-    std::vector<VertexData> vertices = {
-        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, .5f, .5f}, {.9f, .9f, .9f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-
-        // right face (yellow)
-        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, .5f, .5f}, {.8f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, -.5f, .5f}, {.8f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, .5f, -.5f}, {.8f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-
-        // top face (orange, remember y axis points down)
-        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, -.5f, .5f}, {.9f, .6f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-
-        // bottom face (red)
-        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, .5f, .5f}, {.8f, .1f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, .5f, .5f}, {.8f, .1f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, .5f, -.5f}, {.8f, .1f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-
-        // nose face (blue)
-        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-
-        // tail face (green)
-        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f, 1.f}, {0.f, 0.f, 0.f}, {0.f, 0.f}},
-    };
- 
-    std::vector<uint32_t> indices = {
-        0,  1,  2, 
-        0,  3,  1,  
-        4,  5,  6,  
-        4,  7,  5,  
-        8,  9,  10, 
-        8,  11, 9,
-        12, 13, 14, 
-        12, 15, 13, 
-        16, 17, 18, 
-        16, 19, 17, 
-        20, 21, 22, 
-        20, 23, 21
-    };
-
-    builder._Vertices = vertices;
-    builder._Indices = indices;
-
-    ModelPtr model = ModelPtr(new Model(_VulkanApp, builder));
-
-    GameObject cube = GameCoordinator::createObject();
+    GameObject sphere = GameCoordinator::createObject();
 
     // check components in ecs render system and render sub system
     GameCoordinator::addComponent(
-        cube, 
+        sphere, 
         EntityModel{
-            ._Model = model
+            ._Model = loadedModel
         }
     );
     GameCoordinator::addComponent(
-        cube, 
+        sphere, 
         EntityTransform{}
     );
 }

@@ -1,6 +1,6 @@
-file(GLOB DEP_SOURCE_FILES "*.cpp")
+file(GLOB DEP_STB_IMAGE_SOURCE_FILES "*.cpp")
 
-target_sources(${PROJECT_NAME} PUBLIC ${DEP_SOURCE_FILES})
+target_sources(${PROJECT_NAME} PUBLIC ${DEP_STB_IMAGE_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC
@@ -8,6 +8,3 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>
     PRIVATE
 )
-
-add_subdirectory(tinyObjectLoader)
-add_subdirectory(stbImage)

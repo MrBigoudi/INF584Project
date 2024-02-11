@@ -20,14 +20,20 @@ enum ErrorLevel{
 */
 enum ErrorCode{
     NO_ERROR, 
+
     GLFW_ERROR,
     VULKAN_ERROR,
+    TINYOBJ_ERROR,
+    STB_IMAGE_ERROR,
+
     IO_ERROR,
     NOT_INITIALIZED_ERROR,
     UNKNOWN_VALUE_ERROR,
     BAD_VALUE_ERROR,
     OUT_OF_RANGE_ERROR,
     UNEXPECTED_VALUE_ERROR,
+
+    SYSTEM_ERROR,
 };
 
 /**

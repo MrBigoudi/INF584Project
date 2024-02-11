@@ -1,5 +1,8 @@
 #pragma once
 
+#include "errorHandler.hpp"
+#include "types.hpp"
+#include <map>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_core.h>
 #include <vulkanApp.hpp>
@@ -18,10 +21,10 @@ class Model;
 using ModelPtr = std::shared_ptr<Model>;
 
 struct VertexData{
-    glm::vec3 _Pos;
-    glm::vec4 _Col;
-    glm::vec3 _Norm;
-    glm::vec2 _Tex;
+    glm::vec3 _Pos = {0.f,0.f,0.f};
+    glm::vec4 _Col = {0.f,0.f,0.f,1.f};
+    glm::vec3 _Norm = {0.f,0.f,0.f};
+    glm::vec2 _Tex = {0.f,0.f};
 
     static const uint32_t NB_LAYOUTS = 4;
     static const std::vector<VkFormat> FORMATS;
@@ -51,9 +54,20 @@ struct VertexData{
 struct VertexDataBuilder{
     std::vector<VertexData> _Vertices{};
     std::vector<uint32_t> _Indices{};
+
+    void loadOffModel(const std::string& filePath);
+    void loadObjModel(const std::string& filePath);
 };
 
 class Model{
+
+    private:
+        enum ModelExtension{
+            OFF,
+            OBJ,
+        };
+
+        static const std::map<std::string, ModelExtension> MODEL_EXTENSIONS_MAP;
 
     public:
         static const uint32_t MIN_VERTEX_COUNT = 3;
@@ -75,6 +89,48 @@ class Model{
             : _VulkanApp(vulkanApp){
             createVertexBuffer(dataBuilder._Vertices);
             createIndexBuffer(dataBuilder._Indices);
+        }
+
+        Model(VulkanAppPtr vulkanApp, const std::string& filePath)
+            : _VulkanApp(vulkanApp){
+            // check extension type
+            size_t dotPosition = filePath.find_last_of(".");
+            std::string extension = "";
+            if(dotPosition != std::string::npos 
+                && dotPosition != filePath.length() - 1){
+                extension = filePath.substr(dotPosition + 1);
+            }
+            if(extension.empty()){
+                ErrorHandler::handle(
+                    ErrorCode::BAD_VALUE_ERROR,
+                    "Trying to load a model from a file without extension: " + filePath +"!\n"
+                );
+            }
+            
+            auto it = MODEL_EXTENSIONS_MAP.find(extension);
+            if(it == MODEL_EXTENSIONS_MAP.end()){
+                ErrorHandler::handle(
+                    ErrorCode::BAD_VALUE_ERROR,
+                    "Trying to load a model from a file with an unkown extension: " + filePath +"!\n"
+                );
+            }
+            ModelExtension extensionFormat = it->second; 
+            VertexDataBuilder builder{};
+            switch(extensionFormat) {
+                case OFF:
+                    builder.loadOffModel(filePath);
+                    break;
+                case OBJ:
+                    builder.loadObjModel(filePath);
+                    break;
+                default:
+                    ErrorHandler::handle(
+                        ErrorCode::SYSTEM_ERROR,
+                        "Error creating a model from a file, this error shouldn't have occured!\n"
+                    );
+            }
+            createVertexBuffer(builder._Vertices);
+            createIndexBuffer(builder._Indices);
         }
 
         void bind(VkCommandBuffer commandBuffer){

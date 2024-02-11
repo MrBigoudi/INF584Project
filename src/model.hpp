@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan_core.h>
 #include <vulkanApp.hpp>
 #include <cstdint>
 #include <vector>
@@ -47,6 +48,11 @@ struct VertexData{
 
 };
 
+struct VertexDataBuilder{
+    std::vector<VertexData> _Vertices{};
+    std::vector<uint32_t> _Indices{};
+};
+
 class Model{
 
     public:
@@ -54,31 +60,50 @@ class Model{
 
     private:
         VulkanAppPtr _VulkanApp = nullptr; 
+
         VkBuffer _VertexBuffer;
         VkDeviceMemory _VertexBufferMemory;
         uint32_t _VertexCount = 0;
 
+        bool _HasIndexBuffer = false;
+        VkBuffer _IndexBuffer;
+        VkDeviceMemory _IndexBufferMemory;
+        uint32_t _IndexCount = 0;
+
     public:
-        Model(VulkanAppPtr vulkanApp, const std::vector<VertexData>& vertices) 
+        Model(VulkanAppPtr vulkanApp, const VertexDataBuilder& dataBuilder) 
             : _VulkanApp(vulkanApp){
-            createVertexBuffer(vertices);
+            createVertexBuffer(dataBuilder._Vertices);
+            createIndexBuffer(dataBuilder._Indices);
         }
 
         void bind(VkCommandBuffer commandBuffer){
             VkBuffer buffers[] = {_VertexBuffer};
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+            if(_HasIndexBuffer){
+                vkCmdBindIndexBuffer(commandBuffer, _IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            }
         }
 
         void draw(VkCommandBuffer commandBuffer){
-            vkCmdDraw(commandBuffer, _VertexCount, 1, 0, 0);
+            if(_HasIndexBuffer){
+                vkCmdDrawIndexed(commandBuffer, _IndexCount, 1, 0, 0, 0);
+            } else {
+                vkCmdDraw(commandBuffer, _VertexCount, 1, 0, 0);
+            }
         }
         
         void cleanUp(){
             vkDestroyBuffer(_VulkanApp->getDevice(), _VertexBuffer, nullptr);
             vkFreeMemory(_VulkanApp->getDevice(), _VertexBufferMemory, nullptr);
+            if(_HasIndexBuffer){
+                vkDestroyBuffer(_VulkanApp->getDevice(), _IndexBuffer, nullptr);
+                vkFreeMemory(_VulkanApp->getDevice(), _IndexBufferMemory, nullptr);
+            }
         }
 
     private:
         void createVertexBuffer(const std::vector<VertexData>& vertices);
+        void createIndexBuffer(const std::vector<uint32_t>& indices);
 };

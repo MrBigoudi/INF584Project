@@ -16,6 +16,7 @@ find_package(glm REQUIRED)
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(src)
+add_subdirectory(dep)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan)
 

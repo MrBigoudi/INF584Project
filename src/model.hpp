@@ -30,6 +30,13 @@ struct VertexData{
     static const std::vector<VkFormat> FORMATS;
     static const std::vector<size_t> OFFSETS;
 
+    bool operator==(const VertexData& other) const {
+        return _Pos == other._Pos 
+            && _Col == other._Col 
+            && _Norm == other._Norm 
+            && _Tex == other._Tex;
+    }
+
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions(){
         std::vector<VkVertexInputBindingDescription> bindingDescription(1);
         bindingDescription[0].binding = 0;

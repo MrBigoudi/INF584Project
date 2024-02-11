@@ -53,6 +53,14 @@ class Window{
                 ErrorHandler::glfwError("Failed to init GLFW window!\n");
             }
 
+            // center the window
+            const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+            int screenWidth = mode->width;
+            int screenHeight = mode->height;
+            int windowXPos = (screenWidth - _Width) / 2;
+            int windowYPos = (screenHeight - _Height) / 2;
+            glfwSetWindowPos(_Window, windowXPos, windowYPos);
+
             glfwSetWindowUserPointer(_Window, this);
             glfwSetWindowSizeCallback(_Window, frameBufferResizeCallback);
 

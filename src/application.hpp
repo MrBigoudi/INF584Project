@@ -19,8 +19,8 @@
 class Application{
 
     public:
-        static const uint32_t WINDOW_WIDTH = 800;
-        static const uint32_t WINDOW_HEIGHT = 600;
+        static const uint32_t WINDOW_WIDTH = 1280;
+        static const uint32_t WINDOW_HEIGHT = 720;
 
     private:
         WindowPtr _Window = nullptr;

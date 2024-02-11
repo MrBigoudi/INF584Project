@@ -36,8 +36,8 @@ void Application::initGameObjects(){
     }
 
     ModelPtr loadedModel = ModelPtr(
-        // new Model(_VulkanApp, "resources/models/colored_cube.obj")
-        new Model(_VulkanApp, "resources/models/sphere.off")
+        new Model(_VulkanApp, "resources/models/colored_cube.obj")
+        // new Model(_VulkanApp, "resources/models/sphere.off")
     );
 
     GameObject sphere = GameCoordinator::createObject();

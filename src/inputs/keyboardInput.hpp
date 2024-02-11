@@ -18,10 +18,10 @@ class KeyboardInput{
         enum KeyMapping{
             LEFT = GLFW_KEY_A,
             RIGHT = GLFW_KEY_D,
-            FORWARD = GLFW_KEY_UP,
-            BACKWARD = GLFW_KEY_DOWN,
-            UP = GLFW_KEY_W,
-            DOWN = GLFW_KEY_S,
+            FORWARD = GLFW_KEY_W,
+            BACKWARD = GLFW_KEY_S,
+            UP = GLFW_KEY_UP,
+            DOWN = GLFW_KEY_DOWN,
             MOUSE_MODE = GLFW_KEY_M,
         };
 

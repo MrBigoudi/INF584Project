@@ -24,7 +24,7 @@ class MouseInput{
         double _LastMouseX = 0.f;
         double _LastMouseY = 0.f;
 
-        MouseMode _MouseMode = MOUSE_MODE_WINDOW;
+        MouseMode _MouseMode = MOUSE_MODE_CAMERA;
         bool _IsMouseModeKeyPressed = false;
 
     private:
@@ -53,8 +53,8 @@ class MouseInput{
                 mouse->_FirstMouse = false;
             }
 
-            double xoffset = xpos - mouse->_LastMouseX;
-            double yoffset = ypos - mouse->_LastMouseY;
+            double xoffset = mouse->_LastMouseX - xpos;
+            double yoffset = mouse->_LastMouseY - ypos;
 
             mouse->_LastMouseX = xpos;
             mouse->_LastMouseY = ypos;

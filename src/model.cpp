@@ -1,10 +1,25 @@
 #include "model.hpp"
 #include "errorHandler.hpp"
 #include <cstdint>
-#include <vulkan/vulkan_core.h>
+#include <unordered_map>
+
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyObjectLoader.hpp"
+
+#include "utils.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
+template<>
+struct std::hash<VertexData>{
+    size_t operator()(const VertexData& vert) const {
+        size_t seed = 0;
+        hashCombine(seed, vert._Pos, vert._Col, vert._Norm, vert._Tex);
+        return seed;
+    }
+};
+
 
 void Model::createVertexBuffer(const std::vector<VertexData>& vertices){
     _VertexCount = static_cast<uint32_t>(vertices.size());
@@ -122,6 +137,8 @@ void VertexDataBuilder::loadObjModel(const std::string& filePath){
     _Vertices.clear();
     _Indices.clear();
 
+    std::unordered_map<VertexData, uint32_t> uniqueVertices{};
+
     for(const auto& shape : shapes){
         for(const auto& index : shape.mesh.indices){
             VertexData vertex{};
@@ -162,8 +179,12 @@ void VertexDataBuilder::loadObjModel(const std::string& filePath){
                 };
             }
 
-            _Vertices.push_back(vertex);
+            if(uniqueVertices.count(vertex) == 0){
+                uniqueVertices[vertex] = static_cast<uint32_t>(_Vertices.size());
+                _Vertices.push_back(vertex);
+            }
 
+            _Indices.push_back(uniqueVertices[vertex]);
         }
     }
 }

@@ -14,6 +14,7 @@ struct SimplePushConstantData{
 };
 
 #include "ecsSimpleRenderSystem.hpp"
+#include "camera.hpp"
 
 class SimpleRenderSubSystem;
 using SimpleRenderSubSystemPtr = std::shared_ptr<SimpleRenderSubSystem>;
@@ -21,13 +22,15 @@ using SimpleRenderSubSystemPtr = std::shared_ptr<SimpleRenderSubSystem>;
 class SimpleRenderSubSystem : public IRenderSubSystem{
     private:
         ECSSimpleRenderSystemPtr _ECSRenderSystem = nullptr;
+        CameraPtr _Camera = nullptr;
+
 
     public:
-        SimpleRenderSubSystem(VulkanAppPtr vulkanApp, VkRenderPass renderPass)
-            : IRenderSubSystem(vulkanApp, renderPass){
+        SimpleRenderSubSystem(VulkanAppPtr vulkanApp, VkRenderPass renderPass, CameraPtr camera)
+            : IRenderSubSystem(vulkanApp, renderPass), _Camera(camera){
             initPipelineLayout();
             initPipeline(renderPass);
-            initECSRender();
+            initECSRender();   
         }
 
         void renderGameObjects(VkCommandBuffer commandBuffer) override;

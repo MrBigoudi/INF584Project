@@ -10,10 +10,16 @@
 void ECSSimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, PipelinePtr pipeline, VkPipelineLayout pipelineLayout){
     pipeline->bind(commandBuffer);
 
+    auto viewProj = _Camera->getPerspective() * _Camera->getView();
+
     for(auto const& object : _Objects){
+        ModelPtr model = GameCoordinator::getComponent<EntityModel>(object)._Model;
+        if(!model) continue;
+
         SimplePushConstantData push{};
         push._Random = static_cast<float>(glfwGetTime());
-        push._Model = GameCoordinator::getComponent<EntityTransform>(object).getModel();
+        auto objectTransform = GameCoordinator::getComponent<EntityTransform>(object);
+        push._Model = viewProj * objectTransform.getModel();
         
         vkCmdPushConstants(
             commandBuffer, 
@@ -24,7 +30,6 @@ void ECSSimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, Pip
             &push
         );
 
-        ModelPtr model = GameCoordinator::getComponent<EntityModel>(object)._Model;
         model->bind(commandBuffer);
         model->draw(commandBuffer);
     }
@@ -33,6 +38,7 @@ void ECSSimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, Pip
 void ECSSimpleRenderSystem::cleanUpGameObjects(){
     for(auto const& object : _Objects){
         ModelPtr model = GameCoordinator::getComponent<EntityModel>(object)._Model;
+        if(!model) continue;
         model->cleanUp();
         GameCoordinator::destroyObject(object);
     }

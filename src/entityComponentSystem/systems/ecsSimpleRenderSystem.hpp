@@ -1,5 +1,6 @@
 #pragma once
 
+#include "camera.hpp"
 #include "gameSystem.hpp"
 #include "pipeline.hpp"
 
@@ -10,6 +11,9 @@ class ECSSimpleRenderSystem;
 using ECSSimpleRenderSystemPtr = std::shared_ptr<ECSSimpleRenderSystem>;
 
 class ECSSimpleRenderSystem : public GameSystem{
+
+    private:
+        CameraPtr _Camera = nullptr;
 
     public:
         ECSSimpleRenderSystem(){}
@@ -23,4 +27,5 @@ class ECSSimpleRenderSystem : public GameSystem{
 
         void cleanUpGameObjects();
 
+        void setCamera(CameraPtr camera){_Camera = camera;}
 };

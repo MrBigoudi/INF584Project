@@ -89,6 +89,10 @@ class Window{
             _FrameBufferResized = false;
         }
 
+        GLFWwindow* getWindow() const {
+            return _Window;
+        }
+
     private:
         static void frameBufferResizeCallback(GLFWwindow* window, int width, int height){
             auto newWindow = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
@@ -96,4 +100,5 @@ class Window{
             newWindow->_Width = static_cast<uint32_t>(width);
             newWindow->_Height = static_cast<uint32_t>(height);
         }
+
 };

@@ -28,6 +28,7 @@ class Renderer{
         SwapChainPtr _SwapChain = nullptr;
         std::vector<VkCommandBuffer> _CommandBuffers;
         uint32_t _CurrentImageIndex = 0;
+        uint32_t _CurrentFrameIndex = 0;
         bool _IsFrameStarted = false;
 
     private:
@@ -57,11 +58,24 @@ class Renderer{
                     "Can't get command buffer when frame not in progress!\n"
                 );
             }
-            return _CommandBuffers[_CurrentImageIndex];
+            return _CommandBuffers[_CurrentFrameIndex];
         }
 
         VkRenderPass getSwapChainRenderPass() const {
             return _SwapChain->getRenderPass();
         }
 
+        float getSwapChainAspectRatio() const {
+            return _SwapChain->getExtentAspectRatio();
+        }
+
+        uint32_t getFrameIndex() const {
+            if(!_IsFrameStarted){
+                ErrorHandler::handle(
+                    ErrorCode::NOT_INITIALIZED_ERROR, 
+                    "Can't get current frame index when frame not in progress!\n"
+                );
+            }
+            return _CurrentFrameIndex;
+        }
 };

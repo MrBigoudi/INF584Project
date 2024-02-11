@@ -55,7 +55,7 @@ void Renderer::initSwapChain(){
 
 
 void Renderer::initCommandBuffers(){
-    _CommandBuffers.resize(_SwapChain->getImageCount());
+    _CommandBuffers.resize(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT);
     VkCommandBufferAllocateInfo allocateInfo = {};
     allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -76,11 +76,6 @@ void Renderer::recreateSwapChain(){
     vkDeviceWaitIdle(_VulkanApp->getDevice());
 
     initSwapChain();
-    if(_SwapChain->getImageCount() != _CommandBuffers.size()){
-        cleanUpCommandBuffers();
-        initCommandBuffers();
-    }
-
 }
 
 VkCommandBuffer Renderer::beginFrame(){
@@ -141,6 +136,7 @@ void Renderer::endFrame(){
     }
 
     _IsFrameStarted = false;
+    _CurrentFrameIndex = (_CurrentFrameIndex + 1) % SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT;
 }
 
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer){

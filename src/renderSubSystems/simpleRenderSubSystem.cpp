@@ -88,6 +88,7 @@ void SimpleRenderSubSystem::initECSRender(){
             "Failed to initialize the ECS render system!\n"
         );
     }
+    _ECSRenderSystem->setCamera(_Camera);
 
     GameCoordinator::registerComponent<EntityModel>();
     GameCoordinator::registerComponent<EntityTransform>();

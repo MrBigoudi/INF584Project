@@ -78,4 +78,6 @@ class Renderer{
             }
             return _CurrentFrameIndex;
         }
+
+        
 };

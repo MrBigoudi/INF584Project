@@ -81,7 +81,8 @@ class GameSystemManager{
             // erase a destroyed object from all system lists
             for (auto const& pair : instance->_Systems){
                 auto const& system = pair.second;
-                system->_Objects.erase(object);
+                if(system->_Objects.contains(object))
+                    system->_Objects.erase(object);
             }
         }
 

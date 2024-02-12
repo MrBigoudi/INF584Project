@@ -1,11 +1,7 @@
 #pragma once
 
-#include "errorHandler.hpp"
-#include "types.hpp"
 #include <map>
 #include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_core.h>
-#include <vulkanApp.hpp>
 #include <cstdint>
 #include <vector>
 #include <memory>
@@ -16,6 +12,9 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_ONE
 #include <glm/glm.hpp>
+
+#include "buffer.hpp"
+#include "types.hpp"
 
 class Model;
 using ModelPtr = std::shared_ptr<Model>;
@@ -82,13 +81,11 @@ class Model{
     private:
         VulkanAppPtr _VulkanApp = nullptr; 
 
-        VkBuffer _VertexBuffer;
-        VkDeviceMemory _VertexBufferMemory;
+        BufferPtr _VertexBuffer = nullptr;
         uint32_t _VertexCount = 0;
 
         bool _HasIndexBuffer = false;
-        VkBuffer _IndexBuffer;
-        VkDeviceMemory _IndexBufferMemory;
+        BufferPtr _IndexBuffer = nullptr;
         uint32_t _IndexCount = 0;
 
     public:
@@ -98,54 +95,14 @@ class Model{
             createIndexBuffer(dataBuilder._Indices);
         }
 
-        Model(VulkanAppPtr vulkanApp, const std::string& filePath)
-            : _VulkanApp(vulkanApp){
-            // check extension type
-            size_t dotPosition = filePath.find_last_of(".");
-            std::string extension = "";
-            if(dotPosition != std::string::npos 
-                && dotPosition != filePath.length() - 1){
-                extension = filePath.substr(dotPosition + 1);
-            }
-            if(extension.empty()){
-                ErrorHandler::handle(
-                    ErrorCode::BAD_VALUE_ERROR,
-                    "Trying to load a model from a file without extension: " + filePath +"!\n"
-                );
-            }
-            
-            auto it = MODEL_EXTENSIONS_MAP.find(extension);
-            if(it == MODEL_EXTENSIONS_MAP.end()){
-                ErrorHandler::handle(
-                    ErrorCode::BAD_VALUE_ERROR,
-                    "Trying to load a model from a file with an unkown extension: " + filePath +"!\n"
-                );
-            }
-            ModelExtension extensionFormat = it->second; 
-            VertexDataBuilder builder{};
-            switch(extensionFormat) {
-                case OFF:
-                    builder.loadOffModel(filePath);
-                    break;
-                case OBJ:
-                    builder.loadObjModel(filePath);
-                    break;
-                default:
-                    ErrorHandler::handle(
-                        ErrorCode::SYSTEM_ERROR,
-                        "Error creating a model from a file, this error shouldn't have occured!\n"
-                    );
-            }
-            createVertexBuffer(builder._Vertices);
-            createIndexBuffer(builder._Indices);
-        }
+        Model(VulkanAppPtr vulkanApp, const std::string& filePath);
 
         void bind(VkCommandBuffer commandBuffer){
-            VkBuffer buffers[] = {_VertexBuffer};
+            VkBuffer buffers[] = {_VertexBuffer->getBuffer()};
             VkDeviceSize offsets[] = {0};
             vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
             if(_HasIndexBuffer){
-                vkCmdBindIndexBuffer(commandBuffer, _IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+                vkCmdBindIndexBuffer(commandBuffer, _IndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
             }
         }
 
@@ -158,12 +115,8 @@ class Model{
         }
         
         void cleanUp(){
-            vkDestroyBuffer(_VulkanApp->getDevice(), _VertexBuffer, nullptr);
-            vkFreeMemory(_VulkanApp->getDevice(), _VertexBufferMemory, nullptr);
-            if(_HasIndexBuffer){
-                vkDestroyBuffer(_VulkanApp->getDevice(), _IndexBuffer, nullptr);
-                vkFreeMemory(_VulkanApp->getDevice(), _IndexBufferMemory, nullptr);
-            }
+            _VertexBuffer->cleanUp();
+            _IndexBuffer->cleanUp();
         }
 
     private:

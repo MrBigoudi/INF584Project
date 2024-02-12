@@ -164,7 +164,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer){
 
     std::array<VkClearValue, 2> clearValues{};
     // in pipeline, 0 is the color attachement, 1 is the depths
-    clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.f};
+    clearValues[0].color = {0.01f, 0.01f, 0.01f, 1.f};
     clearValues[1].depthStencil = {1.f, 0};
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

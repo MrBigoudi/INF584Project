@@ -15,6 +15,7 @@
 #include "simpleRenderSubSystem.hpp"
 #include "camera.hpp"
 
+#include "descriptors.hpp"
 
 class Application{
 
@@ -26,6 +27,8 @@ class Application{
         WindowPtr _Window = nullptr;
         VulkanAppPtr _VulkanApp = nullptr;
         RendererPtr _Renderer = nullptr;
+
+        DescriptorPoolPtr _GlobalPool = nullptr;
 
         SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
 
@@ -47,17 +50,22 @@ class Application{
         void initRenderSubSystem();
         void cleanUpRenderSubSystem();
 
+        void initDescriptors();
+        void cleanUpDescriptors();
+
     private:
         void init(){
             initWindow();
             initVulkan();
             initCamera();
             initRenderer();
+            initDescriptors();
             initRenderSubSystem();
             initGameObjects();
             MouseInput::setMouseCallback(_Camera, _Window);
         }
         void cleanUp(){
+            cleanUpDescriptors();
             cleanUpRenderSubSystem();
             cleanUpRenderer();
             cleanUpVulkan();

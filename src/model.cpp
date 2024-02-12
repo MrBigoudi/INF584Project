@@ -1,4 +1,5 @@
 #include "model.hpp"
+#include "buffer.hpp"
 #include "errorHandler.hpp"
 #include <cstdint>
 #include <unordered_map>
@@ -10,6 +11,8 @@
 #include "utils.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
+
+#include "vulkanApp.hpp"
 
 template<>
 struct std::hash<VertexData>{
@@ -27,35 +30,33 @@ void Model::createVertexBuffer(const std::vector<VertexData>& vertices){
         ErrorHandler::handle(ErrorCode::BAD_VALUE_ERROR, "Vertex count must be at least 3!\n");
     }
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    uint32_t vertexSize = sizeof(vertices[0]);
 
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * _VertexCount;
     // buffer to staging
-    _VulkanApp->createBuffer(
-        bufferSize, 
+    Buffer stagingBuffer{
+        _VulkanApp,
+        vertexSize,
+        _VertexCount,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        stagingBuffer, 
-        stagingBufferMemory
-    );
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
 
-    void* data;
-    vkMapMemory(_VulkanApp->getDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(_VulkanApp->getDevice(), stagingBufferMemory);
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer((void*)vertices.data());
 
     // staging to host
-    _VulkanApp->createBuffer(
-        bufferSize, 
+    _VertexBuffer = BufferPtr(new Buffer(
+        _VulkanApp,
+        vertexSize,
+        _VertexCount,
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        _VertexBuffer, 
-        _VertexBufferMemory
-    );
-    _VulkanApp->copyBuffer(stagingBuffer, _VertexBuffer, bufferSize);
-    vkDestroyBuffer(_VulkanApp->getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(_VulkanApp->getDevice(), stagingBufferMemory, nullptr);
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    ));
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * _VertexCount;
+    _VulkanApp->copyBuffer(stagingBuffer.getBuffer(), _VertexBuffer->getBuffer(), bufferSize);
+
+    // cleaning staging buffer
+    stagingBuffer.cleanUp();
 }
 
 void Model::createIndexBuffer(const std::vector<uint32_t>& indices){
@@ -66,42 +67,33 @@ void Model::createIndexBuffer(const std::vector<uint32_t>& indices){
     }
     _HasIndexBuffer = true;
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    uint32_t indexSize = sizeof(indices[0]);
 
-    VkDeviceSize bufferSize = sizeof(uint32_t) * _IndexCount;
     // buffer to staging
-    _VulkanApp->createBuffer(
-        bufferSize, 
+    Buffer stagingBuffer{
+        _VulkanApp,
+        indexSize,
+        _IndexCount,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        stagingBuffer, 
-        stagingBufferMemory
-    );
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT  
+    };
 
-    void* data;
-    vkMapMemory(
-        _VulkanApp->getDevice(), 
-        stagingBufferMemory, 
-        0, 
-        bufferSize, 
-        0, 
-        &data
-    );
-    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(_VulkanApp->getDevice(), stagingBufferMemory);
+    stagingBuffer.map();
+    stagingBuffer.writeToBuffer((void*)indices.data());
 
     // staging to host
-    _VulkanApp->createBuffer(
-        bufferSize, 
+    _IndexBuffer = BufferPtr(new Buffer(
+        _VulkanApp,
+        indexSize,
+        _IndexCount,
         VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        _IndexBuffer, 
-        _IndexBufferMemory
-    );
-    _VulkanApp->copyBuffer(stagingBuffer, _IndexBuffer, bufferSize);
-    vkDestroyBuffer(_VulkanApp->getDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(_VulkanApp->getDevice(), stagingBufferMemory, nullptr);
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+    ));
+    VkDeviceSize bufferSize = sizeof(uint32_t) * _IndexCount;
+    _VulkanApp->copyBuffer(stagingBuffer.getBuffer(), _IndexBuffer->getBuffer(), bufferSize);
+
+    // cleaning staging buffer
+    stagingBuffer.cleanUp();
 }
 
 const std::vector<VkFormat> VertexData::FORMATS = {
@@ -150,18 +142,12 @@ void VertexDataBuilder::loadObjModel(const std::string& filePath){
                     attrib.vertices[3 * index.vertex_index + 2]
                 };
 
-                auto colorIndex = 3 * index.vertex_index + 2;
-                if(colorIndex < attrib.colors.size()){
-                    vertex._Col = {
-                        attrib.vertices[colorIndex - 2],
-                        attrib.vertices[colorIndex - 1],
-                        attrib.vertices[colorIndex - 0],
-                        1.f
-                    };
-                } else {
-                    // default color
-                    vertex._Col = {0.f, 0.f, 0.f, 1.f};
-                }
+                vertex._Col = {
+                    attrib.colors[3 * index.vertex_index + 0],
+                    attrib.colors[3 * index.vertex_index + 1],
+                    attrib.colors[3 * index.vertex_index + 2],
+                    1.f
+                };
             }
 
             if(index.normal_index >= 0){
@@ -190,7 +176,6 @@ void VertexDataBuilder::loadObjModel(const std::string& filePath){
 }
 
 void VertexDataBuilder::loadOffModel(const std::string& filePath){
-    fprintf(stdout, "Loading model: %s ...\n", filePath.c_str());
 	std::ifstream file(filePath.c_str());
     if(!file){
         ErrorHandler::handle(
@@ -199,7 +184,7 @@ void VertexDataBuilder::loadOffModel(const std::string& filePath){
         );
     }
 	
-    std::string line;
+    std::string line = "";
     std::getline(file, line);
     if(line.find("OFF") == std::string::npos){
         ErrorHandler::handle(
@@ -211,20 +196,24 @@ void VertexDataBuilder::loadOffModel(const std::string& filePath){
     std::getline(file, line);
 
     std::istringstream iss(line);
-    int numVertices, numFaces, numCells;
+    int numVertices = 0;
+    int numFaces = 0;
+    int numCells = 0;
     iss >> numVertices >> numFaces >> numCells;
 
-    _Vertices.clear();
-    _Indices.clear();
+    if(!_Vertices.empty()) _Vertices.clear();
+    if(!_Indices.empty()) _Indices.clear();
 
     // vertices
     for(int i = 0; i < numVertices; i++){
-        VertexData vertex = {};
+        VertexData vertex{};
         std::getline(file, line);
         std::istringstream iss(line);
-        float x, y, z;
+        float x = 0.f;
+        float y = 0.f;
+        float z = 0.f;
         iss >> x >> y >> z;
-        vertex._Pos = {x, y, z};
+        vertex._Pos = glm::vec3(x, y, z);
         _Vertices.push_back(vertex);
     }
 
@@ -239,11 +228,70 @@ void VertexDataBuilder::loadOffModel(const std::string& filePath){
         }
     }
 
+    // normals
+	for(int i=0; i<_Indices.size(); i++){
+        // assuming triangle meshes
+        int v0 = _Indices[i];
+        int v1 = _Indices[i+1];
+        int v2 = _Indices[i+2];
+
+		glm::vec3 e0 = _Vertices[v1]._Pos - _Vertices[v0]._Pos;
+		glm::vec3 e1 = _Vertices[v2]._Pos - _Vertices[v0]._Pos;
+		glm::vec3 n = normalize (cross (e0, e1));
+		for(int j=0; j<3; j++){
+            _Vertices[_Indices[i+j]]._Norm += n;
+        }
+	}
+	for(auto& vert : _Vertices){
+        vert._Norm = glm::normalize(vert._Norm); 
+    }
+
     file.close();
-    fprintf(stdout, "Done loading the model!\n");
 }
 
 const std::map<std::string, Model::ModelExtension> Model::MODEL_EXTENSIONS_MAP = {
     {"off", OFF},
     {"obj", OBJ},
 };
+
+Model::Model(VulkanAppPtr vulkanApp, const std::string& filePath)
+    : _VulkanApp(vulkanApp){
+    // check extension type
+    size_t dotPosition = filePath.find_last_of(".");
+    std::string extension = "";
+    if(dotPosition != std::string::npos 
+        && dotPosition != filePath.length() - 1){
+        extension = filePath.substr(dotPosition + 1);
+    }
+    if(extension.empty()){
+        ErrorHandler::handle(
+            ErrorCode::BAD_VALUE_ERROR,
+            "Trying to load a model from a file without extension: " + filePath +"!\n"
+        );
+    }
+    
+    auto it = MODEL_EXTENSIONS_MAP.find(extension);
+    if(it == MODEL_EXTENSIONS_MAP.end()){
+        ErrorHandler::handle(
+            ErrorCode::BAD_VALUE_ERROR,
+            "Trying to load a model from a file with an unkown extension: " + filePath +"!\n"
+        );
+    }
+    ModelExtension extensionFormat = it->second; 
+    VertexDataBuilder builder{};
+    switch(extensionFormat) {
+        case OFF:
+            builder.loadOffModel(filePath);
+            break;
+        case OBJ:
+            builder.loadObjModel(filePath);
+            break;
+        default:
+            ErrorHandler::handle(
+                ErrorCode::SYSTEM_ERROR,
+                "Error creating a model from a file, this error shouldn't have occured!\n"
+            );
+    }
+    createVertexBuffer(builder._Vertices);
+    createIndexBuffer(builder._Indices);
+}

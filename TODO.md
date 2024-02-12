@@ -2,3 +2,5 @@
 
 - create components folder + remove entity.hpp
 - better camera
+
+- add comments everywhere

@@ -4,7 +4,8 @@
 #include "pipeline.hpp"
 #include <memory>
 #include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_core.h>
+
+#include "frameInfo.hpp"
 
 class IRenderSubSystem{
 
@@ -18,7 +19,7 @@ class IRenderSubSystem{
             : _VulkanApp(vulkanApp){}
 
         virtual ~IRenderSubSystem() = default;
-        virtual void renderGameObjects(VkCommandBuffer commandBuffer) = 0;
+        virtual void renderGameObjects(FrameInfo& frameInfo) = 0;
 
         virtual void cleanUp(){
             cleanUpPipeline();

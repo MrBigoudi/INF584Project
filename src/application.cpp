@@ -1,16 +1,20 @@
 #include "application.hpp"
 
 #include "camera.hpp"
+#include "descriptors.hpp"
 #include "entity.hpp"
 #include "errorHandler.hpp"
+#include "frameInfo.hpp"
 #include "gameObject.hpp"
 #include "keyboardInput.hpp"
 #include "model.hpp"
 #include "gameCoordinator.hpp"
+#include "swapChain.hpp"
 #include "vulkanApp.hpp"
 
 #include <chrono>
 #include <cstdint>
+#include <vulkan/vulkan_core.h>
 
 // INIT FUNCTIONS
 void Application::initWindow(){
@@ -36,8 +40,8 @@ void Application::initGameObjects(){
     }
 
     ModelPtr loadedModel = ModelPtr(
-        new Model(_VulkanApp, "resources/models/colored_cube.obj")
-        // new Model(_VulkanApp, "resources/models/sphere.off")
+        // new Model(_VulkanApp, "resources/models/colored_cube.obj")
+        new Model(_VulkanApp, "resources/models/sphere.off")
     );
 
     GameObject sphere = GameCoordinator::createObject();
@@ -93,9 +97,15 @@ void Application::initRenderSubSystem(){
                         new SimpleRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
-                            _Camera
+                            _GlobalPool
                             )
                         );
+}
+void Application::initDescriptors(){
+    _GlobalPool = DescriptorPool::Builder(_VulkanApp)
+        .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .build();
 }
 
 
@@ -111,6 +121,9 @@ void Application::cleanUpRenderer(){
 }
 void Application::cleanUpRenderSubSystem(){
     _RenderSubSystem->cleanUp();
+}
+void Application::cleanUpDescriptors(){
+    _GlobalPool->cleanUp();
 }
 
 
@@ -134,8 +147,14 @@ void Application::mainLoop(){
 
         auto commandBuffer = _Renderer->beginFrame();
         if(commandBuffer){
+            FrameInfo currentFrame{};
+            currentFrame._FrameIndex = _Renderer->getFrameIndex();
+            currentFrame._FrameTime = frameTime;
+            currentFrame._CommandBuffer = commandBuffer;
+            currentFrame._Camera = _Camera;
+
             _Renderer->beginSwapChainRenderPass(commandBuffer);
-            _RenderSubSystem->renderGameObjects(commandBuffer);
+            _RenderSubSystem->renderGameObjects(currentFrame);
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();
         }

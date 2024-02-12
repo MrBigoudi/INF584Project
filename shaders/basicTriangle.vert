@@ -7,14 +7,19 @@ layout(location = 3) in vec2 vTex;
 
 layout(location = 0) out vec4 fCol;
 
+layout(set = 0, binding = 0) uniform CameraUbo{
+    mat4 view;
+    mat4 proj;
+} cameraUbo;
+
 layout(push_constant) uniform Push{
     float random;
     mat4 model;
 }push;
 
+const vec3 DIRECTION_LIGHT = normalize(vec3(1.f, -3.f, -1.f));
+
 void main() {
-    // gl_Position = vec4(vPos, 1.f);
-    gl_Position = push.model * vec4(vPos, 1.f);
-    // fCol = (sin(push.random * (1+gl_VertexIndex)) * 0.5f + 0.5f) * vCol;
+    gl_Position = cameraUbo.proj * cameraUbo.view * push.model * vec4(vPos, 1.f);
     fCol = vCol;
 }

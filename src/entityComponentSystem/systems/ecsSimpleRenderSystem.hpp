@@ -1,6 +1,6 @@
 #pragma once
 
-#include "camera.hpp"
+#include "frameInfo.hpp"
 #include "gameSystem.hpp"
 #include "pipeline.hpp"
 
@@ -12,20 +12,15 @@ using ECSSimpleRenderSystemPtr = std::shared_ptr<ECSSimpleRenderSystem>;
 
 class ECSSimpleRenderSystem : public GameSystem{
 
-    private:
-        CameraPtr _Camera = nullptr;
-
     public:
         ECSSimpleRenderSystem(){}
 
     public:
         void renderGameObjects(
-            VkCommandBuffer commandBufferm, 
+            FrameInfo frameInfo, 
             PipelinePtr pipeline,
             VkPipelineLayout pipelineLayout
         );
 
         void cleanUpGameObjects();
-
-        void setCamera(CameraPtr camera){_Camera = camera;}
 };

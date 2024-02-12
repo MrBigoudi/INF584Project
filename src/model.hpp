@@ -115,8 +115,14 @@ class Model{
         }
         
         void cleanUp(){
-            _VertexBuffer->cleanUp();
-            _IndexBuffer->cleanUp();
+            if(_VertexBuffer != nullptr){
+                _VertexBuffer->cleanUp();
+                _VertexBuffer = nullptr;
+            }
+            if(_IndexBuffer != nullptr){
+                _IndexBuffer->cleanUp();
+                _IndexBuffer = nullptr;
+            }
         }
 
     private:

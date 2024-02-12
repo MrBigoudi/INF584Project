@@ -48,7 +48,6 @@ void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr p
 void ECSSimpleRenderSystem::cleanUpGameObjects(){
     for(auto object : _Objects){
         ModelPtr model = GameCoordinator::getComponent<EntityModel>(object)._Model;
-        if(!model) continue;
         model->cleanUp();
         GameCoordinator::destroyObject(object);
     }

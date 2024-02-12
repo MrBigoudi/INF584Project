@@ -39,8 +39,7 @@ void Application::initGameObjects(){
         );
     }
 
-    ModelPtr loadedModel = ModelPtr(
-        // new Model(_VulkanApp, "resources/models/colored_cube.obj")
+    ModelPtr loadedSphere = ModelPtr(
         new Model(_VulkanApp, "resources/models/sphere.off")
     );
 
@@ -50,13 +49,65 @@ void Application::initGameObjects(){
     GameCoordinator::addComponent(
         sphere, 
         EntityModel{
-            ._Model = loadedModel
+            ._Model = loadedSphere
         }
     );
     GameCoordinator::addComponent(
         sphere, 
         EntityTransform{}
     );
+
+    ModelPtr loadedQuad = ModelPtr(
+        new Model(_VulkanApp, "resources/models/quad.obj")
+    );
+
+    GameObject floor = GameCoordinator::createObject();
+    GameObject rightWall = GameCoordinator::createObject();
+    GameObject leftWall = GameCoordinator::createObject();
+    GameCoordinator::addComponent(
+        floor, 
+        EntityModel{
+            ._Model = loadedQuad
+        }
+    );
+    GameCoordinator::addComponent(
+        floor, 
+        EntityTransform{
+            ._Position = {0.f, -0.5f, 0.f},
+            ._Scale = {3.f, 3.f, 3.f}
+        }
+    );
+
+    GameCoordinator::addComponent(
+        leftWall, 
+        EntityModel{
+            ._Model = loadedQuad
+        }
+    );
+    GameCoordinator::addComponent(
+        leftWall, 
+        EntityTransform{
+            ._Position = {-1.5f, 1.5f, 0.f},
+            ._Rotation = {0.f, 0.f, 3.1415f / 2.f},
+            ._Scale = {3.f, 3.f, 3.f}
+        }
+    );
+
+    GameCoordinator::addComponent(
+        rightWall, 
+        EntityModel{
+            ._Model = loadedQuad
+        }
+    );
+    GameCoordinator::addComponent(
+        rightWall, 
+        EntityTransform{
+            ._Position = {1.5f, 1.5f, 0.f},
+            ._Rotation = {0.f, 0.f, 3.1415f / 2.f},
+            ._Scale = {3.f, 3.f, 3.f}
+        }
+    );
+
 }
 void Application::initCamera(){
     _Camera = CameraPtr(new Camera({0.f,0.f,2.f}));

@@ -18,7 +18,7 @@ void SimpleRenderSubSystem::renderGameObjects(FrameInfo& frameInfo){
     CameraUbo cameraUbo{};
     cameraUbo._Proj = frameInfo._Camera->getPerspective();
     cameraUbo._View = frameInfo._Camera->getView();
-    _CameraUBO[frameIndex]->writeToIndex(&cameraUbo, frameIndex);
+    _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
 
     frameInfo._GlobalDescriptorSet = _GlobalDescriptorSets[frameIndex];
 

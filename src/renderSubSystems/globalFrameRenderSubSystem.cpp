@@ -1,24 +1,21 @@
-#include "simpleRenderSubSystem.hpp"
+#include "globalFrameRenderSubSystem.hpp"
 
 #include "buffer.hpp"
-#include "componentModel.hpp"
-#include "componentTransform.hpp"
 #include "descriptors.hpp"
-#include "ecsSimpleRenderSystem.hpp"
 #include "swapChain.hpp"
 #include "vulkanApp.hpp"
+
 #include "gameCoordinator.hpp"
 #include "components.hpp"
 
 #include <cstdint>
-#include <vulkan/vulkan_core.h>
 
 
-void SimpleRenderSubSystem::renderGameObjects(FrameInfo& frameInfo){
+void GlobalFrameRenderSubSystem::renderGameObjects(FrameInfo& frameInfo){
     uint32_t frameIndex = frameInfo._FrameIndex;
 
     // update UBOs
-    CameraUbo cameraUbo{};
+    GlobalFrameCameraUbo cameraUbo{};
     cameraUbo._Proj = frameInfo._Camera->getPerspective();
     cameraUbo._View = frameInfo._Camera->getView();
     _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
@@ -32,7 +29,7 @@ void SimpleRenderSubSystem::renderGameObjects(FrameInfo& frameInfo){
     );
 }
 
-void SimpleRenderSubSystem::initPipelineLayout(){
+void GlobalFrameRenderSubSystem::initPipelineLayout(){
     if(_VulkanApp == nullptr){
         ErrorHandler::handle(
             ErrorCode::NOT_INITIALIZED_ERROR, 
@@ -45,12 +42,11 @@ void SimpleRenderSubSystem::initPipelineLayout(){
         VK_SHADER_STAGE_VERTEX_BIT
         | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    pushConstantRange.size = sizeof(GlobalFramePushConstantData);
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
         _GlobalSetLayout->getDescriptorSetLayout()
     };
-
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -68,7 +64,7 @@ void SimpleRenderSubSystem::initPipelineLayout(){
     ErrorHandler::vulkanError(result, "Failed to create pipeline layout!\n");
 }
 
-void SimpleRenderSubSystem::initPipeline(VkRenderPass renderPass){
+void GlobalFrameRenderSubSystem::initPipeline(VkRenderPass renderPass){
     if(_Pipeline != nullptr){
         _Pipeline->cleanUp();
     }
@@ -88,15 +84,15 @@ void SimpleRenderSubSystem::initPipeline(VkRenderPass renderPass){
     }
 
     _Pipeline = PipelinePtr(new Pipeline(_VulkanApp));
-    _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
-    _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
+    _Pipeline->initVertexShader("shaders/compiled/globalFrameVert.spv");
+    _Pipeline->initFragmentShader("shaders/compiled/globalFrameFrag.spv");
     auto pipelineConfig = Pipeline::defaultPipelineConfigInfo();
     pipelineConfig._RenderPass = renderPass;
     pipelineConfig._PipelineLayout = _PipelineLayout;
     _Pipeline->init(pipelineConfig);
 }
 
-void SimpleRenderSubSystem::cleanUpPipelineLayout(){
+void GlobalFrameRenderSubSystem::cleanUpPipelineLayout(){
     vkDestroyPipelineLayout(
         _VulkanApp->getDevice(), 
         _PipelineLayout, 
@@ -104,27 +100,11 @@ void SimpleRenderSubSystem::cleanUpPipelineLayout(){
     );
 }
 
-void SimpleRenderSubSystem::initECSRender(){
-    _ECSRenderSystem = GameCoordinator::registerSystem<ECSSimpleRenderSystem>();
-    if(_ECSRenderSystem == nullptr){
-        ErrorHandler::handle(
-            ErrorCode::NOT_INITIALIZED_ERROR,
-            "Failed to initialize the ECS render system!\n"
-        );
-    }
-
-    GameObjectSignature signature;
-    signature.set(GameCoordinator::getComponentType<ComponentModel>());
-    signature.set(GameCoordinator::getComponentType<ComponentTransform>());
-    signature.set(GameCoordinator::getComponentType<ComponentRenderSubSystem>());
-    GameCoordinator::setSystemSignature<ECSSimpleRenderSystem>(signature);
-}
-
-void SimpleRenderSubSystem::initUBOs(){
+void GlobalFrameRenderSubSystem::initUBOs(){
     for(int i=0; i<_CameraUBO.size(); i++){
         _CameraUBO[i] = BufferPtr(new Buffer(
             _VulkanApp, 
-            sizeof(CameraUbo),
+            sizeof(GlobalFrameCameraUbo),
             1,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -132,21 +112,10 @@ void SimpleRenderSubSystem::initUBOs(){
         ));
 
         _CameraUBO[i]->map();
-
-        _LightUBO[i] = BufferPtr(new Buffer(
-            _VulkanApp, 
-            sizeof(LightUbo),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            _VulkanApp->properties.limits.minUniformBufferOffsetAlignment
-        ));
-
-        _LightUBO[i]->map();
     }
 }
 
-void SimpleRenderSubSystem::initDescriptors(){
+void GlobalFrameRenderSubSystem::initDescriptors(){
     _GlobalSetLayout = DescriptorSetLayoutPtr( 
         DescriptorSetLayout::Builder(_VulkanApp)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
@@ -159,4 +128,20 @@ void SimpleRenderSubSystem::initDescriptors(){
             .writeBuffer(0, &bufferInfo)
             .build(_GlobalDescriptorSets[i]);
     }
+}
+
+void GlobalFrameRenderSubSystem::initECSRender(){
+    _ECSRenderSystem = GameCoordinator::registerSystem<ECStest>();
+    if(_ECSRenderSystem == nullptr){
+        ErrorHandler::handle(
+            ErrorCode::NOT_INITIALIZED_ERROR,
+            "Failed to initialize the ECS render system!\n"
+        );
+    }
+
+    GameObjectSignature signature;
+    signature.set(GameCoordinator::getComponentType<ComponentModel>());
+    signature.set(GameCoordinator::getComponentType<ComponentTransform>());
+    signature.set(GameCoordinator::getComponentType<ComponentRenderSubSystem>());
+    GameCoordinator::setSystemSignature<ECStest>(signature);
 }

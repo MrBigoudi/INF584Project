@@ -1,5 +1,6 @@
 #pragma once
 
+#include "globalFrameRenderSubSystem.hpp"
 #include "mouseInput.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -16,6 +17,7 @@
 #include "camera.hpp"
 
 #include "descriptors.hpp"
+#include "components.hpp"
 
 class Application{
 
@@ -29,8 +31,10 @@ class Application{
         RendererPtr _Renderer = nullptr;
 
         DescriptorPoolPtr _GlobalPool = nullptr;
+        DescriptorPoolPtr _GlobalPoolTmp = nullptr;
 
         SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
+        GlobalFrameRenderSubSystemPtr _GlobalFrameRenderSubSystem = nullptr;
 
         CameraPtr _Camera = nullptr;
 
@@ -47,8 +51,8 @@ class Application{
         void initRenderer();
         void cleanUpRenderer();
 
-        void initRenderSubSystem();
-        void cleanUpRenderSubSystem();
+        void initRenderSubSystems();
+        void cleanUpRenderSubSystems();
 
         void initDescriptors();
         void cleanUpDescriptors();
@@ -58,15 +62,16 @@ class Application{
             initWindow();
             initVulkan();
             initCamera();
+            Components::registerComponents();
             initRenderer();
             initDescriptors();
-            initRenderSubSystem();
+            initRenderSubSystems();
             initGameObjects();
             MouseInput::setMouseCallback(_Camera, _Window);
         }
         void cleanUp(){
             cleanUpDescriptors();
-            cleanUpRenderSubSystem();
+            cleanUpRenderSubSystems();
             cleanUpRenderer();
             cleanUpVulkan();
             cleanUpWindow();

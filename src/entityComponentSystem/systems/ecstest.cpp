@@ -1,4 +1,4 @@
-#include "ecsSimpleRenderSystem.hpp"
+#include "ecstest.hpp"
 
 #include "componentRenderSubSystem.hpp"
 #include "frameInfo.hpp"
@@ -7,11 +7,10 @@
 #include "gameObject.hpp"
 #include "model.hpp"
 
-#include "renderSubSystem.hpp"
-#include "simpleRenderSubSystem.hpp"
+#include "globalFrameRenderSubSystem.hpp"
 
 
-void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr pipeline, VkPipelineLayout pipelineLayout){
+void ECStest::renderGameObjects(FrameInfo frameInfo, PipelinePtr pipeline, VkPipelineLayout pipelineLayout){
     pipeline->bind(frameInfo._CommandBuffer);
 
     vkCmdBindDescriptorSets(
@@ -32,8 +31,7 @@ void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr p
 
         ModelPtr model = GameCoordinator::getComponent<ComponentModel>(object)._Model;
 
-        SimplePushConstantData push{};
-        push._Random = static_cast<float>(glfwGetTime());
+        GlobalFramePushConstantData push{};
         auto objectTransform = GameCoordinator::getComponent<ComponentTransform>(object);
         push._Model = objectTransform.getModel();
         
@@ -42,7 +40,7 @@ void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr p
             pipelineLayout, 
             VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
             0, 
-            sizeof(SimplePushConstantData), 
+            sizeof(GlobalFramePushConstantData), 
             &push
         );
 
@@ -51,7 +49,7 @@ void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr p
     }
 }
 
-void ECSSimpleRenderSystem::cleanUpGameObjects(){
+void ECStest::cleanUpGameObjects(){
     for(auto object : _Objects){
         ModelPtr model = GameCoordinator::getComponent<ComponentModel>(object)._Model;
         model->cleanUp();

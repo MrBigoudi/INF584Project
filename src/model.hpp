@@ -21,7 +21,7 @@ using ModelPtr = std::shared_ptr<Model>;
 
 struct VertexData{
     glm::vec3 _Pos = {0.f,0.f,0.f};
-    glm::vec4 _Col = {0.f,0.f,0.f,1.f};
+    glm::vec4 _Col = {1.f,1.f,1.f,1.f};
     glm::vec3 _Norm = {0.f,0.f,0.f};
     glm::vec2 _Tex = {0.f,0.f};
 

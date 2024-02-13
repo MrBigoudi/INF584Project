@@ -10,6 +10,5 @@ layout(set = 1, binding = 0) uniform LightUbo{
 } lightUbo;
 
 void main() {
-    // outColor = fCol * dot(vec4(fNorm, 1.f), lightUbo.lightDir);
-    outColor = lightUbo.lightDir;
+    outColor = fCol * dot(vec4(fNorm, 1.f), lightUbo.lightDir);
 }

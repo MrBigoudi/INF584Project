@@ -66,28 +66,28 @@ void Application::initGameObjects(){
     );
 
 
-    // using frame shaders
-    GameObject globalFrame = GameCoordinator::createObject();
+    // // using frame shaders
+    // GameObject globalFrame = GameCoordinator::createObject();
 
-    // check components in ecs render system and render sub system
-    GameCoordinator::addComponent(
-        globalFrame, 
-        ComponentModel{
-            ._Model = loadedModel
-        }
-    );
-    GameCoordinator::addComponent(
-        globalFrame, 
-        ComponentTransform{
-            ._Position = {-1.f, 0.f, 0.f}
-        }
-    );
-    GameCoordinator::addComponent(
-        globalFrame, 
-        ComponentRenderSubSystem{
-            ._RenderSubSystem = _GlobalFrameRenderSubSystem
-        }
-    );
+    // // check components in ecs render system and render sub system
+    // GameCoordinator::addComponent(
+    //     globalFrame, 
+    //     ComponentModel{
+    //         ._Model = loadedModel
+    //     }
+    // );
+    // GameCoordinator::addComponent(
+    //     globalFrame, 
+    //     ComponentTransform{
+    //         ._Position = {-1.f, 0.f, 0.f}
+    //     }
+    // );
+    // GameCoordinator::addComponent(
+    //     globalFrame, 
+    //     ComponentRenderSubSystem{
+    //         ._RenderSubSystem = _GlobalFrameRenderSubSystem
+    //     }
+    // );
 
 }
 void Application::initCamera(){
@@ -133,24 +133,24 @@ void Application::initRenderSubSystems(){
                             )
                         );
 
-    _GlobalFrameRenderSubSystem = GlobalFrameRenderSubSystemPtr(
-        new GlobalFrameRenderSubSystem(
-            _VulkanApp,
-            _Renderer->getSwapChainRenderPass(),
-            _GlobalPoolTmp
-        )
-    );
+    // _GlobalFrameRenderSubSystem = GlobalFrameRenderSubSystemPtr(
+    //     new GlobalFrameRenderSubSystem(
+    //         _VulkanApp,
+    //         _Renderer->getSwapChainRenderPass(),
+    //         _GlobalPoolTmp
+    //     )
+    // );
 }
 void Application::initDescriptors(){
     _GlobalPool = DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .setMaxSets(2*SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2*SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .build();
 
-    _GlobalPoolTmp = DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .build();
+    // _GlobalPoolTmp = DescriptorPool::Builder(_VulkanApp)
+    //     .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+    //     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+    //     .build();
 }
 
 
@@ -166,11 +166,11 @@ void Application::cleanUpRenderer(){
 }
 void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
-    _GlobalFrameRenderSubSystem->cleanUp();
+    // _GlobalFrameRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
-    _GlobalPoolTmp->cleanUp();
+    // _GlobalPoolTmp->cleanUp();
 }
 
 
@@ -203,7 +203,7 @@ void Application::mainLoop(){
             _Renderer->beginSwapChainRenderPass(commandBuffer);
 
             _RenderSubSystem->renderGameObjects(currentFrame);
-            _GlobalFrameRenderSubSystem->renderGameObjects(currentFrame);
+            // _GlobalFrameRenderSubSystem->renderGameObjects(currentFrame);
 
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();

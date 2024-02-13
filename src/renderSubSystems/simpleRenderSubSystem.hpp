@@ -25,7 +25,12 @@ struct CameraUbo{
 };
 
 struct LightUbo{
-    glm::vec3 _LightDir = glm::normalize(glm::vec3(1.f, -3.f, -1.f));
+    glm::vec4 _LightDir = glm::vec4(
+        glm::normalize(
+            glm::vec3(1.f, -3.f, -1.f)
+        ), 
+        1.f
+    );
 };
 
 class SimpleRenderSubSystem;
@@ -39,8 +44,11 @@ class SimpleRenderSubSystem : public IRenderSubSystem{
         std::vector<BufferPtr> _LightUBO{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
 
         DescriptorPoolPtr _GlobalPool = nullptr;
+
         std::vector<VkDescriptorSet> _GlobalDescriptorSets{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        std::vector<VkDescriptorSet> _LightDescriptorSets{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
         DescriptorSetLayoutPtr _GlobalSetLayout = nullptr;
+        DescriptorSetLayoutPtr _LightSetLayout = nullptr;
 
     public:
         SimpleRenderSubSystem(VulkanAppPtr vulkanApp, VkRenderPass renderPass, DescriptorPoolPtr globalPool)
@@ -59,6 +67,7 @@ class SimpleRenderSubSystem : public IRenderSubSystem{
             _ECSRenderSystem->cleanUpGameObjects();
 
             _GlobalSetLayout->cleanUp();
+            _LightSetLayout->cleanUp();
 
             for(int i=0; i<_CameraUBO.size(); i++){
                 if(_CameraUBO[i])

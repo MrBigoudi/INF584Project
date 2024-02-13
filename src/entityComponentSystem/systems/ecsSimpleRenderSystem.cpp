@@ -1,6 +1,7 @@
 #include "ecsSimpleRenderSystem.hpp"
 
 #include "componentRenderSubSystem.hpp"
+#include "errorHandler.hpp"
 #include "frameInfo.hpp"
 #include "gameCoordinator.hpp"
 #include "components.hpp"
@@ -14,13 +15,32 @@
 void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr pipeline, VkPipelineLayout pipelineLayout){
     pipeline->bind(frameInfo._CommandBuffer);
 
+    if(!frameInfo._GlobalDescriptorSet){
+        ErrorHandler::handle(
+            ErrorCode::NOT_INITIALIZED_ERROR,
+            "Can't draw objects if global descriptor set is empty!\n"
+        );
+    }
+
+    if(!frameInfo._LightDescriptorSet){
+        ErrorHandler::handle(
+            ErrorCode::NOT_INITIALIZED_ERROR,
+            "Can't draw objects if light descriptor set is empty!\n"
+        );
+    }
+
+    std::vector<VkDescriptorSet> descriptorSets = {
+        frameInfo._GlobalDescriptorSet,
+        frameInfo._LightDescriptorSet
+    };
+
     vkCmdBindDescriptorSets(
         frameInfo._CommandBuffer,
         VK_PIPELINE_BIND_POINT_GRAPHICS,
         pipelineLayout,
         0,
-        1,
-        &frameInfo._GlobalDescriptorSet,
+        2,
+        descriptorSets.data(),
         0,
         nullptr
     );
@@ -29,6 +49,7 @@ void ECSSimpleRenderSystem::renderGameObjects(FrameInfo frameInfo, PipelinePtr p
         // temporary
         auto rss = GameCoordinator::getComponent<ComponentRenderSubSystem>(object);
         if(rss._RenderSubSystem->getPipeline() != pipeline) continue;
+
 
         ModelPtr model = GameCoordinator::getComponent<ComponentModel>(object)._Model;
 

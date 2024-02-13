@@ -23,7 +23,11 @@ void SimpleRenderSubSystem::renderGameObjects(FrameInfo& frameInfo){
     cameraUbo._View = frameInfo._Camera->getView();
     _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
 
+    LightUbo lightUbo{};
+    _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
+
     frameInfo._GlobalDescriptorSet = _GlobalDescriptorSets[frameIndex];
+    frameInfo._LightDescriptorSet = _LightDescriptorSets[frameIndex];
 
     _ECSRenderSystem->renderGameObjects(
         frameInfo, 
@@ -48,9 +52,9 @@ void SimpleRenderSubSystem::initPipelineLayout(){
     pushConstantRange.size = sizeof(SimplePushConstantData);
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
-        _GlobalSetLayout->getDescriptorSetLayout()
+        _GlobalSetLayout->getDescriptorSetLayout(),
+        _LightSetLayout->getDescriptorSetLayout()
     };
-
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -153,10 +157,21 @@ void SimpleRenderSubSystem::initDescriptors(){
             .build()
     );
 
+    _LightSetLayout = DescriptorSetLayoutPtr( 
+        DescriptorSetLayout::Builder(_VulkanApp)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build()
+    );
+
     for(int i=0; i < SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
-        auto bufferInfo = _CameraUBO[i]->descriptorInfo();
+        auto cameraBufferInfo = _CameraUBO[i]->descriptorInfo();
+        auto lightBufferInfo = _LightUBO[i]->descriptorInfo();
+        
         DescriptorWriter(*_GlobalSetLayout, *_GlobalPool)
-            .writeBuffer(0, &bufferInfo)
+            .writeBuffer(0, &cameraBufferInfo)
             .build(_GlobalDescriptorSets[i]);
+        DescriptorWriter(*_LightSetLayout, *_GlobalPool)
+            .writeBuffer(0, &lightBufferInfo)
+            .build(_LightDescriptorSets[i]);
     }
 }

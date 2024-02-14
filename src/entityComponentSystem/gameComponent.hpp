@@ -143,7 +143,7 @@ class GameComponentManager{
             if(instance->_GameComponentTypes.find(typeName) != instance->_GameComponentTypes.end()){
                 ErrorHandler::handle(
                     ErrorCode::BAD_VALUE_ERROR,
-                    "Component " + std::string(typeName) + "is already registered!\n",
+                    "Component " + std::string(typeName) + " is already registered!\n",
                     ErrorLevel::WARNING
                 );
                 return;

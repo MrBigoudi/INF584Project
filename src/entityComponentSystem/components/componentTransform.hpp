@@ -4,9 +4,7 @@
 #define GLM_FORCE_DEPTH_ZERO_ONE
 #include <glm/glm.hpp>
 
-#include "model.hpp"
-
-struct EntityTransform{
+struct ComponentTransform{
     glm::vec3 _Position = glm::vec3();
     glm::vec3 _Rotation = glm::vec3();
     glm::vec3 _Scale = glm::vec3(1.f, 1.f, 1.f);
@@ -40,8 +38,4 @@ struct EntityTransform{
             {_Position.x, _Position.y, _Position.z, 1.0f}
         };
     }
-};
-
-struct EntityModel{
-    ModelPtr _Model = nullptr;
 };

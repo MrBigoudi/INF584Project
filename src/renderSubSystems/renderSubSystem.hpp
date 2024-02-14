@@ -7,6 +7,9 @@
 
 #include "frameInfo.hpp"
 
+class IRenderSubSystem;
+using IRenderSubSystemPtr = std::shared_ptr<IRenderSubSystem>;
+
 class IRenderSubSystem{
 
     protected:

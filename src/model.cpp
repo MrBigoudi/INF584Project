@@ -229,7 +229,7 @@ void VertexDataBuilder::loadOffModel(const std::string& filePath){
     }
 
     // normals
-	for(int i=0; i<_Indices.size(); i++){
+	for(int i=0; i<_Indices.size(); i+=3){
         // assuming triangle meshes
         int v0 = _Indices[i];
         int v1 = _Indices[i+1];

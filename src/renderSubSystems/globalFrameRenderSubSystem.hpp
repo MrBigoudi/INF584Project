@@ -8,50 +8,36 @@
 #define GLM_FORCE_DEPTH_ZERO_ONE
 #include <glm/glm.hpp>
 
-#include "ecsSimpleRenderSystem.hpp"
+#include "ecstest.hpp"
 #include "buffer.hpp"
 #include "swapChain.hpp"
 
 #include "descriptors.hpp"
 
-struct SimplePushConstantData{
-    alignas(4) float _Random;
-    alignas(16) glm::mat4 _Model;
+struct GlobalFramePushConstantData{
+    glm::mat4 _Model;
 };
 
-struct CameraUbo{
+struct GlobalFrameCameraUbo{
     glm::mat4 _View{1.f};
     glm::mat4 _Proj{1.f};
 };
 
-struct LightUbo{
-    glm::vec4 _LightDir = glm::vec4(
-        glm::normalize(
-            glm::vec3(1.f, -3.f, -1.f)
-        ), 
-        1.f
-    );
-};
+class GlobalFrameRenderSubSystem;
+using GlobalFrameRenderSubSystemPtr = std::shared_ptr<GlobalFrameRenderSubSystem>;
 
-class SimpleRenderSubSystem;
-using SimpleRenderSubSystemPtr = std::shared_ptr<SimpleRenderSubSystem>;
-
-class SimpleRenderSubSystem : public IRenderSubSystem{
+class GlobalFrameRenderSubSystem : public IRenderSubSystem{
     private:
-        ECSSimpleRenderSystemPtr _ECSRenderSystem = nullptr;
+        ECStestPtr _ECSRenderSystem = nullptr;
 
         std::vector<BufferPtr> _CameraUBO{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        std::vector<BufferPtr> _LightUBO{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
 
         DescriptorPoolPtr _GlobalPool = nullptr;
-
         std::vector<VkDescriptorSet> _GlobalDescriptorSets{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        std::vector<VkDescriptorSet> _LightDescriptorSets{SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
         DescriptorSetLayoutPtr _GlobalSetLayout = nullptr;
-        DescriptorSetLayoutPtr _LightSetLayout = nullptr;
 
     public:
-        SimpleRenderSubSystem(VulkanAppPtr vulkanApp, VkRenderPass renderPass, DescriptorPoolPtr globalPool)
+        GlobalFrameRenderSubSystem(VulkanAppPtr vulkanApp, VkRenderPass renderPass, DescriptorPoolPtr globalPool)
             : IRenderSubSystem(vulkanApp, renderPass), _GlobalPool(globalPool){
             initUBOs();
             initDescriptors();
@@ -67,17 +53,12 @@ class SimpleRenderSubSystem : public IRenderSubSystem{
             _ECSRenderSystem->cleanUpGameObjects();
 
             _GlobalSetLayout->cleanUp();
-            _LightSetLayout->cleanUp();
 
             for(int i=0; i<_CameraUBO.size(); i++){
                 if(_CameraUBO[i])
                     _CameraUBO[i]->cleanUp();
-                if(_LightUBO[i])
-                    _LightUBO[i]->cleanUp();
             }
-
         }
-
 
     private:
         void initECSRender();

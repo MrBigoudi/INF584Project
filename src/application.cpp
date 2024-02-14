@@ -1,11 +1,13 @@
 #include "application.hpp"
 
 #include "camera.hpp"
+#include "componentRenderSubSystem.hpp"
 #include "descriptors.hpp"
-#include "entity.hpp"
+#include "components.hpp"
 #include "errorHandler.hpp"
 #include "frameInfo.hpp"
 #include "gameObject.hpp"
+#include "globalFrameRenderSubSystem.hpp"
 #include "keyboardInput.hpp"
 #include "model.hpp"
 #include "gameCoordinator.hpp"
@@ -39,74 +41,53 @@ void Application::initGameObjects(){
         );
     }
 
-    ModelPtr loadedSphere = ModelPtr(
-        new Model(_VulkanApp, "resources/models/sphere.off")
+    ModelPtr loadedModel = ModelPtr(
+        new Model(_VulkanApp, "resources/models/dragon.off")
     );
 
-    GameObject sphere = GameCoordinator::createObject();
+    GameObject model = GameCoordinator::createObject();
 
     // check components in ecs render system and render sub system
     GameCoordinator::addComponent(
-        sphere, 
-        EntityModel{
-            ._Model = loadedSphere
+        model, 
+        ComponentModel{
+            ._Model = loadedModel
         }
     );
     GameCoordinator::addComponent(
-        sphere, 
-        EntityTransform{}
-    );
-
-    ModelPtr loadedQuad = ModelPtr(
-        new Model(_VulkanApp, "resources/models/quad.obj")
-    );
-
-    GameObject floor = GameCoordinator::createObject();
-    GameObject rightWall = GameCoordinator::createObject();
-    GameObject leftWall = GameCoordinator::createObject();
-    GameCoordinator::addComponent(
-        floor, 
-        EntityModel{
-            ._Model = loadedQuad
-        }
+        model, 
+        ComponentTransform{}
     );
     GameCoordinator::addComponent(
-        floor, 
-        EntityTransform{
-            ._Position = {0.f, -0.5f, 0.f},
-            ._Scale = {3.f, 3.f, 3.f}
+        model, 
+        ComponentRenderSubSystem{
+            ._RenderSubSystem = _RenderSubSystem
         }
     );
 
-    GameCoordinator::addComponent(
-        leftWall, 
-        EntityModel{
-            ._Model = loadedQuad
-        }
-    );
-    GameCoordinator::addComponent(
-        leftWall, 
-        EntityTransform{
-            ._Position = {-1.5f, 1.5f, 0.f},
-            ._Rotation = {0.f, 0.f, 3.1415f / 2.f},
-            ._Scale = {3.f, 3.f, 3.f}
-        }
-    );
 
-    GameCoordinator::addComponent(
-        rightWall, 
-        EntityModel{
-            ._Model = loadedQuad
-        }
-    );
-    GameCoordinator::addComponent(
-        rightWall, 
-        EntityTransform{
-            ._Position = {1.5f, 1.5f, 0.f},
-            ._Rotation = {0.f, 0.f, 3.1415f / 2.f},
-            ._Scale = {3.f, 3.f, 3.f}
-        }
-    );
+    // // using frame shaders
+    // GameObject globalFrame = GameCoordinator::createObject();
+
+    // // check components in ecs render system and render sub system
+    // GameCoordinator::addComponent(
+    //     globalFrame, 
+    //     ComponentModel{
+    //         ._Model = loadedModel
+    //     }
+    // );
+    // GameCoordinator::addComponent(
+    //     globalFrame, 
+    //     ComponentTransform{
+    //         ._Position = {-1.f, 0.f, 0.f}
+    //     }
+    // );
+    // GameCoordinator::addComponent(
+    //     globalFrame, 
+    //     ComponentRenderSubSystem{
+    //         ._RenderSubSystem = _GlobalFrameRenderSubSystem
+    //     }
+    // );
 
 }
 void Application::initCamera(){
@@ -131,7 +112,7 @@ void Application::initRenderer(){
                 _VulkanApp)
     );
 }
-void Application::initRenderSubSystem(){
+void Application::initRenderSubSystems(){
     if(_Renderer == nullptr){
         ErrorHandler::handle(
             ErrorCode::NOT_INITIALIZED_ERROR, 
@@ -151,12 +132,25 @@ void Application::initRenderSubSystem(){
                             _GlobalPool
                             )
                         );
+
+    // _GlobalFrameRenderSubSystem = GlobalFrameRenderSubSystemPtr(
+    //     new GlobalFrameRenderSubSystem(
+    //         _VulkanApp,
+    //         _Renderer->getSwapChainRenderPass(),
+    //         _GlobalPoolTmp
+    //     )
+    // );
 }
 void Application::initDescriptors(){
     _GlobalPool = DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .setMaxSets(2*SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2*SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .build();
+
+    // _GlobalPoolTmp = DescriptorPool::Builder(_VulkanApp)
+    //     .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+    //     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+    //     .build();
 }
 
 
@@ -170,11 +164,13 @@ void Application::cleanUpVulkan(){
 void Application::cleanUpRenderer(){
     _Renderer->cleanUp();
 }
-void Application::cleanUpRenderSubSystem(){
+void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
+    // _GlobalFrameRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
+    // _GlobalPoolTmp->cleanUp();
 }
 
 
@@ -205,7 +201,10 @@ void Application::mainLoop(){
             currentFrame._Camera = _Camera;
 
             _Renderer->beginSwapChainRenderPass(commandBuffer);
+
             _RenderSubSystem->renderGameObjects(currentFrame);
+            // _GlobalFrameRenderSubSystem->renderGameObjects(currentFrame);
+
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();
         }

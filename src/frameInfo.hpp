@@ -9,5 +9,6 @@ struct FrameInfo{
     float _FrameTime = 0.f;
     VkCommandBuffer _CommandBuffer;
     CameraPtr _Camera = nullptr;
-    VkDescriptorSet _GlobalDescriptorSet;
+    VkDescriptorSet _GlobalDescriptorSet = nullptr;
+    VkDescriptorSet _LightDescriptorSet = nullptr;
 };

@@ -1,6 +1,6 @@
 # Todo list
 
-- create components folder + remove entity.hpp
-- better camera
+- merge render subsystems and ecsrendersystems
+- add descriptor sets in the frameinfo
 
 - add comments everywhere

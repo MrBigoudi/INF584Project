@@ -9,6 +9,4 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
 )
 
-add_subdirectory(entityComponentSystem)
-add_subdirectory(renderSubSystems)
-add_subdirectory(inputs)
+add_subdirectory(engine)

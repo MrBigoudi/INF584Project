@@ -8,6 +8,3 @@ target_include_directories(${PROJECT_NAME}
         $<INSTALL_INTERFACE:include>
     PRIVATE
 )
-
-add_subdirectory(tinyObjectLoader)
-add_subdirectory(stbImage)

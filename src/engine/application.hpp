@@ -1,90 +1,31 @@
 #pragma once
 
-#include "globalFrameRenderSubSystem.hpp"
-#include "mouseInput.hpp"
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
 #include <cstdint>
+#include <memory>
 #include <vector>
 
-#include "types.hpp"
-#include "window.hpp"
-
 #include "renderer.hpp"
-
-#include "simpleRenderSubSystem.hpp"
-#include "camera.hpp"
-
-#include "descriptors.hpp"
-#include "components.hpp"
+#include "window.hpp"
+#include "vulkanApp.hpp"
 
 namespace BE{
 
-class Application{
+class IApplication{
 
-    public:
-        static const uint32_t WINDOW_WIDTH = 1280;
-        static const uint32_t WINDOW_HEIGHT = 720;
-
-    private:
+    protected:
         WindowPtr _Window = nullptr;
         VulkanAppPtr _VulkanApp = nullptr;
         RendererPtr _Renderer = nullptr;
 
-        DescriptorPoolPtr _GlobalPool = nullptr;
-        DescriptorPoolPtr _GlobalPoolTmp = nullptr;
-
-        SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
-        GlobalFrameRenderSubSystemPtr _GlobalFrameRenderSubSystem = nullptr;
-
-        CameraPtr _Camera = nullptr;
-
     private:
-        void initWindow();
-        void cleanUpWindow();
-
-        void initVulkan();
-        void cleanUpVulkan();
-
-        void initGameObjects();
-        void initCamera();
-
-        void initRenderer();
-        void cleanUpRenderer();
-
-        void initRenderSubSystems();
-        void cleanUpRenderSubSystems();
-
-        void initDescriptors();
-        void cleanUpDescriptors();
-
-    private:
-        void init(){
-            initWindow();
-            initVulkan();
-            initCamera();
-            Components::registerComponents();
-            initRenderer();
-            initDescriptors();
-            initRenderSubSystems();
-            initGameObjects();
-            MouseInput::setMouseCallback(_Camera, _Window);
-        }
-        void cleanUp(){
-            cleanUpDescriptors();
-            cleanUpRenderSubSystems();
-            cleanUpRenderer();
-            cleanUpVulkan();
-            cleanUpWindow();
-        }
-
-        void mainLoop();
+        virtual void init() = 0;
+        virtual void cleanUp() = 0;
+        virtual void mainLoop() = 0;
 
     public:
-        Application(){};
+        IApplication(){};
 
-        void run(){
+        virtual void run(){
             init();
             mainLoop();
             cleanUp();
@@ -95,4 +36,4 @@ class Application{
         }
 };
 
-};
+}

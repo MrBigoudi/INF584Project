@@ -1,6 +1,6 @@
-file(GLOB SOURCE_FILES "*.cpp")
+file(GLOB CUR_APP_SOURCE_FILES "*.cpp")
 
-target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_FILES})
+target_sources(${PROJECT_NAME} PUBLIC ${CUR_APP_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} 
     PUBLIC
@@ -9,5 +9,4 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
 )
 
-add_subdirectory(engine)
-add_subdirectory(currentApp)
+add_subdirectory(inputs)

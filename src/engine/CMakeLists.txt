@@ -13,7 +13,5 @@ target_include_directories(BigoudiEngine
 # set the cpp standards
 target_link_libraries(BigoudiEngine PUBLIC cflags)
 
-add_subdirectory(entityComponentSystem)
-add_subdirectory(renderSubSystems)
-add_subdirectory(inputs)
+add_subdirectory(core)
 add_subdirectory(dep)

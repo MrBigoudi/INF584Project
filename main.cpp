@@ -5,7 +5,7 @@
 
 int main(int argc[[maybe_unused]], char* argv[[maybe_unused]][]){
 
-    ApplicationTest app{};
+    Application app{};
 
     app.run();
 

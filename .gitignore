@@ -1,4 +1,5 @@
 .cache
+src/engine
 build
 External
 *.spv

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <engine.hpp>
+#include <BigoudiEngine.hpp>
 
 #include <memory>
 
@@ -16,8 +16,8 @@ class MouseInput{
 
     private:
         static MouseInputPtr _MouseInput;
-        BE::CameraPtr _Camera = nullptr;
-        BE::WindowPtr _Window = nullptr;
+        beCore::CameraPtr _Camera = nullptr;
+        beCore::WindowPtr _Window = nullptr;
 
         bool _FirstMouse = true;
         double _LastMouseX = 0.f;
@@ -36,7 +36,7 @@ class MouseInput{
         }
 
     public:
-        static void setMouseCallback(BE::CameraPtr camera, BE::WindowPtr window){
+        static void setMouseCallback(beCore::CameraPtr camera, beCore::WindowPtr window){
             get()->_Camera = camera;
             get()->_Window = window;
             get()->_Window->setMouseCallback(mouseCallback);

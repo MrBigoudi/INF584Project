@@ -4,7 +4,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <engine.hpp>
+#include <BigoudiEngine.hpp>
 
 #include "mouseInput.hpp"
 
@@ -36,28 +36,28 @@ class KeyboardInput{
         }
 
     public:
-        static void moveCamera(BE::WindowPtr window, BE::CameraPtr camera){   
+        static void moveCamera(beCore::WindowPtr window, beCore::CameraPtr camera){   
             if(glfwGetKey(window->getWindow(), KEY_LEFT) == GLFW_PRESS){
-                camera->processKeyboard(BE::CameraMovement::LEFT);
+                camera->processKeyboard(beCore::CameraMovement::LEFT);
             }
             if(glfwGetKey(window->getWindow(), KEY_RIGHT) == GLFW_PRESS){
-                camera->processKeyboard(BE::CameraMovement::RIGHT);
+                camera->processKeyboard(beCore::CameraMovement::RIGHT);
             }
             if(glfwGetKey(window->getWindow(), KEY_FORWARD) == GLFW_PRESS){
-                camera->processKeyboard(BE::CameraMovement::FORWARD);
+                camera->processKeyboard(beCore::CameraMovement::FORWARD);
             }
             if(glfwGetKey(window->getWindow(), KEY_BACKWARD) == GLFW_PRESS){
-                camera->processKeyboard(BE::CameraMovement::BACKWARD);
+                camera->processKeyboard(beCore::CameraMovement::BACKWARD);
             }
             if(glfwGetKey(window->getWindow(), KEY_UP) == GLFW_PRESS){
-                camera->processKeyboard(BE::CameraMovement::UP);
+                camera->processKeyboard(beCore::CameraMovement::UP);
             }
             if(glfwGetKey(window->getWindow(), KEY_DOWN) == GLFW_PRESS){
-                camera->processKeyboard(BE::CameraMovement::DOWN);
+                camera->processKeyboard(beCore::CameraMovement::DOWN);
             }
         }
 
-        static void updateMouseMode(BE::WindowPtr window){
+        static void updateMouseMode(beCore::WindowPtr window){
             if(glfwGetKey(window->getWindow(), KEY_MOUSE_MODE) == GLFW_PRESS){
                 MouseInput::updateMouseMode();
             }

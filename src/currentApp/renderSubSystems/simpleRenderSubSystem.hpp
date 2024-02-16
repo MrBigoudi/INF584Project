@@ -1,28 +1,23 @@
 #pragma once
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_ONE
-#include <glm/glm.hpp>
-
 #include <memory>
-
 
 #include <BigoudiEngine.hpp>
 
 struct SimplePushConstantData : be::PushConstantData{
     alignas(4) float _Random;
-    alignas(16) glm::mat4 _Model;
+    alignas(16) be::Matrix4x4 _Model;
 };
 
 struct CameraUbo{
-    glm::mat4 _View{1.f};
-    glm::mat4 _Proj{1.f};
+    be::Matrix4x4 _View{1.f};
+    be::Matrix4x4 _Proj{1.f};
 };
 
 struct LightUbo{
-    glm::vec4 _LightDir = glm::vec4(
-        glm::normalize(
-            glm::vec3(1.f, -3.f, -1.f)
+    be::Vector4 _LightDir = be::Vector4(
+        be::Vector3::normalize(
+            be::Vector3(1.f, -3.f, -1.f)
         ), 
         1.f
     );

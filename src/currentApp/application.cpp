@@ -78,7 +78,7 @@ void Application::initGameObjects(){
 
 }
 void Application::initCamera(){
-    _Camera = be::CameraPtr(new be::Camera({0.f,0.f,2.f}));
+    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f,0.f,2.f)));
 }
 void Application::initRenderer(){
     if(_Window == nullptr){

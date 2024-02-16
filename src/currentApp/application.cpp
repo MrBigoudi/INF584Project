@@ -4,8 +4,8 @@
 
 // INIT FUNCTIONS
 void Application::initWindow(){
-    _Window = beCore::WindowPtr(
-        new beCore::Window(
+    _Window = be::WindowPtr(
+        new be::Window(
             WINDOW_WIDTH, 
             WINDOW_HEIGHT, 
             "Hello vulkan!"
@@ -14,37 +14,37 @@ void Application::initWindow(){
     _Window->init();
 }
 void Application::initVulkan(){
-    _VulkanApp = beCore::VulkanAppPtr(new beCore::VulkanApp());
+    _VulkanApp = be::VulkanAppPtr(new be::VulkanApp());
     _VulkanApp->init(_Window);
 }
 void Application::initGameObjects(){
     if(_VulkanApp == nullptr){
-        beCore::ErrorHandler::handle(
-            beCore::ErrorCode::NOT_INITIALIZED_ERROR, 
+        be::ErrorHandler::handle(
+            be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create game objects without a vulkan app!\n"
         );
     }
 
-    beCore::ModelPtr loadedModel = beCore::ModelPtr(
-        new beCore::Model(_VulkanApp, "resources/models/dragon.off")
+    be::ModelPtr loadedModel = be::ModelPtr(
+        new be::Model(_VulkanApp, "resources/models/dragon.off")
     );
 
-    beCore::GameObject model = beCore::GameCoordinator::createObject();
+    be::GameObject model = be::GameCoordinator::createObject();
 
     // check components in ecs render system and render sub system
-    beCore::GameCoordinator::addComponent(
+    be::GameCoordinator::addComponent(
         model, 
-        beCore::ComponentModel{
+        be::ComponentModel{
             ._Model = loadedModel
         }
     );
-    beCore::GameCoordinator::addComponent(
+    be::GameCoordinator::addComponent(
         model, 
-        beCore::ComponentTransform{}
+        be::ComponentTransform{}
     );
-    beCore::GameCoordinator::addComponent(
+    be::GameCoordinator::addComponent(
         model, 
-        beCore::ComponentRenderSubSystem{
+        be::ComponentRenderSubSystem{
             ._RenderSubSystem = _RenderSubSystem
         }
     );
@@ -75,42 +75,42 @@ void Application::initGameObjects(){
 
 }
 void Application::initCamera(){
-    _Camera = beCore::CameraPtr(new beCore::Camera({0.f,0.f,2.f}));
+    _Camera = be::CameraPtr(new be::Camera({0.f,0.f,2.f}));
 }
 void Application::initRenderer(){
     if(_Window == nullptr){
-        beCore::ErrorHandler::handle(
-            beCore::ErrorCode::NOT_INITIALIZED_ERROR, 
+        be::ErrorHandler::handle(
+            be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a renderer without a window!\n"
         );
     }
     if(_VulkanApp == nullptr){
-        beCore::ErrorHandler::handle(
-            beCore::ErrorCode::NOT_INITIALIZED_ERROR, 
+        be::ErrorHandler::handle(
+            be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a renderer without a vulkan app!\n"
         );
     }
-    _Renderer = beCore::RendererPtr(
-            new beCore::Renderer(
+    _Renderer = be::RendererPtr(
+            new be::Renderer(
                 _Window, 
                 _VulkanApp)
     );
 }
 void Application::initRenderSubSystems(){
     if(_Renderer == nullptr){
-        beCore::ErrorHandler::handle(
-            beCore::ErrorCode::NOT_INITIALIZED_ERROR, 
+        be::ErrorHandler::handle(
+            be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a render subsystem without a renderer!\n"
         );
     }
     if(_Camera == nullptr){
-        beCore::ErrorHandler::handle(
-            beCore::ErrorCode::NOT_INITIALIZED_ERROR, 
+        be::ErrorHandler::handle(
+            be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a render subsystem without a camera!\n"
         );
     }
-    _RenderSubSystem = beCore::SimpleRenderSubSystemPtr(
-                        new beCore::SimpleRenderSubSystem(
+    _RenderSubSystem = be::SimpleRenderSubSystemPtr(
+                        new be::SimpleRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
                             _GlobalPool
@@ -126,9 +126,9 @@ void Application::initRenderSubSystems(){
     // );
 }
 void Application::initDescriptors(){
-    _GlobalPool = beCore::DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets(2*beCore::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2*beCore::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+    _GlobalPool = be::DescriptorPool::Builder(_VulkanApp)
+        .setMaxSets(2*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .build();
 
     // _GlobalPoolTmp = DescriptorPool::Builder(_VulkanApp)
@@ -179,7 +179,7 @@ void Application::mainLoop(){
 
         auto commandBuffer = _Renderer->beginFrame();
         if(commandBuffer){
-            beCore::FrameInfo currentFrame{};
+            be::FrameInfo currentFrame{};
             currentFrame._FrameIndex = _Renderer->getFrameIndex();
             currentFrame._FrameTime = frameTime;
             currentFrame._CommandBuffer = commandBuffer;

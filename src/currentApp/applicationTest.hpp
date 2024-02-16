@@ -12,20 +12,20 @@
 class Application;
 using ApplicationPtr = std::shared_ptr<Application>;
 
-class Application : public beCore::IApplication{
+class Application : public be::IApplication{
 
     public:
         static const uint32_t WINDOW_WIDTH = 1280;
         static const uint32_t WINDOW_HEIGHT = 720;
 
     private:
-        beCore::DescriptorPoolPtr _GlobalPool = nullptr;
-        beCore::DescriptorPoolPtr _GlobalPoolTmp = nullptr;
+        be::DescriptorPoolPtr _GlobalPool = nullptr;
+        be::DescriptorPoolPtr _GlobalPoolTmp = nullptr;
 
-        beCore::SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
-        beCore::GlobalFrameRenderSubSystemPtr _GlobalFrameRenderSubSystem = nullptr;
+        be::SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
+        be::GlobalFrameRenderSubSystemPtr _GlobalFrameRenderSubSystem = nullptr;
 
-        beCore::CameraPtr _Camera = nullptr;
+        be::CameraPtr _Camera = nullptr;
 
     private:
         void initWindow();
@@ -51,7 +51,7 @@ class Application : public beCore::IApplication{
             initWindow();
             initVulkan();
             initCamera();
-            beCore::Components::registerComponents();
+            be::Components::registerComponents();
             initRenderer();
             initDescriptors();
             initRenderSubSystems();

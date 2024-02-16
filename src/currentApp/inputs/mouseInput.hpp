@@ -16,8 +16,8 @@ class MouseInput{
 
     private:
         static MouseInputPtr _MouseInput;
-        beCore::CameraPtr _Camera = nullptr;
-        beCore::WindowPtr _Window = nullptr;
+        be::CameraPtr _Camera = nullptr;
+        be::WindowPtr _Window = nullptr;
 
         bool _FirstMouse = true;
         double _LastMouseX = 0.f;
@@ -36,7 +36,7 @@ class MouseInput{
         }
 
     public:
-        static void setMouseCallback(beCore::CameraPtr camera, beCore::WindowPtr window){
+        static void setMouseCallback(be::CameraPtr camera, be::WindowPtr window){
             get()->_Camera = camera;
             get()->_Window = window;
             get()->_Window->setMouseCallback(mouseCallback);

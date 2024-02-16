@@ -36,28 +36,28 @@ class KeyboardInput{
         }
 
     public:
-        static void moveCamera(beCore::WindowPtr window, beCore::CameraPtr camera){   
+        static void moveCamera(be::WindowPtr window, be::CameraPtr camera){   
             if(glfwGetKey(window->getWindow(), KEY_LEFT) == GLFW_PRESS){
-                camera->processKeyboard(beCore::CameraMovement::LEFT);
+                camera->processKeyboard(be::CameraMovement::LEFT);
             }
             if(glfwGetKey(window->getWindow(), KEY_RIGHT) == GLFW_PRESS){
-                camera->processKeyboard(beCore::CameraMovement::RIGHT);
+                camera->processKeyboard(be::CameraMovement::RIGHT);
             }
             if(glfwGetKey(window->getWindow(), KEY_FORWARD) == GLFW_PRESS){
-                camera->processKeyboard(beCore::CameraMovement::FORWARD);
+                camera->processKeyboard(be::CameraMovement::FORWARD);
             }
             if(glfwGetKey(window->getWindow(), KEY_BACKWARD) == GLFW_PRESS){
-                camera->processKeyboard(beCore::CameraMovement::BACKWARD);
+                camera->processKeyboard(be::CameraMovement::BACKWARD);
             }
             if(glfwGetKey(window->getWindow(), KEY_UP) == GLFW_PRESS){
-                camera->processKeyboard(beCore::CameraMovement::UP);
+                camera->processKeyboard(be::CameraMovement::UP);
             }
             if(glfwGetKey(window->getWindow(), KEY_DOWN) == GLFW_PRESS){
-                camera->processKeyboard(beCore::CameraMovement::DOWN);
+                camera->processKeyboard(be::CameraMovement::DOWN);
             }
         }
 
-        static void updateMouseMode(beCore::WindowPtr window){
+        static void updateMouseMode(be::WindowPtr window){
             if(glfwGetKey(window->getWindow(), KEY_MOUSE_MODE) == GLFW_PRESS){
                 MouseInput::updateMouseMode();
             }

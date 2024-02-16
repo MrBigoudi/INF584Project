@@ -18,9 +18,6 @@ target_compile_options(cflags INTERFACE
 project(vulkanTest)
 
 add_executable(${PROJECT_NAME} main.cpp)
-target_include_directories(${PROJECT_NAME} PUBLIC
-                           "${PROJECT_BINARY_DIR}"
-                          )
 
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
@@ -30,7 +27,7 @@ add_subdirectory(src)
 add_subdirectory(dep)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan cflags)
-target_link_libraries(${PROJECT_NAME} PUBLIC BigoudiEngine cflags)
+target_link_libraries(${PROJECT_NAME} PRIVATE BigoudiEngine cflags)
 
 add_custom_target(
     compile_shaders

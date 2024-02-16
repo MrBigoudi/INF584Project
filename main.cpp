@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "application.hpp"
+#include "applicationTest.hpp"
 
-int main(int argc, char* argv[]){
+int main(int argc[[maybe_unused]], char* argv[[maybe_unused]][]){
 
     Application app{};
 

@@ -1,3 +1,7 @@
+file(GLOB CUR_APP_SOURCE_FILES "*.cpp")
+
+target_sources(${PROJECT_NAME} PRIVATE ${CUR_APP_SOURCE_FILES})
+
 target_include_directories(${PROJECT_NAME} 
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -5,5 +9,4 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
 )
 
-add_subdirectory(engine)
-add_subdirectory(currentApp)
+add_subdirectory(inputs)

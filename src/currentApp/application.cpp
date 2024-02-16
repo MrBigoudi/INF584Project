@@ -26,7 +26,8 @@ void Application::initGameObjects(){
     }
 
     be::ModelPtr loadedModel = be::ModelPtr(
-        new be::Model(_VulkanApp, "resources/models/dragon.off")
+        // new be::Model(_VulkanApp, "resources/models/dragon.off")
+        new be::Model(_VulkanApp, "resources/models/face.off")
     );
 
     be::GameObject model = be::GameCoordinator::createObject();
@@ -40,7 +41,9 @@ void Application::initGameObjects(){
     );
     be::GameCoordinator::addComponent(
         model, 
-        be::ComponentTransform{}
+        be::ComponentTransform{
+            ._Scale = {0.01f, 0.01f, 0.01f}
+        }
     );
     be::GameCoordinator::addComponent(
         model, 
@@ -109,8 +112,8 @@ void Application::initRenderSubSystems(){
             "Can't create a render subsystem without a camera!\n"
         );
     }
-    _RenderSubSystem = be::SimpleRenderSubSystemPtr(
-                        new be::SimpleRenderSubSystem(
+    _RenderSubSystem = SimpleRenderSubSystemPtr(
+                        new SimpleRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
                             _GlobalPool

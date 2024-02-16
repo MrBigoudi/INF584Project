@@ -22,8 +22,7 @@ class Application : public be::IApplication{
         be::DescriptorPoolPtr _GlobalPool = nullptr;
         be::DescriptorPoolPtr _GlobalPoolTmp = nullptr;
 
-        be::SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
-        be::GlobalFrameRenderSubSystemPtr _GlobalFrameRenderSubSystem = nullptr;
+        SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
 
         be::CameraPtr _Camera = nullptr;
 

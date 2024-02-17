@@ -27,7 +27,11 @@ void Application::initGameObjects(){
 
     be::ModelPtr loadedModel = be::ModelPtr(
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
-        new be::Model(_VulkanApp, "resources/models/face.off")
+        // new be::Model(_VulkanApp, "resources/models/face.off")
+        new be::Model(
+            _VulkanApp, 
+            be::VertexDataBuilder::primitiveFrame()
+        )
     );
 
     be::GameObject model = be::GameCoordinator::createObject();
@@ -42,7 +46,7 @@ void Application::initGameObjects(){
     be::GameCoordinator::addComponent(
         model, 
         be::ComponentTransform{
-            ._Scale = {0.01f, 0.01f, 0.01f}
+            // ._Scale = {0.01f, 0.01f, 0.01f}
         }
     );
     be::GameCoordinator::addComponent(

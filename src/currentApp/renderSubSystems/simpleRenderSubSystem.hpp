@@ -5,7 +5,7 @@
 #include <BigoudiEngine.hpp>
 
 struct SimplePushConstantData : be::PushConstantData{
-    alignas(4) float _Random;
+    // alignas(4) float _Random;
     alignas(16) be::Matrix4x4 _Model;
 };
 
@@ -30,14 +30,14 @@ class SimpleRenderSubSystem : public be::IRenderSubSystem {
     private:
 
         std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        std::vector<be::BufferPtr> _LightUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        // std::vector<be::BufferPtr> _LightUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
 
         be::DescriptorPoolPtr _GlobalPool = nullptr;
 
         std::vector<VkDescriptorSet> _GlobalDescriptorSets{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        std::vector<VkDescriptorSet> _LightDescriptorSets{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        // std::vector<VkDescriptorSet> _LightDescriptorSets{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
         be::DescriptorSetLayoutPtr _GlobalSetLayout = nullptr;
-        be::DescriptorSetLayoutPtr _LightSetLayout = nullptr;
+        // be::DescriptorSetLayoutPtr _LightSetLayout = nullptr;
 
         be::FrameInfo _FrameInfo{};
 

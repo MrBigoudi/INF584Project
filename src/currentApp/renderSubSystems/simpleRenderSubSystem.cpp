@@ -25,13 +25,13 @@ void SimpleRenderSubSystem::cleanUp() {
     );
 
     _GlobalSetLayout->cleanUp();
-    _LightSetLayout->cleanUp();
+    // _LightSetLayout->cleanUp();
 
     for(int i=0; i<int(_CameraUBO.size()); i++){
         if(_CameraUBO[i])
             _CameraUBO[i]->cleanUp();
-        if(_LightUBO[i])
-            _LightUBO[i]->cleanUp();
+        // if(_LightUBO[i])
+        //     _LightUBO[i]->cleanUp();
     }
 
 }
@@ -51,7 +51,7 @@ void SimpleRenderSubSystem::renderingFunction(be::GameObject object){
     be::ModelPtr model = be::GameCoordinator::getComponent<be::ComponentModel>(object)._Model;
 
     SimplePushConstantData push{};
-    push._Random = static_cast<float>(glfwGetTime());
+    // push._Random = static_cast<float>(glfwGetTime());
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
     push._Model = objectTransform.getModel();
     
@@ -78,12 +78,12 @@ void SimpleRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
     cameraUbo._View = frameInfo._Camera->getView();
     _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
 
-    LightUbo lightUbo{};
-    _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
+    // LightUbo lightUbo{};
+    // _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
 
     auto descriptorSets = {
         _GlobalDescriptorSets[frameIndex],
-        _LightDescriptorSets[frameIndex]
+        // _LightDescriptorSets[frameIndex]
     };
 
     std::function<void(be::GameObject)> func = 
@@ -118,7 +118,7 @@ void SimpleRenderSubSystem::initPipelineLayout(){
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
         _GlobalSetLayout->getDescriptorSetLayout(),
-        _LightSetLayout->getDescriptorSetLayout()
+        // _LightSetLayout->getDescriptorSetLayout()
     };
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -157,8 +157,9 @@ void SimpleRenderSubSystem::initPipeline(VkRenderPass renderPass){
     }
 
     _Pipeline = be::PipelinePtr(new be::Pipeline(_VulkanApp));
-    _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
-    _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
+    // _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
+    // _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
+    _Pipeline->initColorPassThroughShaders();
     auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
     pipelineConfig._RenderPass = renderPass;
     pipelineConfig._PipelineLayout = _PipelineLayout;
@@ -202,16 +203,16 @@ void SimpleRenderSubSystem::initUBOs(){
 
         _CameraUBO[i]->map();
 
-        _LightUBO[i] = be::BufferPtr(new be::Buffer(
-            _VulkanApp, 
-            sizeof(LightUbo),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        ));
+        // _LightUBO[i] = be::BufferPtr(new be::Buffer(
+        //     _VulkanApp, 
+        //     sizeof(LightUbo),
+        //     1,
+        //     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        //     _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
+        // ));
 
-        _LightUBO[i]->map();
+        // _LightUBO[i]->map();
     }
 }
 
@@ -222,21 +223,21 @@ void SimpleRenderSubSystem::initDescriptors(){
             .build()
     );
 
-    _LightSetLayout = be::DescriptorSetLayoutPtr( 
-        be::DescriptorSetLayout::Builder(_VulkanApp)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .build()
-    );
+    // _LightSetLayout = be::DescriptorSetLayoutPtr( 
+    //     be::DescriptorSetLayout::Builder(_VulkanApp)
+    //         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
+    //         .build()
+    // );
 
     for(int i=0; i < be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
         auto cameraBufferInfo = _CameraUBO[i]->descriptorInfo();
-        auto lightBufferInfo = _LightUBO[i]->descriptorInfo();
+        // auto lightBufferInfo = _LightUBO[i]->descriptorInfo();
         
         be::DescriptorWriter(*_GlobalSetLayout, *_GlobalPool)
             .writeBuffer(0, &cameraBufferInfo)
             .build(_GlobalDescriptorSets[i]);
-        be::DescriptorWriter(*_LightSetLayout, *_GlobalPool)
-            .writeBuffer(0, &lightBufferInfo)
-            .build(_LightDescriptorSets[i]);
+        // be::DescriptorWriter(*_LightSetLayout, *_GlobalPool)
+        //     .writeBuffer(0, &lightBufferInfo)
+        //     .build(_LightDescriptorSets[i]);
     }
 }

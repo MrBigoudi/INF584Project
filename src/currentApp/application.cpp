@@ -1,6 +1,7 @@
 #include "applicationTest.hpp"
 
 #include <chrono>
+#include "keyboardInput.hpp"
 
 // INIT FUNCTIONS
 void Application::initWindow(){
@@ -35,7 +36,6 @@ void Application::initGameObjects(){
     );
 
     be::GameObject model = be::GameCoordinator::createObject();
-
     // check components in ecs render system and render sub system
     be::GameCoordinator::addComponent(
         model, 
@@ -45,9 +45,7 @@ void Application::initGameObjects(){
     );
     be::GameCoordinator::addComponent(
         model, 
-        be::ComponentTransform{
-            // ._Scale = {0.01f, 0.01f, 0.01f}
-        }
+        be::ComponentTransform{}
     );
     be::GameCoordinator::addComponent(
         model, 
@@ -57,28 +55,34 @@ void Application::initGameObjects(){
     );
 
 
-    // // using frame shaders
-    // GameObject globalFrame = GameCoordinator::createObject();
+    // load face model
+    be::ModelPtr faceModel = be::ModelPtr(
+        // new be::Model(_VulkanApp, "resources/models/dragon.off")
+        new be::Model(_VulkanApp, "resources/models/face.off")
+    );
 
-    // // check components in ecs render system and render sub system
-    // GameCoordinator::addComponent(
-    //     globalFrame, 
-    //     ComponentModel{
-    //         ._Model = loadedModel
-    //     }
-    // );
-    // GameCoordinator::addComponent(
-    //     globalFrame, 
-    //     ComponentTransform{
-    //         ._Position = {-1.f, 0.f, 0.f}
-    //     }
-    // );
-    // GameCoordinator::addComponent(
-    //     globalFrame, 
-    //     ComponentRenderSubSystem{
-    //         ._RenderSubSystem = _GlobalFrameRenderSubSystem
-    //     }
-    // );
+    model = be::GameCoordinator::createObject();
+    // check components in ecs render system and render sub system
+    be::GameCoordinator::addComponent(
+        model, 
+        be::ComponentModel{
+            ._Model = faceModel
+        }
+    );
+    be::GameCoordinator::addComponent(
+        model, 
+        be::ComponentTransform{
+            ._Position = {2.f, -1.f, -5.f},
+            ._Scale = {0.01f, 0.01f, 0.01f},
+        }
+    );
+    be::GameCoordinator::addComponent(
+        model, 
+        be::ComponentRenderSubSystem{
+            ._RenderSubSystem = _RenderSubSystem
+        }
+    );
+
 
 }
 void Application::initCamera(){

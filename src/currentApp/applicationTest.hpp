@@ -6,7 +6,6 @@
 
 #include <BigoudiEngine.hpp>
 
-#include "keyboardInput.hpp"
 #include "mouseInput.hpp"
 
 class Application;

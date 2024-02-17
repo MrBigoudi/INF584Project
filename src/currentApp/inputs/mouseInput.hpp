@@ -58,7 +58,7 @@ class MouseInput{
             mouse->_LastMouseX = xpos;
             mouse->_LastMouseY = ypos;
 
-            mouse->_Camera->ProcessMouseMovement(
+            mouse->_Camera->processMouseMovement(
                 static_cast<float>(xoffset), 
                 static_cast<float>(yoffset)
             );

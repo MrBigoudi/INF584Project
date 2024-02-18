@@ -12,6 +12,13 @@ NormalRenderSubSystem::NormalRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRende
     initPipeline(renderPass);
 }
 
+void NormalRenderSubSystem::cleanUpPipeline(){
+    for(auto& pipeline : _PossiblePipelines){
+        pipeline->cleanUp();
+    }
+    _PossiblePipelines.clear();
+}
+
 
 void NormalRenderSubSystem::cleanUp() {
     IRenderSubSystem::cleanUp();
@@ -130,13 +137,23 @@ void NormalRenderSubSystem::initPipeline(VkRenderPass renderPass){
     }
 
     _Pipeline = be::PipelinePtr(new be::Pipeline(_VulkanApp));
-    // _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
-    // _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
     _Pipeline->initNormalPassThroughShaders();
+
     auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
+
     pipelineConfig._RenderPass = renderPass;
     pipelineConfig._PipelineLayout = _PipelineLayout;
     _Pipeline->init(pipelineConfig);
+    
+    
+    _PossiblePipelines.push_back(_Pipeline);
+
+    _PossiblePipelines.push_back(be::PipelinePtr(new be::Pipeline(_VulkanApp)));
+    _PossiblePipelines[1]->initNormalPassThroughShaders();
+    pipelineConfig = be::Pipeline::defaultWireFramePipelineConfigInfo();
+    pipelineConfig._RenderPass = renderPass;
+    pipelineConfig._PipelineLayout = _PipelineLayout;
+    _PossiblePipelines[1]->init(pipelineConfig);
 }
 
 void NormalRenderSubSystem::cleanUpPipelineLayout(){

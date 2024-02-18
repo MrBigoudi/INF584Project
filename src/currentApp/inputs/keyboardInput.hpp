@@ -1,5 +1,7 @@
 #pragma once
 
+#include "normalRenderSubSystem.hpp"
+
 #include <memory>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -22,6 +24,8 @@ class KeyboardInput{
             KEY_UP = GLFW_KEY_UP,
             KEY_DOWN = GLFW_KEY_DOWN,
             KEY_MOUSE_MODE = GLFW_KEY_M,
+
+            KEY_WIREFRAME = GLFW_KEY_F,
         };
 
         static KeyboardInputPtr _KeyboardInput;
@@ -63,6 +67,15 @@ class KeyboardInput{
             }
             if(glfwGetKey(window->getWindow(), KEY_MOUSE_MODE) == GLFW_RELEASE){
                 MouseInput::resetMouseModeKey();
+            }
+        }
+
+        static void switchPipeline(be::WindowPtr window, NormalRenderSubSystemPtr rss){
+            if(glfwGetKey(window->getWindow(), KEY_WIREFRAME) == GLFW_PRESS){
+                rss->updatePipelineKey();
+            }
+            if(glfwGetKey(window->getWindow(), KEY_WIREFRAME) == GLFW_RELEASE){
+                rss->resetPipelineKey();
             }
         }
 };

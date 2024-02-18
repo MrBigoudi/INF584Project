@@ -170,6 +170,7 @@ void Application::mainLoop(){
 
         KeyboardInput::moveCamera(_Window, _Camera);
         KeyboardInput::updateMouseMode(_Window);
+        KeyboardInput::switchPipeline(_Window, _NormalRenderSubSystem);
 
         auto commandBuffer = _Renderer->beginFrame();
         if(commandBuffer){

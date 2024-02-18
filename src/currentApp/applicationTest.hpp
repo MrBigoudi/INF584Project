@@ -6,7 +6,7 @@
 
 #include <BigoudiEngine.hpp>
 
-#include "renderSubSystems.hpp"
+#include "renderSubSystems.hpp" // IWYU pragma: keep
 
 #include "mouseInput.hpp"
 

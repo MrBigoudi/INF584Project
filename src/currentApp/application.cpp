@@ -26,34 +26,19 @@ void Application::initGameObjects(){
         );
     }
 
-    be::ModelPtr loadedModel = be::ModelPtr(
-        // new be::Model(_VulkanApp, "resources/models/dragon.off")
-        // new be::Model(_VulkanApp, "resources/models/face.off")
+    be::ModelPtr frame = be::ModelPtr(
         new be::Model(
             _VulkanApp, 
             be::VertexDataBuilder::primitiveFrame()
         )
     );
 
-    be::GameObject model = be::GameCoordinator::createObject();
-    _GameObjects.push_back(model);
-    // check components in ecs render system and render sub system
-    be::GameCoordinator::addComponent(
-        model, 
-        be::ComponentModel{
-            ._Model = loadedModel
-        }
+    be::GameObject object = be::RenderSystem::createRenderableObject(
+        {._Model = frame}, 
+        {},
+        {._RenderSubSystem = _RenderSubSystem} 
     );
-    be::GameCoordinator::addComponent(
-        model, 
-        be::ComponentTransform{}
-    );
-    be::GameCoordinator::addComponent(
-        model, 
-        be::ComponentRenderSubSystem{
-            ._RenderSubSystem = _RenderSubSystem
-        }
-    );
+    _GameObjects.push_back(object);
 
 
     // load face model
@@ -62,29 +47,15 @@ void Application::initGameObjects(){
         new be::Model(_VulkanApp, "resources/models/face.off")
     );
 
-    model = be::GameCoordinator::createObject();
-    _GameObjects.push_back(model);
-    // check components in ecs render system and render sub system
-    be::GameCoordinator::addComponent(
-        model, 
-        be::ComponentModel{
-            ._Model = faceModel
-        }
-    );
-    be::GameCoordinator::addComponent(
-        model, 
-        be::ComponentTransform{
+    object = be::RenderSystem::createRenderableObject(
+        {._Model = faceModel}, 
+        {
             ._Position = {2.f, -1.f, 0.f},
             ._Scale = {0.01f, 0.01f, 0.01f},
-        }
+        },
+        {._RenderSubSystem = _NormalRenderSubSystem} 
     );
-    be::GameCoordinator::addComponent(
-        model, 
-        be::ComponentRenderSubSystem{
-            ._RenderSubSystem = _NormalRenderSubSystem
-        }
-    );
-
+    _GameObjects.push_back(object);
 
 }
 void Application::initCamera(){
@@ -140,14 +111,6 @@ void Application::initRenderSubSystems(){
                             _GlobalPool
                             )
                         );
-
-    // _GlobalFrameRenderSubSystem = GlobalFrameRenderSubSystemPtr(
-    //     new GlobalFrameRenderSubSystem(
-    //         _VulkanApp,
-    //         _Renderer->getSwapChainRenderPass(),
-    //         _GlobalPoolTmp
-    //     )
-    // );
 }
 void Application::initDescriptors(){
     _GlobalPool = be::DescriptorPool::Builder(_VulkanApp)
@@ -175,11 +138,9 @@ void Application::cleanUpRenderer(){
 void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
     _NormalRenderSubSystem->cleanUp();
-    // _GlobalFrameRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
-    // _GlobalPoolTmp->cleanUp();
 }
 void Application::cleanUpGameObjects(){
     for(auto object: _GameObjects){
@@ -222,7 +183,6 @@ void Application::mainLoop(){
 
             _RenderSubSystem->renderGameObjects(currentFrame);
             _NormalRenderSubSystem->renderGameObjects(currentFrame);
-            // _GlobalFrameRenderSubSystem->renderGameObjects(currentFrame);
 
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();

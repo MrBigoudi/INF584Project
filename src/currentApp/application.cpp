@@ -36,6 +36,7 @@ void Application::initGameObjects(){
     );
 
     be::GameObject model = be::GameCoordinator::createObject();
+    _GameObjects.push_back(model);
     // check components in ecs render system and render sub system
     be::GameCoordinator::addComponent(
         model, 
@@ -62,6 +63,7 @@ void Application::initGameObjects(){
     );
 
     model = be::GameCoordinator::createObject();
+    _GameObjects.push_back(model);
     // check components in ecs render system and render sub system
     be::GameCoordinator::addComponent(
         model, 
@@ -72,14 +74,14 @@ void Application::initGameObjects(){
     be::GameCoordinator::addComponent(
         model, 
         be::ComponentTransform{
-            ._Position = {2.f, -1.f, -5.f},
+            ._Position = {2.f, -1.f, 0.f},
             ._Scale = {0.01f, 0.01f, 0.01f},
         }
     );
     be::GameCoordinator::addComponent(
         model, 
         be::ComponentRenderSubSystem{
-            ._RenderSubSystem = _RenderSubSystem
+            ._RenderSubSystem = _NormalRenderSubSystem
         }
     );
 
@@ -107,6 +109,9 @@ void Application::initRenderer(){
                 _VulkanApp)
     );
 }
+void Application::initSystems(){
+    be::RenderSystem::init();
+}
 void Application::initRenderSubSystems(){
     if(_Renderer == nullptr){
         be::ErrorHandler::handle(
@@ -122,6 +127,14 @@ void Application::initRenderSubSystems(){
     }
     _RenderSubSystem = SimpleRenderSubSystemPtr(
                         new SimpleRenderSubSystem(
+                            _VulkanApp, 
+                            _Renderer->getSwapChainRenderPass(),
+                            _GlobalPool
+                            )
+                        );
+
+    _NormalRenderSubSystem = NormalRenderSubSystemPtr(
+                        new NormalRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
                             _GlobalPool
@@ -161,11 +174,20 @@ void Application::cleanUpRenderer(){
 }
 void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
+    _NormalRenderSubSystem->cleanUp();
     // _GlobalFrameRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
     // _GlobalPoolTmp->cleanUp();
+}
+void Application::cleanUpGameObjects(){
+    for(auto object: _GameObjects){
+        be::ModelPtr model = be::GameCoordinator::getComponent<be::ComponentModel>(object)._Model;
+        model->cleanUp();
+        be::GameCoordinator::destroyObject(object);
+    }
+    _GameObjects.clear();
 }
 
 
@@ -199,6 +221,7 @@ void Application::mainLoop(){
             _Renderer->beginSwapChainRenderPass(commandBuffer);
 
             _RenderSubSystem->renderGameObjects(currentFrame);
+            _NormalRenderSubSystem->renderGameObjects(currentFrame);
             // _GlobalFrameRenderSubSystem->renderGameObjects(currentFrame);
 
             _Renderer->endSwapChainRenderPass(commandBuffer);

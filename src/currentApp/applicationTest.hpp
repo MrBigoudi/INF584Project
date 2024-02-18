@@ -6,6 +6,8 @@
 
 #include <BigoudiEngine.hpp>
 
+#include "renderSubSystems.hpp"
+
 #include "mouseInput.hpp"
 
 class Application;
@@ -22,10 +24,14 @@ class Application : public be::IApplication{
         be::DescriptorPoolPtr _GlobalPoolTmp = nullptr;
 
         SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
+        NormalRenderSubSystemPtr _NormalRenderSubSystem = nullptr;
+        std::vector<be::GameObject> _GameObjects = {};
 
         be::CameraPtr _Camera = nullptr;
 
     private:
+        void initSystems();
+
         void initWindow();
         void cleanUpWindow();
 
@@ -33,6 +39,7 @@ class Application : public be::IApplication{
         void cleanUpVulkan();
 
         void initGameObjects();
+        void cleanUpGameObjects();
         void initCamera();
 
         void initRenderer();
@@ -52,14 +59,16 @@ class Application : public be::IApplication{
             be::Components::registerComponents();
             initRenderer();
             initDescriptors();
+            initSystems();
             initRenderSubSystems();
             initGameObjects();
 
             MouseInput::setMouseCallback(_Camera, _Window);
         }
         void cleanUp() override {
-            cleanUpDescriptors();
+            cleanUpGameObjects();
             cleanUpRenderSubSystems();
+            cleanUpDescriptors();
             cleanUpRenderer();
             cleanUpVulkan();
             cleanUpWindow();

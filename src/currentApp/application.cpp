@@ -34,7 +34,8 @@ void Application::initGameObjects(){
     );
 
     be::GameObject object = be::RenderSystem::createRenderableObject(
-        {._Model = frame}, 
+        {._Model = frame},
+        {},
         {},
         {._RenderSubSystem = _RenderSubSystem} 
     );
@@ -44,22 +45,24 @@ void Application::initGameObjects(){
     // load face model
     be::ModelPtr faceModel = be::ModelPtr(
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
-        new be::Model(_VulkanApp, "resources/models/face.off")
+        // new be::Model(_VulkanApp, "resources/models/face.off")
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
     );
 
     object = be::RenderSystem::createRenderableObject(
         {._Model = faceModel}, 
         {
-            ._Position = {2.f, -1.f, 0.f},
-            ._Scale = {0.01f, 0.01f, 0.01f},
+            ._Scale = {2.f, 2.f, 2.f},
         },
-        {._RenderSubSystem = _NormalRenderSubSystem} 
+        {},
+        // {._RenderSubSystem = _NormalRenderSubSystem} 
+        {._RenderSubSystem = _BRDFRenderSubSystem} 
     );
     _GameObjects.push_back(object);
 
 }
 void Application::initCamera(){
-    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f,0.f,2.f)));
+    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f,0.f,4.f)));
 }
 void Application::initRenderer(){
     if(_Window == nullptr){
@@ -96,16 +99,24 @@ void Application::initRenderSubSystems(){
             "Can't create a render subsystem without a camera!\n"
         );
     }
-    _RenderSubSystem = SimpleRenderSubSystemPtr(
-                        new SimpleRenderSubSystem(
+    _RenderSubSystem = FrameRenderSubSystemPtr(
+                        new FrameRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
                             _GlobalPool
                             )
                         );
 
-    _NormalRenderSubSystem = NormalRenderSubSystemPtr(
-                        new NormalRenderSubSystem(
+    // _NormalRenderSubSystem = NormalRenderSubSystemPtr(
+    //                     new NormalRenderSubSystem(
+    //                         _VulkanApp, 
+    //                         _Renderer->getSwapChainRenderPass(),
+    //                         _GlobalPool
+    //                         )
+    //                     );
+
+    _BRDFRenderSubSystem = BrdfRenderSubSystemPtr(
+                        new BrdfRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
                             _GlobalPool
@@ -114,8 +125,8 @@ void Application::initRenderSubSystems(){
 }
 void Application::initDescriptors(){
     _GlobalPool = be::DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets(2*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .setMaxSets(_NB_SETS*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _NB_SETS*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .build();
 
     // _GlobalPoolTmp = DescriptorPool::Builder(_VulkanApp)
@@ -137,7 +148,8 @@ void Application::cleanUpRenderer(){
 }
 void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
-    _NormalRenderSubSystem->cleanUp();
+    // _NormalRenderSubSystem->cleanUp();
+    _BRDFRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
@@ -170,7 +182,8 @@ void Application::mainLoop(){
 
         KeyboardInput::moveCamera(_Window, _Camera);
         KeyboardInput::updateMouseMode(_Window);
-        KeyboardInput::switchPipeline(_Window, _NormalRenderSubSystem);
+        // KeyboardInput::switchPipeline(_Window, _NormalRenderSubSystem);
+        KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
 
         auto commandBuffer = _Renderer->beginFrame();
         if(commandBuffer){
@@ -183,7 +196,8 @@ void Application::mainLoop(){
             _Renderer->beginSwapChainRenderPass(commandBuffer);
 
             _RenderSubSystem->renderGameObjects(currentFrame);
-            _NormalRenderSubSystem->renderGameObjects(currentFrame);
+            // _NormalRenderSubSystem->renderGameObjects(currentFrame);
+            _BRDFRenderSubSystem->renderGameObjects(currentFrame);
 
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();

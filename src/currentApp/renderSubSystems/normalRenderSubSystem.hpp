@@ -8,6 +8,9 @@ class NormalRenderSubSystem;
 using NormalRenderSubSystemPtr = std::shared_ptr<NormalRenderSubSystem>;
 
 class NormalRenderSubSystem : public be::IRenderSubSystem {
+    public:
+        static const uint32_t _NB_SETS = 1;
+
     protected:
 
         std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};

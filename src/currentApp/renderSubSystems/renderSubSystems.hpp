@@ -1,4 +1,5 @@
 #pragma once
 
-#include "simpleRenderSubSystem.hpp"
-#include "normalRenderSubSystem.hpp"
+#include "frameRenderSubSystem.hpp" // IWYU pragma: keep
+#include "normalRenderSubSystem.hpp" // IWYU pragma: keep
+#include "brdfRenderSubSystem.hpp" // IWYU pragma: keep

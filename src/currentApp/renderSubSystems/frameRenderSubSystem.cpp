@@ -1,10 +1,10 @@
-#include "simpleRenderSubSystem.hpp"
+#include "frameRenderSubSystem.hpp"
 
 #include <cstdint>
 #include "data.hpp"
 
 
-SimpleRenderSubSystem::SimpleRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRenderPass renderPass, be::DescriptorPoolPtr globalPool)
+FrameRenderSubSystem::FrameRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRenderPass renderPass, be::DescriptorPoolPtr globalPool)
     : IRenderSubSystem(vulkanApp, renderPass), _GlobalPool(globalPool){
     initUBOs();
     initDescriptors();
@@ -13,27 +13,23 @@ SimpleRenderSubSystem::SimpleRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRende
 }
 
 
-void SimpleRenderSubSystem::cleanUp() {
+void FrameRenderSubSystem::cleanUp() {
     IRenderSubSystem::cleanUp();
 
     _GlobalSetLayout->cleanUp();
-    // _LightSetLayout->cleanUp();
 
     for(int i=0; i<int(_CameraUBO.size()); i++){
         if(_CameraUBO[i])
             _CameraUBO[i]->cleanUp();
-        // if(_LightUBO[i])
-        //     _LightUBO[i]->cleanUp();
     }
 
 }
 
 
-void SimpleRenderSubSystem::renderingFunction(be::GameObject object){
+void FrameRenderSubSystem::renderingFunction(be::GameObject object){
     be::ModelPtr model = be::GameCoordinator::getComponent<be::ComponentModel>(object)._Model;
 
     SimplePushConstantData push{};
-    // push._Random = static_cast<float>(glfwGetTime());
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
     push._Model = objectTransform.getModel();
     
@@ -50,7 +46,7 @@ void SimpleRenderSubSystem::renderingFunction(be::GameObject object){
     model->draw(_FrameInfo._CommandBuffer);
 }
 
-void SimpleRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
+void FrameRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
     _FrameInfo = frameInfo;
     uint32_t frameIndex = frameInfo._FrameIndex;
 
@@ -60,12 +56,8 @@ void SimpleRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
     cameraUbo._View = frameInfo._Camera->getView();
     _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
 
-    // LightUbo lightUbo{};
-    // _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
-
     _DescriptorSets = {
         _GlobalDescriptorSets[frameIndex],
-        // _LightDescriptorSets[frameIndex]
     };
 
     be::RenderSystem::renderGameObjects(
@@ -74,7 +66,7 @@ void SimpleRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
     );
 }
 
-void SimpleRenderSubSystem::initPipelineLayout(){
+void FrameRenderSubSystem::initPipelineLayout(){
     if(_VulkanApp == nullptr){
         be::ErrorHandler::handle(
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
@@ -91,7 +83,6 @@ void SimpleRenderSubSystem::initPipelineLayout(){
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
         _GlobalSetLayout->getDescriptorSetLayout(),
-        // _LightSetLayout->getDescriptorSetLayout()
     };
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -110,7 +101,7 @@ void SimpleRenderSubSystem::initPipelineLayout(){
     be::ErrorHandler::vulkanError(result, "Failed to create pipeline layout!\n");
 }
 
-void SimpleRenderSubSystem::initPipeline(VkRenderPass renderPass){
+void FrameRenderSubSystem::initPipeline(VkRenderPass renderPass){
     if(_Pipeline != nullptr){
         _Pipeline->cleanUp();
     }
@@ -130,8 +121,6 @@ void SimpleRenderSubSystem::initPipeline(VkRenderPass renderPass){
     }
 
     _Pipeline = be::PipelinePtr(new be::Pipeline(_VulkanApp));
-    // _Pipeline->initVertexShader("shaders/compiled/basicTriangleVert.spv");
-    // _Pipeline->initFragmentShader("shaders/compiled/basicTriangleFrag.spv");
     _Pipeline->initColorPassThroughShaders();
     auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
     pipelineConfig._RenderPass = renderPass;
@@ -139,7 +128,7 @@ void SimpleRenderSubSystem::initPipeline(VkRenderPass renderPass){
     _Pipeline->init(pipelineConfig);
 }
 
-void SimpleRenderSubSystem::cleanUpPipelineLayout(){
+void FrameRenderSubSystem::cleanUpPipelineLayout(){
     vkDestroyPipelineLayout(
         _VulkanApp->getDevice(), 
         _PipelineLayout, 
@@ -148,7 +137,7 @@ void SimpleRenderSubSystem::cleanUpPipelineLayout(){
 }
 
 
-void SimpleRenderSubSystem::initUBOs(){
+void FrameRenderSubSystem::initUBOs(){
     for(int i=0; i<int(_CameraUBO.size()); i++){
         _CameraUBO[i] = be::BufferPtr(new be::Buffer(
             _VulkanApp, 
@@ -160,42 +149,21 @@ void SimpleRenderSubSystem::initUBOs(){
         ));
 
         _CameraUBO[i]->map();
-
-        // _LightUBO[i] = be::BufferPtr(new be::Buffer(
-        //     _VulkanApp, 
-        //     sizeof(LightUbo),
-        //     1,
-        //     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        //     _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        // ));
-
-        // _LightUBO[i]->map();
     }
 }
 
-void SimpleRenderSubSystem::initDescriptors(){
+void FrameRenderSubSystem::initDescriptors(){
     _GlobalSetLayout = be::DescriptorSetLayoutPtr( 
         be::DescriptorSetLayout::Builder(_VulkanApp)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
             .build()
     );
 
-    // _LightSetLayout = be::DescriptorSetLayoutPtr( 
-    //     be::DescriptorSetLayout::Builder(_VulkanApp)
-    //         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
-    //         .build()
-    // );
-
     for(int i=0; i < be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
         auto cameraBufferInfo = _CameraUBO[i]->descriptorInfo();
-        // auto lightBufferInfo = _LightUBO[i]->descriptorInfo();
         
         be::DescriptorWriter(*_GlobalSetLayout, *_GlobalPool)
             .writeBuffer(0, &cameraBufferInfo)
             .build(_GlobalDescriptorSets[i]);
-        // be::DescriptorWriter(*_LightSetLayout, *_GlobalPool)
-        //     .writeBuffer(0, &lightBufferInfo)
-        //     .build(_LightDescriptorSets[i]);
     }
 }

@@ -23,11 +23,19 @@ class Application : public be::IApplication{
         be::DescriptorPoolPtr _GlobalPool = nullptr;
         be::DescriptorPoolPtr _GlobalPoolTmp = nullptr;
 
-        SimpleRenderSubSystemPtr _RenderSubSystem = nullptr;
-        NormalRenderSubSystemPtr _NormalRenderSubSystem = nullptr;
         std::vector<be::GameObject> _GameObjects = {};
-
         be::CameraPtr _Camera = nullptr;
+
+        FrameRenderSubSystemPtr _RenderSubSystem = nullptr;
+        NormalRenderSubSystemPtr _NormalRenderSubSystem = nullptr;
+        BrdfRenderSubSystemPtr _BRDFRenderSubSystem = nullptr;
+
+    public:
+        static const uint32_t _NB_SETS = 
+            FrameRenderSubSystem::_NB_SETS
+            // + NormalRenderSubSystem::_NB_SETS
+            + BrdfRenderSubSystem::_NB_SETS
+        ;
 
     private:
         void initSystems();

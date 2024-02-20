@@ -1,6 +1,6 @@
 #pragma once
 
-#include "normalRenderSubSystem.hpp"
+#include "brdfRenderSubSystem.hpp"
 
 #include <memory>
 #define GLFW_INCLUDE_VULKAN
@@ -25,7 +25,8 @@ class KeyboardInput{
             KEY_DOWN = GLFW_KEY_DOWN,
             KEY_MOUSE_MODE = GLFW_KEY_M,
 
-            KEY_WIREFRAME = GLFW_KEY_F,
+            KEY_SWITCH_PIPELINE = GLFW_KEY_P,
+            KEY_WIREFRAME = GLFW_KEY_F1,
         };
 
         static KeyboardInputPtr _KeyboardInput;
@@ -70,12 +71,18 @@ class KeyboardInput{
             }
         }
 
-        static void switchPipeline(be::WindowPtr window, NormalRenderSubSystemPtr rss){
+        static void switchPipeline(be::WindowPtr window, BrdfRenderSubSystemPtr rss){
             if(glfwGetKey(window->getWindow(), KEY_WIREFRAME) == GLFW_PRESS){
-                rss->updatePipelineKey();
+                rss->updateWireframePipelineKey();
             }
             if(glfwGetKey(window->getWindow(), KEY_WIREFRAME) == GLFW_RELEASE){
-                rss->resetPipelineKey();
+                rss->resetWireframePipelineKey();
+            }
+            if(glfwGetKey(window->getWindow(), KEY_SWITCH_PIPELINE) == GLFW_PRESS){
+                rss->updateSwitchPipelineKey();
+            }
+            if(glfwGetKey(window->getWindow(), KEY_SWITCH_PIPELINE) == GLFW_RELEASE){
+                rss->resetSwitchPipelineKey();
             }
         }
 };

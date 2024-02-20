@@ -20,7 +20,6 @@ project(vulkanTest)
 add_executable(${PROJECT_NAME} main.cpp)
 
 find_package(glfw3 REQUIRED)
-find_package(glm REQUIRED)
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(src)

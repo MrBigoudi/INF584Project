@@ -4,10 +4,13 @@
 
 #include <BigoudiEngine.hpp>
 
-class SimpleRenderSubSystem;
-using SimpleRenderSubSystemPtr = std::shared_ptr<SimpleRenderSubSystem>;
+class FrameRenderSubSystem;
+using FrameRenderSubSystemPtr = std::shared_ptr<FrameRenderSubSystem>;
 
-class SimpleRenderSubSystem : public be::IRenderSubSystem {
+class FrameRenderSubSystem : public be::IRenderSubSystem {
+    public:
+        static const uint32_t _NB_SETS = 1;
+
     protected:
 
         std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
@@ -23,7 +26,7 @@ class SimpleRenderSubSystem : public be::IRenderSubSystem {
         be::FrameInfo _FrameInfo{};
 
     public:
-        SimpleRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRenderPass renderPass, be::DescriptorPoolPtr globalPool);
+        FrameRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRenderPass renderPass, be::DescriptorPoolPtr globalPool);
 
         virtual void renderGameObjects(be::FrameInfo& frameInfo) override;
 

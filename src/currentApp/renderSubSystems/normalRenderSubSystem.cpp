@@ -24,13 +24,10 @@ void NormalRenderSubSystem::cleanUp() {
     IRenderSubSystem::cleanUp();
 
     _GlobalSetLayout->cleanUp();
-    // _LightSetLayout->cleanUp();
 
     for(int i=0; i<int(_CameraUBO.size()); i++){
         if(_CameraUBO[i])
             _CameraUBO[i]->cleanUp();
-        // if(_LightUBO[i])
-        //     _LightUBO[i]->cleanUp();
     }
 
 }
@@ -40,7 +37,6 @@ void NormalRenderSubSystem::renderingFunction(be::GameObject object){
     be::ModelPtr model = be::GameCoordinator::getComponent<be::ComponentModel>(object)._Model;
 
     SimplePushConstantData push{};
-    // push._Random = static_cast<float>(glfwGetTime());
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
     push._Model = objectTransform.getModel();
     
@@ -67,12 +63,8 @@ void NormalRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
     cameraUbo._View = frameInfo._Camera->getView();
     _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
 
-    // LightUbo lightUbo{};
-    // _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
-
     _DescriptorSets = {
         _GlobalDescriptorSets[frameIndex],
-        // _LightDescriptorSets[frameIndex]
     };
 
     be::RenderSystem::renderGameObjects(
@@ -98,7 +90,6 @@ void NormalRenderSubSystem::initPipelineLayout(){
 
     std::vector<VkDescriptorSetLayout> descriptorSetLayouts{
         _GlobalSetLayout->getDescriptorSetLayout(),
-        // _LightSetLayout->getDescriptorSetLayout()
     };
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
@@ -177,17 +168,6 @@ void NormalRenderSubSystem::initUBOs(){
         ));
 
         _CameraUBO[i]->map();
-
-        // _LightUBO[i] = be::BufferPtr(new be::Buffer(
-        //     _VulkanApp, 
-        //     sizeof(LightUbo),
-        //     1,
-        //     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        //     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        //     _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        // ));
-
-        // _LightUBO[i]->map();
     }
 }
 
@@ -198,21 +178,11 @@ void NormalRenderSubSystem::initDescriptors(){
             .build()
     );
 
-    // _LightSetLayout = be::DescriptorSetLayoutPtr( 
-    //     be::DescriptorSetLayout::Builder(_VulkanApp)
-    //         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
-    //         .build()
-    // );
-
     for(int i=0; i < be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
         auto cameraBufferInfo = _CameraUBO[i]->descriptorInfo();
-        // auto lightBufferInfo = _LightUBO[i]->descriptorInfo();
         
         be::DescriptorWriter(*_GlobalSetLayout, *_GlobalPool)
             .writeBuffer(0, &cameraBufferInfo)
             .build(_GlobalDescriptorSets[i]);
-        // be::DescriptorWriter(*_LightSetLayout, *_GlobalPool)
-        //     .writeBuffer(0, &lightBufferInfo)
-        //     .build(_LightDescriptorSets[i]);
     }
 }

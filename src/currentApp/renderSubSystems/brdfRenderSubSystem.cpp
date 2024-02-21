@@ -76,7 +76,7 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     LightUbo lightUbo{};
     lightUbo._NbPointLights = 1;
     lightUbo._PointLights[0] = {
-        ._Position = {-10.f, 0.f, 0.f, 1.f},
+        ._Position = {-2.f, 0.f, 0.f, 1.f},
         ._Color = {1.f, 1.f, 1.f, 1.f},
         ._Intensity = 1.f
     };

@@ -45,14 +45,14 @@ void Application::initGameObjects(){
     // load face model
     be::ModelPtr faceModel = be::ModelPtr(
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
-        // new be::Model(_VulkanApp, "resources/models/face.off")
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
+        new be::Model(_VulkanApp, "resources/models/face.off")
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
     );
 
     object = be::RenderSystem::createRenderableObject(
         {._Model = faceModel}, 
         {
-            ._Scale = {2.f, 2.f, 2.f},
+            ._Scale = {0.01f, 0.01f, 0.01f},
         },
         {},
         // {._RenderSubSystem = _NormalRenderSubSystem} 

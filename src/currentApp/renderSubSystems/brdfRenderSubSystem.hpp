@@ -10,7 +10,7 @@ using BrdfRenderSubSystemPtr = std::shared_ptr<BrdfRenderSubSystem>;
 class BrdfRenderSubSystem : public be::IRenderSubSystem {
     public:
         static const uint32_t _NB_SETS = 3;
-        static const uint32_t _NB_PIPELINES = 1;
+        static const uint32_t _NB_PIPELINES = 4;
 
     protected:
         std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
@@ -42,6 +42,8 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
             if(!_IsSwitchPipelineKeyPressed){
                 _IsSwitchPipelineKeyPressed = true;
                 switchPipeline();
+                resetWireframePipelineKey();
+                _IsWireFrameMode = false;
             }
         }
 
@@ -82,6 +84,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
         void switchPipeline(){
             _PipelineId = (_PipelineId + 1) % _PossiblePipelines.size();
             _Pipeline = _PossiblePipelines[_PipelineId];
+            fprintf(stdout, "Pipeline %d\n", _PipelineId);
         }
 
         void switchWireframe(){

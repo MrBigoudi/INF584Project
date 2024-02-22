@@ -82,6 +82,12 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
         ._Color = {1.f, 1.f, 1.f},
         ._Intensity = 1.f
     };
+    lightUbo._NbDirectionalLights = 1;
+    lightUbo._DirectionalLights[0] = {
+        ._Direction = {-1.f, -1.f, 0.f},
+        ._Color = {1.f, 1.f, 1.f},
+        ._Intensity = 0.05f
+    };
     _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
 
     MaterialUbo materialUbo{};
@@ -164,10 +170,10 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
     // init pipelines
     for(uint32_t i=0; i<_NB_PIPELINES; i++){
         _PossiblePipelines[i] = be::PipelinePtr(new be::Pipeline(_VulkanApp));
-        if(i==0){
-            // possiblePipelines[0] = lambert pipeline
-            _PossiblePipelines[0]->initLambertShaders();
-        }
+        if(i==0) _PossiblePipelines[i]->initColorPassThroughShaders();// 0 = colors brdf
+        if(i==1) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
+        if(i==2) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
+        if(i==3) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
         pipelineConfig._PipelineLayout = _PipelineLayout;

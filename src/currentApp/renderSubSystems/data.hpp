@@ -19,11 +19,20 @@ struct PointLight{
     alignas(4) float _Intensity = 1.f;
 };
 
+struct DirectionalLight{
+    alignas(16) be::Vector3 _Direction{};
+    alignas(16) be::Vector3 _Color{};
+    alignas(4) float _Intensity = 1.f;
+};
+
 const int MAX_NB_POINT_LIGHTS = 10;
+const int MAX_NB_DIRECTIONAL_LIGHTS = 10;
 
 struct LightUbo{
     alignas(4) uint32_t _NbPointLights = 0;
     alignas(16) PointLight _PointLights[MAX_NB_POINT_LIGHTS];
+    alignas(4) uint32_t _NbDirectionalLights = 0;
+    alignas(16) DirectionalLight _DirectionalLights[MAX_NB_DIRECTIONAL_LIGHTS];
 };
 
 struct MaterialUbo{

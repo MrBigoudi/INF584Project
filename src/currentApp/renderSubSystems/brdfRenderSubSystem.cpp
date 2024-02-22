@@ -50,6 +50,8 @@ void BrdfRenderSubSystem::renderingFunction(be::GameObject object){
     SimplePushConstantData push{};
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
     push._Model = objectTransform.getModel();
+    auto viewModel = _FrameInfo._Camera->getView() * push._Model;
+    push._NormalMat = be::Matrix4x4::transpose(be::Matrix4x4::inverse(viewModel));
     
     vkCmdPushConstants(
         _FrameInfo._CommandBuffer, 
@@ -76,8 +78,8 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     LightUbo lightUbo{};
     lightUbo._NbPointLights = 1;
     lightUbo._PointLights[0] = {
-        ._Position = {-2.f, 0.f, 0.f, 1.f},
-        ._Color = {1.f, 1.f, 1.f, 1.f},
+        ._Position = {-2.f, 0.f, 0.f},
+        ._Color = {1.f, 1.f, 1.f},
         ._Intensity = 1.f
     };
     _LightUBO[frameIndex]->writeToBuffer(&lightUbo);

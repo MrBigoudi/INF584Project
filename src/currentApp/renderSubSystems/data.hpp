@@ -3,7 +3,8 @@
 #include <BigoudiEngine.hpp>
 
 struct SimplePushConstantData : be::PushConstantData{
-    alignas(16) be::Matrix4x4 _Model;
+    alignas(16) be::Matrix4x4 _Model{1.f};
+    alignas(16) be::Matrix4x4 _NormalMat{1.f};
 };
 
 struct CameraUbo{
@@ -13,8 +14,8 @@ struct CameraUbo{
 
 // TODO: move this in the engine
 struct PointLight{
-    alignas(16) be::Vector4 _Position{};
-    alignas(16) be::Vector4 _Color{};
+    alignas(16) be::Vector3 _Position{};
+    alignas(16) be::Vector3 _Color{};
     alignas(4) float _Intensity = 1.f;
 };
 

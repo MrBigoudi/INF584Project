@@ -27,13 +27,3 @@ add_subdirectory(dep)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan cflags)
 target_link_libraries(${PROJECT_NAME} PRIVATE BigoudiEngine cflags)
-
-add_custom_target(
-    compile_shaders
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/compileShaders.sh
-    COMMENT "Compiling shaders..."
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    VERBATIM
-)
-
-add_dependencies(${PROJECT_NAME} compile_shaders)

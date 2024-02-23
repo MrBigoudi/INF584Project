@@ -10,7 +10,7 @@ using BrdfRenderSubSystemPtr = std::shared_ptr<BrdfRenderSubSystem>;
 class BrdfRenderSubSystem : public be::IRenderSubSystem {
     public:
         static const uint32_t _NB_SETS = 3;
-        static const uint32_t _NB_PIPELINES = 4;
+        static const uint32_t _NB_PIPELINES = 5;
 
     protected:
         std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};

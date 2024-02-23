@@ -174,6 +174,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         if(i==1) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
         if(i==2) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
         if(i==3) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
+        if(i==4) _PossiblePipelines[i]->initDisneyShaders();// 4 = disney brdf
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
         pipelineConfig._PipelineLayout = _PipelineLayout;

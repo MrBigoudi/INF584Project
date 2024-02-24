@@ -25,8 +25,8 @@ struct DirectionalLight{
     alignas(4) float _Intensity = 1.f;
 };
 
-const int MAX_NB_POINT_LIGHTS = 10;
-const int MAX_NB_DIRECTIONAL_LIGHTS = 10;
+const int MAX_NB_POINT_LIGHTS = 1024;
+const int MAX_NB_DIRECTIONAL_LIGHTS = 1;
 
 struct LightUbo{
     alignas(4) uint32_t _NbPointLights = 0;

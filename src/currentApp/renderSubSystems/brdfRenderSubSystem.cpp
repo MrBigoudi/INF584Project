@@ -76,18 +76,38 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
 
     LightUbo lightUbo{};
+
     lightUbo._NbPointLights = 1;
     lightUbo._PointLights[0] = {
-        ._Position = {-2.f, 0.f, 0.f},
-        ._Color = {1.f, 1.f, 1.f},
+        ._Position = {-3.f, 0.f, 0.f},
+        ._Color = {1.f, 0.f, 0.f},
         ._Intensity = 1.f
     };
-    lightUbo._NbDirectionalLights = 1;
-    lightUbo._DirectionalLights[0] = {
-        ._Direction = {-1.f, -1.f, 0.f},
-        ._Color = {1.f, 1.f, 1.f},
-        ._Intensity = 0.05f
-    };
+    for(int i=1; i<MAX_NB_POINT_LIGHTS; i++){
+        be::Vector3 curPosition = {
+            (std::rand() % 1000) / 50.f - 5.f,
+            (std::rand() % 1000) / 50.f - 5.f, 
+            (std::rand() % 1000) / 50.f - 5.f
+        };
+        be::Vector3 curColor = {
+            (std::rand() % 256) / 255.f,
+            (std::rand() % 256) / 255.f, 
+            (std::rand() % 256) / 255.f
+        };
+        lightUbo._PointLights[i] = {
+            ._Position = curPosition,
+            ._Color = curColor,
+            ._Intensity = 1.f
+        };
+        lightUbo._NbPointLights++;
+    }
+    
+    // lightUbo._NbDirectionalLights = 1;
+    // lightUbo._DirectionalLights[0] = {
+    //     ._Direction = {-1.f, -1.f, 0.f},
+    //     ._Color = {0.f, 1.f, 1.f},
+    //     ._Intensity = 1.f
+    // };
     _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
 
     MaterialUbo materialUbo{};
@@ -170,11 +190,11 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
     // init pipelines
     for(uint32_t i=0; i<_NB_PIPELINES; i++){
         _PossiblePipelines[i] = be::PipelinePtr(new be::Pipeline(_VulkanApp));
-        if(i==0) _PossiblePipelines[i]->initColorPassThroughShaders();// 0 = colors brdf
+        if(i==0) _PossiblePipelines[i]->initDisneyShaders();// 0 = disney brdf
         if(i==1) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
         if(i==2) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
         if(i==3) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
-        if(i==4) _PossiblePipelines[i]->initDisneyShaders();// 4 = disney brdf
+        if(i==4) _PossiblePipelines[i]->initColorPassThroughShaders();// 4 = colors brdf
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
         pipelineConfig._PipelineLayout = _PipelineLayout;

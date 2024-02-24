@@ -185,6 +185,19 @@ void Application::mainLoop(){
         // KeyboardInput::switchPipeline(_Window, _NormalRenderSubSystem);
         KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
 
+        // IMGUI
+        {
+            // Start the Dear ImGui frame
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            ImGui::ShowDemoWindow();
+        }
+
+        // Rendering
+        ImGui::Render();
+        ImDrawData* draw_data = ImGui::GetDrawData();
+
         auto commandBuffer = _Renderer->beginFrame();
         if(commandBuffer){
             be::FrameInfo currentFrame{};
@@ -198,10 +211,12 @@ void Application::mainLoop(){
             _RenderSubSystem->renderGameObjects(currentFrame);
             // _NormalRenderSubSystem->renderGameObjects(currentFrame);
             _BRDFRenderSubSystem->renderGameObjects(currentFrame);
+            ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
 
             _Renderer->endSwapChainRenderPass(commandBuffer);
             _Renderer->endFrame();
         }
+
     }
     vkDeviceWaitIdle(_VulkanApp->getDevice());
 }

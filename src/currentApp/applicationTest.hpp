@@ -70,10 +70,12 @@ class Application : public be::IApplication{
             initSystems();
             initRenderSubSystems();
             initGameObjects();
-
             MouseInput::setMouseCallback(_Camera, _Window);
+            // init imgui after setting up the callbacks
+            be::BeImgui::init(_Window, _VulkanApp, _Renderer);
         }
         void cleanUp() override {
+            be::BeImgui::cleanUp(_VulkanApp);
             cleanUpGameObjects();
             cleanUpRenderSubSystems();
             cleanUpDescriptors();

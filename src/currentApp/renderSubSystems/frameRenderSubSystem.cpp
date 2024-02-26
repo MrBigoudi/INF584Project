@@ -31,7 +31,7 @@ void FrameRenderSubSystem::renderingFunction(be::GameObject object){
 
     SimplePushConstantData push{};
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
-    push._Model = objectTransform.getModel();
+    push._Model = objectTransform._Transform->getModel();
     
     vkCmdPushConstants(
         _FrameInfo._CommandBuffer, 

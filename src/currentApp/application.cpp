@@ -34,10 +34,8 @@ void Application::initGameObjects(){
     );
 
     be::GameObject object = be::RenderSystem::createRenderableObject(
-        {._Model = frame},
-        {},
-        {},
-        {._RenderSubSystem = _RenderSubSystem} 
+        {._RenderSubSystem = _RenderSubSystem},
+        {._Model = frame}
     );
     _GameObjects.push_back(object);
 
@@ -49,15 +47,16 @@ void Application::initGameObjects(){
         new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
     );
 
+    be::TransformPtr faceTransform = be::TransformPtr(
+        new be::Transform()
+    );
+    faceTransform->_Scale = {2.f, 2.f, 2.f};
+
     object = be::RenderSystem::createRenderableObject(
+        // {._RenderSubSystem = _NormalRenderSubSystem},
+        {._RenderSubSystem = _BRDFRenderSubSystem},
         {._Model = faceModel}, 
-        {
-            ._Scale = {2.f, 2.f, 2.f},
-            // ._Scale = {0.01f, 0.01f, 0.01f},
-        },
-        {},
-        // {._RenderSubSystem = _NormalRenderSubSystem} 
-        {._RenderSubSystem = _BRDFRenderSubSystem} 
+        {._Transform = faceTransform}
     );
     _GameObjects.push_back(object);
 
@@ -196,12 +195,12 @@ void Application::mainLoop(){
             // modify materials values
             ImGui::Begin("Material values");
             auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(_GameObjects[1]);
-            for(uint32_t i=0; i<be::ComponentMaterial::COMPONENT_MATERIAL_NB_ELEMENTS; i++){
+            for(uint32_t i=0; i<be::Material::COMPONENT_MATERIAL_NB_ELEMENTS; i++){
                 ImGui::SliderFloat(
-                    be::ComponentMaterial::COMPONENT_MATERIAL_NAMES[i].c_str(),
-                    &material.get(i),
-                    be::ComponentMaterial::COMPONENT_MATERIAL_MIN_VALUES[i],
-                    be::ComponentMaterial::COMPONENT_MATERIAL_MAX_VALUES[i]
+                    be::Material::COMPONENT_MATERIAL_NAMES[i].c_str(),
+                    &material._Material->get(i),
+                    be::Material::COMPONENT_MATERIAL_MIN_VALUES[i],
+                    be::Material::COMPONENT_MATERIAL_MAX_VALUES[i]
                 );
             }
             ImGui::End();

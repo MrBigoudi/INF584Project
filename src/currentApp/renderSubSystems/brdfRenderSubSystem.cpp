@@ -49,7 +49,7 @@ void BrdfRenderSubSystem::renderingFunction(be::GameObject object){
 
     SimplePushConstantData push{};
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
-    push._Model = objectTransform.getModel();
+    push._Model = objectTransform._Transform->getModel();
     auto viewModel = _FrameInfo._Camera->getView() * push._Model;
     push._NormalMat = be::Matrix4x4::transpose(be::Matrix4x4::inverse(viewModel));
     

@@ -17,12 +17,7 @@ void FrameRenderSubSystem::cleanUp() {
     IRenderSubSystem::cleanUp();
 
     _GlobalSetLayout->cleanUp();
-
-    for(int i=0; i<int(_CameraUBO.size()); i++){
-        if(_CameraUBO[i])
-            _CameraUBO[i]->cleanUp();
-    }
-
+    _CameraUBO.cleanUp();
 }
 
 
@@ -51,10 +46,9 @@ void FrameRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
     uint32_t frameIndex = frameInfo._FrameIndex;
 
     // update UBOs
-    CameraUbo cameraUbo{};
-    cameraUbo._Proj = frameInfo._Camera->getPerspective();
-    cameraUbo._View = frameInfo._Camera->getView();
-    _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
+    _CameraUBO.setProj(frameInfo._Camera->getPerspective());
+    _CameraUBO.setView(frameInfo._Camera->getView());
+    _CameraUBO.update(frameIndex);
 
     _DescriptorSets = {
         _GlobalDescriptorSets[frameIndex],
@@ -138,18 +132,7 @@ void FrameRenderSubSystem::cleanUpPipelineLayout(){
 
 
 void FrameRenderSubSystem::initUBOs(){
-    for(int i=0; i<int(_CameraUBO.size()); i++){
-        _CameraUBO[i] = be::BufferPtr(new be::Buffer(
-            _VulkanApp, 
-            sizeof(CameraUbo),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        ));
-
-        _CameraUBO[i]->map();
-    }
+    _CameraUBO.init(be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT, _VulkanApp);
 }
 
 void FrameRenderSubSystem::initDescriptors(){
@@ -160,7 +143,7 @@ void FrameRenderSubSystem::initDescriptors(){
     );
 
     for(int i=0; i < be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
-        auto cameraBufferInfo = _CameraUBO[i]->descriptorInfo();
+        auto cameraBufferInfo = _CameraUBO.getDescriptorInfo(i);
         
         be::DescriptorWriter(*_GlobalSetLayout, *_GlobalPool)
             .writeBuffer(0, &cameraBufferInfo)

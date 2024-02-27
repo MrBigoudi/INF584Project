@@ -53,7 +53,6 @@ void Application::initGameObjects(){
     faceTransform->_Scale = {2.f, 2.f, 2.f};
 
     object = be::RenderSystem::createRenderableObject(
-        // {._RenderSubSystem = _NormalRenderSubSystem},
         {._RenderSubSystem = _BRDFRenderSubSystem},
         {._Model = faceModel}, 
         {._Transform = faceTransform}
@@ -107,14 +106,6 @@ void Application::initRenderSubSystems(){
                             )
                         );
 
-    // _NormalRenderSubSystem = NormalRenderSubSystemPtr(
-    //                     new NormalRenderSubSystem(
-    //                         _VulkanApp, 
-    //                         _Renderer->getSwapChainRenderPass(),
-    //                         _GlobalPool
-    //                         )
-    //                     );
-
     _BRDFRenderSubSystem = BrdfRenderSubSystemPtr(
                         new BrdfRenderSubSystem(
                             _VulkanApp, 
@@ -128,11 +119,6 @@ void Application::initDescriptors(){
         .setMaxSets(_NB_SETS*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _NB_SETS*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .build();
-
-    // _GlobalPoolTmp = DescriptorPool::Builder(_VulkanApp)
-    //     .setMaxSets(SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-    //     .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-    //     .build();
 }
 
 
@@ -148,7 +134,6 @@ void Application::cleanUpRenderer(){
 }
 void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
-    // _NormalRenderSubSystem->cleanUp();
     _BRDFRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
@@ -182,7 +167,6 @@ void Application::mainLoop(){
 
         KeyboardInput::moveCamera(_Window, _Camera);
         KeyboardInput::updateMouseMode(_Window);
-        // KeyboardInput::switchPipeline(_Window, _NormalRenderSubSystem);
         KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
 
         // IMGUI
@@ -221,7 +205,6 @@ void Application::mainLoop(){
             _Renderer->beginSwapChainRenderPass(commandBuffer);
 
             _RenderSubSystem->renderGameObjects(currentFrame);
-            // _NormalRenderSubSystem->renderGameObjects(currentFrame);
             _BRDFRenderSubSystem->renderGameObjects(currentFrame);
             ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
 

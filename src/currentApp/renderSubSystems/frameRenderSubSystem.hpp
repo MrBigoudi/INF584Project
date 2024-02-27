@@ -13,15 +13,12 @@ class FrameRenderSubSystem : public be::IRenderSubSystem {
 
     protected:
 
-        std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        // std::vector<be::BufferPtr> _LightUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        be::CameraUboContainer _CameraUBO{};
 
         be::DescriptorPoolPtr _GlobalPool = nullptr;
 
         std::vector<VkDescriptorSet> _GlobalDescriptorSets{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        // std::vector<VkDescriptorSet> _LightDescriptorSets{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
         be::DescriptorSetLayoutPtr _GlobalSetLayout = nullptr;
-        // be::DescriptorSetLayoutPtr _LightSetLayout = nullptr;
 
         be::FrameInfo _FrameInfo{};
 

@@ -27,13 +27,11 @@ class Application : public be::IApplication{
         be::CameraPtr _Camera = nullptr;
 
         FrameRenderSubSystemPtr _RenderSubSystem = nullptr;
-        NormalRenderSubSystemPtr _NormalRenderSubSystem = nullptr;
         BrdfRenderSubSystemPtr _BRDFRenderSubSystem = nullptr;
 
     public:
         static const uint32_t _NB_SETS = 
             FrameRenderSubSystem::_NB_SETS
-            // + NormalRenderSubSystem::_NB_SETS
             + BrdfRenderSubSystem::_NB_SETS
         ;
 

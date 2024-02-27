@@ -32,15 +32,9 @@ void BrdfRenderSubSystem::cleanUp() {
     _LightSetLayout->cleanUp();
     _MaterialSetLayout->cleanUp();
 
-    for(int i=0; i<int(_CameraUBO.size()); i++){
-        if(_CameraUBO[i])
-            _CameraUBO[i]->cleanUp();
-        if(_LightUBO[i])
-            _LightUBO[i]->cleanUp();
-        if(_MaterialUBO[i])
-            _MaterialUBO[i]->cleanUp();
-    }
-
+    _CameraUBO.cleanUp();
+    _LightUBO.cleanUp();
+    _MaterialUBO.cleanUp();
 }
 
 
@@ -70,20 +64,18 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     uint32_t frameIndex = frameInfo._FrameIndex;
     
     // update UBOs
-    CameraUbo cameraUbo{};
-    cameraUbo._Proj = frameInfo._Camera->getPerspective();
-    cameraUbo._View = frameInfo._Camera->getView();
-    _CameraUBO[frameIndex]->writeToBuffer(&cameraUbo);
+    _CameraUBO.setProj(frameInfo._Camera->getPerspective());
+    _CameraUBO.setView(frameInfo._Camera->getView());
+    _CameraUBO.update(frameIndex);
 
-    LightUbo lightUbo{};
+    _LightUBO.reset();
+    _LightUBO.addPointLight(
+        {-3.f, 0.f, 0.f}, 
+        {1.f, 0.f, 0.f},
+        1.f 
+    );
 
-    lightUbo._NbPointLights = 1;
-    lightUbo._PointLights[0] = {
-        ._Position = {-3.f, 0.f, 0.f},
-        ._Color = {1.f, 0.f, 0.f},
-        ._Intensity = 1.f
-    };
-    for(int i=1; i<MAX_NB_POINT_LIGHTS; i++){
+    for(int i=1; i<be::MAX_NB_POINT_LIGHTS; i++){
         be::Vector3 curPosition = {
             (std::rand() % 1000) / 50.f - 5.f,
             (std::rand() % 1000) / 50.f - 5.f, 
@@ -94,26 +86,17 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
             (std::rand() % 256) / 255.f, 
             (std::rand() % 256) / 255.f
         };
-        lightUbo._PointLights[i] = {
-            ._Position = curPosition,
-            ._Color = curColor,
-            ._Intensity = 1.f
-        };
-        lightUbo._NbPointLights++;
+        _LightUBO.addPointLight(
+            curPosition,
+            curColor,
+            1.f
+        );
     }
-    
-    // lightUbo._NbDirectionalLights = 1;
-    // lightUbo._DirectionalLights[0] = {
-    //     ._Direction = {-1.f, -1.f, 0.f},
-    //     ._Color = {0.f, 1.f, 1.f},
-    //     ._Intensity = 1.f
-    // };
-    _LightUBO[frameIndex]->writeToBuffer(&lightUbo);
+    _LightUBO.update(frameIndex);
 
-    MaterialUbo materialUbo{};
     auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);
-    materialUbo._ObjMaterial = objectMaterial;
-    _MaterialUBO[frameIndex]->writeToBuffer(&objectMaterial);
+    _MaterialUBO.setMaterial(objectMaterial._Material);
+    _MaterialUBO.update(frameIndex);
 
     _DescriptorSets = {
         _GlobalDescriptorSets[frameIndex],
@@ -225,37 +208,9 @@ void BrdfRenderSubSystem::cleanUpPipelineLayout(){
 
 
 void BrdfRenderSubSystem::initUBOs(){
-    for(int i=0; i<int(_CameraUBO.size()); i++){
-        _CameraUBO[i] = be::BufferPtr(new be::Buffer(
-            _VulkanApp, 
-            sizeof(CameraUbo),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        ));
-        _CameraUBO[i]->map();
-
-        _LightUBO[i] = be::BufferPtr(new be::Buffer(
-            _VulkanApp, 
-            sizeof(LightUbo),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        ));
-        _LightUBO[i]->map();
-
-        _MaterialUBO[i] = be::BufferPtr(new be::Buffer(
-            _VulkanApp, 
-            sizeof(MaterialUbo),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            _VulkanApp->getProperties().limits.minUniformBufferOffsetAlignment
-        ));
-        _MaterialUBO[i]->map();
-    }
+    _CameraUBO.init(be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT, _VulkanApp);
+    _LightUBO.init(be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT, _VulkanApp);
+    _MaterialUBO.init(be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT, _VulkanApp);
 }
 
 void BrdfRenderSubSystem::initDescriptors(){
@@ -287,9 +242,9 @@ void BrdfRenderSubSystem::initDescriptors(){
     );
 
     for(int i=0; i < be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
-        auto cameraBufferInfo = _CameraUBO[i]->descriptorInfo();
-        auto lightBufferInfo = _LightUBO[i]->descriptorInfo();
-        auto materialBufferInfo = _MaterialUBO[i]->descriptorInfo();
+        auto cameraBufferInfo = _CameraUBO.getDescriptorInfo(i);
+        auto lightBufferInfo = _LightUBO.getDescriptorInfo(i);
+        auto materialBufferInfo = _MaterialUBO.getDescriptorInfo(i);
         
         be::DescriptorWriter(*_GlobalSetLayout, *_GlobalPool)
             .writeBuffer(0, &cameraBufferInfo)

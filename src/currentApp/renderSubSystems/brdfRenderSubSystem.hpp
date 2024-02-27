@@ -13,9 +13,12 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
         static const uint32_t _NB_PIPELINES = 5;
 
     protected:
-        std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        std::vector<be::BufferPtr> _LightUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
-        std::vector<be::BufferPtr> _MaterialUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        be::CameraUboContainer _CameraUBO{};
+        be::LightUboContainer _LightUBO{};
+        be::MaterialUboContainer _MaterialUBO{};
+        // std::vector<be::BufferPtr> _CameraUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        // std::vector<be::BufferPtr> _LightUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
+        // std::vector<be::BufferPtr> _MaterialUBO{be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT};
 
         be::DescriptorPoolPtr _GlobalPool = nullptr;
 

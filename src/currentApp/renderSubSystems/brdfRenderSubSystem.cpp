@@ -75,7 +75,7 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
         1.f 
     );
 
-    for(int i=1; i<be::MAX_NB_POINT_LIGHTS; i++){
+    for(int i=1; i<std::min(10, be::MAX_NB_POINT_LIGHTS); i++){
         be::Vector3 curPosition = {
             (std::rand() % 1000) / 50.f - 5.f,
             (std::rand() % 1000) / 50.f - 5.f, 

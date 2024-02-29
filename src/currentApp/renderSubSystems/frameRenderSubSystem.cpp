@@ -62,7 +62,7 @@ void FrameRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
 
 void FrameRenderSubSystem::initPipelineLayout(){
     if(_VulkanApp == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a pipeline layout without a vulkan app!\n"
         );
@@ -92,7 +92,7 @@ void FrameRenderSubSystem::initPipelineLayout(){
         nullptr, 
         &_PipelineLayout
     );
-    be::ErrorHandler::vulkanError(result, "Failed to create pipeline layout!\n");
+    be::ErrorHandler::vulkanError(__FILE__, __LINE__, result, "Failed to create pipeline layout!\n");
 }
 
 void FrameRenderSubSystem::initPipeline(VkRenderPass renderPass){
@@ -101,14 +101,14 @@ void FrameRenderSubSystem::initPipeline(VkRenderPass renderPass){
     }
 
     if(_VulkanApp == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a pipeline without a vulkan app!\n"
         );
     }
 
     if(_PipelineLayout == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a pipeline without a pipeline layout!\n"
         );

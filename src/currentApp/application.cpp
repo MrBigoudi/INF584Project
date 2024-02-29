@@ -20,7 +20,7 @@ void Application::initVulkan(){
 }
 void Application::initGameObjects(){
     if(_VulkanApp == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create game objects without a vulkan app!\n"
         );
@@ -65,13 +65,13 @@ void Application::initCamera(){
 }
 void Application::initRenderer(){
     if(_Window == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a renderer without a window!\n"
         );
     }
     if(_VulkanApp == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a renderer without a vulkan app!\n"
         );
@@ -87,13 +87,13 @@ void Application::initSystems(){
 }
 void Application::initRenderSubSystems(){
     if(_Renderer == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a render subsystem without a renderer!\n"
         );
     }
     if(_Camera == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a render subsystem without a camera!\n"
         );

@@ -39,6 +39,7 @@ void BrdfRenderSubSystem::cleanUp() {
 
 
 void BrdfRenderSubSystem::renderingFunction(be::GameObject object){
+    // fprintf(stdout, "obj: %d\n", object);
     be::ModelPtr model = be::GameCoordinator::getComponent<be::ComponentModel>(object)._Model;
 
     SimplePushConstantData push{};
@@ -116,7 +117,7 @@ void BrdfRenderSubSystem::renderGameObjects(be::FrameInfo& frameInfo){
 
 void BrdfRenderSubSystem::initPipelineLayout(){
     if(_VulkanApp == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a pipeline layout without a vulkan app!\n"
         );
@@ -148,7 +149,7 @@ void BrdfRenderSubSystem::initPipelineLayout(){
         nullptr, 
         &_PipelineLayout
     );
-    be::ErrorHandler::vulkanError(result, "Failed to create pipeline layout!\n");
+    be::ErrorHandler::vulkanError(__FILE__, __LINE__, result, "Failed to create pipeline layout!\n");
 }
 
 void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
@@ -157,14 +158,14 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
     }
 
     if(_VulkanApp == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a pipeline without a vulkan app!\n"
         );
     }
 
     if(_PipelineLayout == nullptr){
-        be::ErrorHandler::handle(
+        be::ErrorHandler::handle(__FILE__, __LINE__, 
             be::ErrorCode::NOT_INITIALIZED_ERROR, 
             "Can't create a pipeline without a pipeline layout!\n"
         );

@@ -29,6 +29,9 @@ class Application : public be::IApplication{
         FrameRenderSubSystemPtr _RenderSubSystem = nullptr;
         BrdfRenderSubSystemPtr _BRDFRenderSubSystem = nullptr;
 
+        // TODO: it is just a test
+        // be::ScenePtr _Scene = nullptr;
+
     public:
         static const uint32_t _NB_SETS = 
             FrameRenderSubSystem::_NB_SETS
@@ -71,6 +74,14 @@ class Application : public be::IApplication{
             MouseInput::setMouseCallback(_Camera, _Window);
             // init imgui after setting up the callbacks
             be::BeImgui::init(_Window, _VulkanApp, _Renderer);
+
+            // _Scene = be::ScenePtr(new be::Scene(_VulkanApp));
+            // _Scene->initFromGLTF("./src/engine/resources/models/glTF/scenes/Sponza/glTF/Sponza.gltf");
+            // for(auto obj: _Scene->getObjects()){
+            //     be::ComponentRenderSubSystem::add(obj, _BRDFRenderSubSystem);
+            //     be::ComponentMaterial::add(obj);
+            //     _GameObjects.push_back(obj);
+            // }
         }
         void cleanUp() override {
             be::BeImgui::cleanUp(_VulkanApp);

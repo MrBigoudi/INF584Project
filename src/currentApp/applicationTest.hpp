@@ -13,6 +13,11 @@
 class Application;
 using ApplicationPtr = std::shared_ptr<Application>;
 
+enum RenderingMode{
+    RASTERIZING,
+    RAY_TRACING,
+};
+
 class Application : public be::IApplication{
 
     public:
@@ -30,7 +35,10 @@ class Application : public be::IApplication{
         BrdfRenderSubSystemPtr _BRDFRenderSubSystem = nullptr;
 
         // TODO: it is just a test
-        // be::ScenePtr _Scene = nullptr;
+        be::ScenePtr _Scene = nullptr;
+        bool _IsSwitchRenderingModeKeyPressed = false;
+        RenderingMode _RenderingMode = RASTERIZING;
+        be::RayTracerPtr _RayTracer = nullptr;
 
     public:
         static const uint32_t _NB_SETS = 
@@ -70,12 +78,19 @@ class Application : public be::IApplication{
             initDescriptors();
             initSystems();
             initRenderSubSystems();
+
+            _Scene = be::ScenePtr(new be::Scene(_VulkanApp));
+            // TODO: switch to use swap chain width / height
+            _RayTracer = be::RayTracerPtr(new be::RayTracer(_Scene, WINDOW_WIDTH, WINDOW_HEIGHT));
             initGameObjects();
+            for(auto obj: _GameObjects){
+                _Scene->addGameObject(obj);
+            }
+
             MouseInput::setMouseCallback(_Camera, _Window);
             // init imgui after setting up the callbacks
             be::BeImgui::init(_Window, _VulkanApp, _Renderer);
 
-            // _Scene = be::ScenePtr(new be::Scene(_VulkanApp));
             // _Scene->initFromGLTF("./src/engine/resources/models/glTF/scenes/Sponza/glTF/Sponza.gltf");
             // for(auto obj: _Scene->getObjects()){
             //     be::ComponentRenderSubSystem::add(obj, _BRDFRenderSubSystem);
@@ -102,6 +117,35 @@ class Application : public be::IApplication{
             init();
             mainLoop();
             cleanUp();
+        }
+
+        void updateSwitchRenderingModeKey(){
+            if(!_IsSwitchRenderingModeKeyPressed){
+                _IsSwitchRenderingModeKeyPressed = true;
+                switchRenderingMode();
+            }
+        }
+
+        void resetSwitchRenderingModeKey(){
+            _IsSwitchRenderingModeKeyPressed = false;
+        }
+
+        void switchRenderingMode(){
+            switch(_RenderingMode){
+                case RASTERIZING:
+                    _RenderingMode = RAY_TRACING;
+                    break;
+                case RAY_TRACING:
+                    _RenderingMode = RASTERIZING;
+                    break;
+            }
+        }
+
+        void runRaytracer(){
+            if(_RenderingMode == RAY_TRACING){
+                _RayTracer->run({0.383f, 0.632f, 0.800f}, true);
+                _RayTracer->getImage()->savePPM("tmp/ray_tracer.ppm");
+            }
         }
 
 };

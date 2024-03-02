@@ -165,53 +165,95 @@ void Application::mainLoop(){
         _Camera->setAspectRatio(aspect);
         _Camera->setDt(frameTime);
 
-        KeyboardInput::moveCamera(_Window, _Camera);
         KeyboardInput::updateMouseMode(_Window);
-        KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
+        KeyboardInput::switchRenderingMode(_Window, this);
 
-        // IMGUI
-        {
-            // Start the Dear ImGui frame
-            ImGui_ImplVulkan_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
+        switch(_RenderingMode){
+            case RAY_TRACING:{
+                KeyboardInput::runRaytracer(_Window, this);
+                // IMGUI
+                {
+                    // Start the Dear ImGui frame
+                    ImGui_ImplVulkan_NewFrame();
+                    ImGui_ImplGlfw_NewFrame();
+                    ImGui::NewFrame();
 
-            // modify materials values
-            ImGui::Begin("Material values");
-            auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(_GameObjects[1]);
-            for(uint32_t i=0; i<be::Material::COMPONENT_MATERIAL_NB_ELEMENTS; i++){
-                ImGui::SliderFloat(
-                    be::Material::COMPONENT_MATERIAL_NAMES[i].c_str(),
-                    &material._Material->get(i),
-                    be::Material::COMPONENT_MATERIAL_MIN_VALUES[i],
-                    be::Material::COMPONENT_MATERIAL_MAX_VALUES[i]
-                );
+                    // modify materials values
+                    ImGui::Begin("Render commands");
+                    ImGui::Text("Switch to Rasterizing: TAB");
+                    ImGui::Text("Run ray tracer: SPACE");
+                    ImGui::End();
+                }
+
+                // Rendering
+                ImGui::Render();
+                ImDrawData* draw_data = ImGui::GetDrawData();
+
+                auto commandBuffer = _Renderer->beginFrame();
+                if(commandBuffer){
+                    be::FrameInfo currentFrame{};
+                    currentFrame._FrameIndex = _Renderer->getFrameIndex();
+                    currentFrame._FrameTime = frameTime;
+                    currentFrame._CommandBuffer = commandBuffer;
+                    currentFrame._Camera = _Camera;
+
+                    _Renderer->beginSwapChainRenderPass(commandBuffer);
+                    ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
+
+                    _Renderer->endSwapChainRenderPass(commandBuffer);
+                    _Renderer->endFrame();
+                }
+                break;
             }
-            ImGui::End();
+
+            case RASTERIZING:{
+                KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
+                KeyboardInput::moveCamera(_Window, _Camera);
+                // IMGUI
+                {
+                    // Start the Dear ImGui frame
+                    ImGui_ImplVulkan_NewFrame();
+                    ImGui_ImplGlfw_NewFrame();
+                    ImGui::NewFrame();
+
+                    // modify materials values
+                    ImGui::Begin("Material values");
+                    auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(_GameObjects[1]);
+                    for(uint32_t i=0; i<be::Material::COMPONENT_MATERIAL_NB_ELEMENTS; i++){
+                        ImGui::SliderFloat(
+                            be::Material::COMPONENT_MATERIAL_NAMES[i].c_str(),
+                            &material._Material->get(i),
+                            be::Material::COMPONENT_MATERIAL_MIN_VALUES[i],
+                            be::Material::COMPONENT_MATERIAL_MAX_VALUES[i]
+                        );
+                    }
+                    ImGui::End();
+                }
+
+                // Rendering
+                ImGui::Render();
+                ImDrawData* draw_data = ImGui::GetDrawData();
+
+                auto commandBuffer = _Renderer->beginFrame();
+                if(commandBuffer){
+                    be::FrameInfo currentFrame{};
+                    currentFrame._FrameIndex = _Renderer->getFrameIndex();
+                    currentFrame._FrameTime = frameTime;
+                    currentFrame._CommandBuffer = commandBuffer;
+                    currentFrame._Camera = _Camera;
+
+                    _Renderer->beginSwapChainRenderPass(commandBuffer);
+
+                    _RenderSubSystem->renderGameObjects(currentFrame);
+                    _BRDFRenderSubSystem->renderGameObjects(currentFrame);
+                    ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
+
+                    _Renderer->endSwapChainRenderPass(commandBuffer);
+                    _Renderer->endFrame();
+                }
+                break;
+            }
         }
-
-        // Rendering
-        ImGui::Render();
-        ImDrawData* draw_data = ImGui::GetDrawData();
-
-        auto commandBuffer = _Renderer->beginFrame();
-        if(commandBuffer){
-            be::FrameInfo currentFrame{};
-            currentFrame._FrameIndex = _Renderer->getFrameIndex();
-            currentFrame._FrameTime = frameTime;
-            currentFrame._CommandBuffer = commandBuffer;
-            currentFrame._Camera = _Camera;
-
-            _Renderer->beginSwapChainRenderPass(commandBuffer);
-
-            _RenderSubSystem->renderGameObjects(currentFrame);
-            _BRDFRenderSubSystem->renderGameObjects(currentFrame);
-            ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
-
-            _Renderer->endSwapChainRenderPass(commandBuffer);
-            _Renderer->endFrame();
-        }
-
     }
     vkDeviceWaitIdle(_VulkanApp->getDevice());
 }

@@ -10,6 +10,8 @@
 
 #include "mouseInput.hpp"
 
+class Application;
+
 class KeyboardInput;
 using KeyboardInputPtr = std::shared_ptr<KeyboardInput>;
 
@@ -27,6 +29,9 @@ class KeyboardInput{
 
             KEY_SWITCH_PIPELINE = GLFW_KEY_P,
             KEY_WIREFRAME = GLFW_KEY_F1,
+
+            KEY_SWITCH_RENDERING_MODE = GLFW_KEY_TAB,
+            KEY_RUN_RAYTRACING = GLFW_KEY_SPACE,
         };
 
         static KeyboardInputPtr _KeyboardInput;
@@ -85,4 +90,8 @@ class KeyboardInput{
                 rss->resetSwitchPipelineKey();
             }
         }
+
+        static void switchRenderingMode(be::WindowPtr window, Application* app);
+
+        static void runRaytracer(be::WindowPtr window, Application* app);
 };

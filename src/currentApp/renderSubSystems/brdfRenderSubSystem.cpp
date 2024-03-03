@@ -192,6 +192,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig = be::Pipeline::defaultWireFramePipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
+        pipelineConfig._RasterizationInfo.cullMode = VK_CULL_MODE_NONE;
         pipelineConfig._PipelineLayout = _PipelineLayout;
         _WireframePipelines[i]->init(pipelineConfig);
     }

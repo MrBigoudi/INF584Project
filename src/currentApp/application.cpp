@@ -44,13 +44,18 @@ void Application::initGameObjects(){
     be::ModelPtr faceModel = be::ModelPtr(
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
         // new be::Model(_VulkanApp, "resources/models/face.off")
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle(
+            {-1.f, 0.f, 0.f},
+            {0.f, 1.f, 0.f},
+            {1.f, 0.f, 0.f}
+        ))
     );
 
     be::TransformPtr faceTransform = be::TransformPtr(
         new be::Transform()
     );
-    faceTransform->_Scale = {2.f, 2.f, 2.f};
+    // faceTransform->_Scale = {2.f, 2.f, 2.f};
 
     object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
@@ -161,8 +166,10 @@ void Application::mainLoop(){
         float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - curTime).count();
         curTime = newTime;
 
-        float aspect = _Renderer->getSwapChainAspectRatio();
-        _Camera->setAspectRatio(aspect);
+        float height = _Renderer->getSwapChain()->getHeight();
+        float width = _Renderer->getSwapChain()->getWidth();
+        _RayTracer->setResolution(width, height);
+        _Camera->setAspectRatio(width, height);
         _Camera->setDt(frameTime);
 
         KeyboardInput::updateMouseMode(_Window);

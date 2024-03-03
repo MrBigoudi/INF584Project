@@ -81,11 +81,9 @@ class Application : public be::IApplication{
 
             _Scene = be::ScenePtr(new be::Scene(_VulkanApp));
             // TODO: switch to use swap chain width / height
-            _RayTracer = be::RayTracerPtr(new be::RayTracer(_Scene, WINDOW_WIDTH, WINDOW_HEIGHT));
+            _RayTracer = be::RayTracerPtr(new be::RayTracer(_Scene, _Camera, WINDOW_WIDTH, WINDOW_HEIGHT));
             initGameObjects();
-            for(auto obj: _GameObjects){
-                _Scene->addGameObject(obj);
-            }
+            _Scene->addGameObject(_GameObjects[1]);
 
             MouseInput::setMouseCallback(_Camera, _Window);
             // init imgui after setting up the callbacks

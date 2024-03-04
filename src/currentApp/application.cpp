@@ -43,21 +43,37 @@ void Application::initGameObjects(){
     // load face model
     be::ModelPtr faceModel = be::ModelPtr(
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
-        new be::Model(_VulkanApp, "resources/models/face.off")
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle())
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(1.f, 1.f))
+        // new be::Model(_VulkanApp, "resources/models/face.off")
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere()
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle()
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle()
+        )
     );
 
     be::TransformPtr faceTransform = be::TransformPtr(
         new be::Transform()
     );
-    faceTransform->_Scale = {0.01f, 0.01f, 0.01f};
+    // faceTransform->_Scale = {0.01f, 0.01f, 0.01f};
 
     object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
         {._Model = faceModel}, 
         {._Transform = faceTransform}
+    );
+    _GameObjects.push_back(object);
+
+
+    be::ModelPtr viewportRectangleModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            2.f, 
+            2.f
+            )
+        )
+    );
+
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _RaytracingRenderSubSystem},
+        {._Model = viewportRectangleModel}
     );
     _GameObjects.push_back(object);
 
@@ -115,11 +131,24 @@ void Application::initRenderSubSystems(){
                             _GlobalPool
                             )
                         );
+    
+    _RaytracingRenderSubSystem = RaytracingRenderSubSystemPtr(
+                        new RaytracingRenderSubSystem(
+                            _VulkanApp, 
+                            _Renderer->getSwapChainRenderPass(),
+                            _GlobalPool
+                            )
+                        );
 }
 void Application::initDescriptors(){
+
+    uint32_t nbUniformSets = FrameRenderSubSystem::_NB_SETS + BrdfRenderSubSystem::_NB_SETS;
+    uint32_t nbImageSets = 2*RaytracingRenderSubSystem::_NB_SETS;
+
     _GlobalPool = be::DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets(_NB_SETS*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, _NB_SETS*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .setMaxSets((nbUniformSets + nbImageSets)*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, nbUniformSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, nbImageSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT) // double descriptor sets for images so it can be reset
         .build();
 }
 
@@ -137,6 +166,7 @@ void Application::cleanUpRenderer(){
 void Application::cleanUpRenderSubSystems(){
     _RenderSubSystem->cleanUp();
     _BRDFRenderSubSystem->cleanUp();
+    _RaytracingRenderSubSystem->cleanUp();
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
@@ -202,6 +232,9 @@ void Application::mainLoop(){
                     currentFrame._Camera = _Camera;
 
                     _Renderer->beginSwapChainRenderPass(commandBuffer);
+                    if(_RaytracingRenderSubSystem->isInit()){
+                        _RaytracingRenderSubSystem->renderGameObjects(currentFrame);
+                    }
                     ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
 
                     _Renderer->endSwapChainRenderPass(commandBuffer);

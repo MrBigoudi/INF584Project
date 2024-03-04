@@ -33,6 +33,7 @@ class Application : public be::IApplication{
 
         FrameRenderSubSystemPtr _RenderSubSystem = nullptr;
         BrdfRenderSubSystemPtr _BRDFRenderSubSystem = nullptr;
+        RaytracingRenderSubSystemPtr _RaytracingRenderSubSystem = nullptr;
 
         // TODO: it is just a test
         be::ScenePtr _Scene = nullptr;
@@ -40,11 +41,7 @@ class Application : public be::IApplication{
         RenderingMode _RenderingMode = RASTERIZING;
         be::RayTracerPtr _RayTracer = nullptr;
 
-    public:
-        static const uint32_t _NB_SETS = 
-            FrameRenderSubSystem::_NB_SETS
-            + BrdfRenderSubSystem::_NB_SETS
-        ;
+        
 
     private:
         void initSystems();
@@ -143,6 +140,7 @@ class Application : public be::IApplication{
             if(_RenderingMode == RAY_TRACING){
                 _RayTracer->run({0.383f, 0.632f, 0.800f}, true);
                 _RayTracer->getImage()->savePPM("tmp/ray_tracer.ppm");
+                _RaytracingRenderSubSystem->updateImage(_RayTracer->getImage());
             }
         }
 

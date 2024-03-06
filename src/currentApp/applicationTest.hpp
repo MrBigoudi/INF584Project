@@ -80,7 +80,9 @@ class Application : public be::IApplication{
             // TODO: switch to use swap chain width / height
             _RayTracer = be::RayTracerPtr(new be::RayTracer(_Scene, _Camera, WINDOW_WIDTH, WINDOW_HEIGHT));
             initGameObjects();
-            _Scene->addGameObject(_GameObjects[1]);
+            for(uint32_t i=2; i<_GameObjects.size(); i++){
+                _Scene->addGameObject(_GameObjects[i]);
+            }
 
             MouseInput::setMouseCallback(_Camera, _Window);
             // init imgui after setting up the callbacks
@@ -140,6 +142,7 @@ class Application : public be::IApplication{
             if(_RenderingMode == RAY_TRACING){
                 _RayTracer->run({0.383f, 0.632f, 0.800f}, true);
                 _RayTracer->getImage()->savePPM("tmp/ray_tracer.ppm");
+                _RaytracingRenderSubSystem->setRenderPass(_Renderer->getSwapChainRenderPass());
                 _RaytracingRenderSubSystem->updateImage(_RayTracer->getImage());
             }
         }

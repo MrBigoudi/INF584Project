@@ -31,6 +31,10 @@ class RaytracingRenderSubSystem : public be::IRenderSubSystem {
         void updateImage(be::ImagePtr image);
         bool isInit() const {return _IsInit;}
 
+        void setRenderPass(VkRenderPass renderPass){
+            _RenderPass = renderPass;
+        }
+
 
     protected:
         virtual void initPipelineLayout() override;

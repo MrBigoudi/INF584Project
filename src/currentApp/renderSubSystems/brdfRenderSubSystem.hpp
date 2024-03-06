@@ -74,6 +74,14 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
 
         virtual void cleanUp() override;
 
+        std::vector<be::PointLight> getPointLights() const{
+            return _LightUBO.getPointLights();
+        }
+
+        std::vector<be::DirectionalLight> getDirectionalLights() const{
+            return _LightUBO.getDirectionalLights();
+        }
+
 
     protected:
         virtual void initPipelineLayout() override;

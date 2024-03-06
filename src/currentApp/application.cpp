@@ -39,15 +39,32 @@ void Application::initGameObjects(){
     );
     _GameObjects.push_back(object);
 
+    be::ModelPtr viewportRectangleModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            2.f, 
+            2.f
+            )
+        )
+    );
+
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _RaytracingRenderSubSystem},
+        {._Model = viewportRectangleModel}
+    );
+    _GameObjects.push_back(object);
+
+
+
 
     // load face model
     be::ModelPtr faceModel = be::ModelPtr(
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
         // new be::Model(_VulkanApp, "resources/models/face.off")
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere()
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle()
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle()
-        )
+        // new be::Model(_VulkanApp, "resources/models/sponza.obj")
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle())
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle())
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
     );
 
     be::TransformPtr faceTransform = be::TransformPtr(
@@ -63,19 +80,17 @@ void Application::initGameObjects(){
     _GameObjects.push_back(object);
 
 
-    be::ModelPtr viewportRectangleModel = be::ModelPtr(
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
-            2.f, 
-            2.f
-            )
-        )
-    );
+    // be::TransformPtr transform = be::TransformPtr(
+    //     new be::Transform()
+    // );
+    // transform->_Position = {-1.f, -1.f, 0.f};
 
-    object = be::RenderSystem::createRenderableObject(
-        {._RenderSubSystem = _RaytracingRenderSubSystem},
-        {._Model = viewportRectangleModel}
-    );
-    _GameObjects.push_back(object);
+    // object = be::RenderSystem::createRenderableObject(
+    //     {._RenderSubSystem = _BRDFRenderSubSystem},
+    //     {._Model = faceModel},
+    //     {._Transform = transform}
+    // );
+    // _GameObjects.push_back(object);
 
 }
 void Application::initCamera(){
@@ -201,6 +216,9 @@ void Application::mainLoop(){
 
         KeyboardInput::updateMouseMode(_Window);
         KeyboardInput::switchRenderingMode(_Window, this);
+        if(_Window->wasWindowResized()){
+            _RayTracer->setResolution(_Renderer->getSwapChain()->getWidth(), _Renderer->getSwapChain()->getHeight());
+        }
 
         switch(_RenderingMode){
             case RAY_TRACING:{
@@ -246,6 +264,8 @@ void Application::mainLoop(){
             case RASTERIZING:{
                 KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
                 KeyboardInput::moveCamera(_Window, _Camera);
+                _Scene->setLights(_BRDFRenderSubSystem->getPointLights(), _BRDFRenderSubSystem->getDirectionalLights());
+
                 // IMGUI
                 {
                     // Start the Dear ImGui frame

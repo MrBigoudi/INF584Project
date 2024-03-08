@@ -129,10 +129,11 @@ void RaytracingRenderSubSystem::updateImage(be::ImagePtr image){
 
 void RaytracingRenderSubSystem::initImage(be::ImagePtr image){
     for(uint32_t i=0; i<be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT; i++){
-        if(_TextureImage[i]._TexChannels != 0){// TODO: change this, just to check if not null
+        if(_TextureImage[i]._TexChannels != 0){// TODO: change this, != 0 just to check if not null
             _TextureImage[i].cleanUp();
         }
         _TextureImage[i] = be::TextureImage::load(_VulkanApp, image);
+        // _TextureImage[i] = be::TextureImage::load(_VulkanApp, "./tmp/ray_tracer.png");
     }
 }
 

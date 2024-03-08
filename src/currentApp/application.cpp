@@ -62,15 +62,17 @@ void Application::initGameObjects(){
         // new be::Model(_VulkanApp, "resources/models/face.off")
         // new be::Model(_VulkanApp, "resources/models/sponza.obj")
         // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle())
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle())
         // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle())
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
     );
 
     be::TransformPtr faceTransform = be::TransformPtr(
         new be::Transform()
     );
     // faceTransform->_Scale = {0.01f, 0.01f, 0.01f};
+    faceTransform->_Scale = {2.f, 2.f, 2.f};
+    faceTransform->_Position = {-1.f, -1.f, 0.f};
 
     object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
@@ -151,19 +153,23 @@ void Application::initRenderSubSystems(){
                         new RaytracingRenderSubSystem(
                             _VulkanApp, 
                             _Renderer->getSwapChainRenderPass(),
-                            _GlobalPool
+                            _GlobalPoolTmp
                             )
                         );
 }
 void Application::initDescriptors(){
 
-    uint32_t nbUniformSets = FrameRenderSubSystem::_NB_SETS + BrdfRenderSubSystem::_NB_SETS;
-    uint32_t nbImageSets = 2*RaytracingRenderSubSystem::_NB_SETS;
+    uint32_t nbRasterizerSets = FrameRenderSubSystem::_NB_SETS + BrdfRenderSubSystem::_NB_SETS;
+    uint32_t nbRaytracerSets = RaytracingRenderSubSystem::_NB_SETS;
 
     _GlobalPool = be::DescriptorPool::Builder(_VulkanApp)
-        .setMaxSets((nbUniformSets + nbImageSets)*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, nbUniformSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, nbImageSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT) // double descriptor sets for images so it can be reset
+        .setMaxSets(nbRasterizerSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, nbRasterizerSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .build();
+
+    _GlobalPoolTmp = be::DescriptorPool::Builder(_VulkanApp)
+        .setMaxSets(nbRaytracerSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, nbRaytracerSets*be::SwapChain::VULKAN_MAX_FRAMES_IN_FLIGHT)
         .build();
 }
 
@@ -185,6 +191,7 @@ void Application::cleanUpRenderSubSystems(){
 }
 void Application::cleanUpDescriptors(){
     _GlobalPool->cleanUp();
+    _GlobalPoolTmp->cleanUp();
 }
 void Application::cleanUpGameObjects(){
     for(auto object: _GameObjects){
@@ -222,6 +229,7 @@ void Application::mainLoop(){
 
         switch(_RenderingMode){
             case RAY_TRACING:{
+                _Camera->lock();
                 KeyboardInput::runRaytracer(_Window, this);
                 // IMGUI
                 {
@@ -243,15 +251,14 @@ void Application::mainLoop(){
 
                 auto commandBuffer = _Renderer->beginFrame();
                 if(commandBuffer){
-                    be::FrameInfo currentFrame{};
-                    currentFrame._FrameIndex = _Renderer->getFrameIndex();
-                    currentFrame._FrameTime = frameTime;
-                    currentFrame._CommandBuffer = commandBuffer;
-                    currentFrame._Camera = _Camera;
+                    _CurrentFrame._FrameIndex = _Renderer->getFrameIndex();
+                    _CurrentFrame._FrameTime = frameTime;
+                    _CurrentFrame._CommandBuffer = commandBuffer;
+                    _CurrentFrame._Camera = _Camera;
 
                     _Renderer->beginSwapChainRenderPass(commandBuffer);
                     if(_RaytracingRenderSubSystem->isInit()){
-                        _RaytracingRenderSubSystem->renderGameObjects(currentFrame);
+                        _RaytracingRenderSubSystem->renderGameObjects(_CurrentFrame);
                     }
                     ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
 
@@ -262,6 +269,8 @@ void Application::mainLoop(){
             }
 
             case RASTERIZING:{
+                _Hasrun = false;
+                _Camera->unlock();
                 KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
                 KeyboardInput::moveCamera(_Window, _Camera);
                 _Scene->setLights(_BRDFRenderSubSystem->getPointLights(), _BRDFRenderSubSystem->getDirectionalLights());
@@ -293,16 +302,15 @@ void Application::mainLoop(){
 
                 auto commandBuffer = _Renderer->beginFrame();
                 if(commandBuffer){
-                    be::FrameInfo currentFrame{};
-                    currentFrame._FrameIndex = _Renderer->getFrameIndex();
-                    currentFrame._FrameTime = frameTime;
-                    currentFrame._CommandBuffer = commandBuffer;
-                    currentFrame._Camera = _Camera;
+                    _CurrentFrame._FrameIndex = _Renderer->getFrameIndex();
+                    _CurrentFrame._FrameTime = frameTime;
+                    _CurrentFrame._CommandBuffer = commandBuffer;
+                    _CurrentFrame._Camera = _Camera;
 
                     _Renderer->beginSwapChainRenderPass(commandBuffer);
 
-                    _RenderSubSystem->renderGameObjects(currentFrame);
-                    _BRDFRenderSubSystem->renderGameObjects(currentFrame);
+                    _RenderSubSystem->renderGameObjects(_CurrentFrame);
+                    _BRDFRenderSubSystem->renderGameObjects(_CurrentFrame);
                     ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer);
 
                     _Renderer->endSwapChainRenderPass(commandBuffer);

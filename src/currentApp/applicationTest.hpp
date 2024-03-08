@@ -40,6 +40,8 @@ class Application : public be::IApplication{
         bool _IsSwitchRenderingModeKeyPressed = false;
         RenderingMode _RenderingMode = RASTERIZING;
         be::RayTracerPtr _RayTracer = nullptr;
+        be::FrameInfo _CurrentFrame = {};
+        bool _Hasrun = false;
 
         
 
@@ -78,8 +80,15 @@ class Application : public be::IApplication{
 
             _Scene = be::ScenePtr(new be::Scene(_VulkanApp));
             // TODO: switch to use swap chain width / height
-            _RayTracer = be::RayTracerPtr(new be::RayTracer(_Scene, _Camera, WINDOW_WIDTH, WINDOW_HEIGHT));
+            _RayTracer = be::RayTracerPtr(
+                new be::RayTracer(
+                    _Scene, 
+                    _Renderer->getSwapChain()->getWidth(), 
+                    _Renderer->getSwapChain()->getHeight()
+                )
+            );
             initGameObjects();
+            _Scene->addGameObject(0);
             for(uint32_t i=2; i<_GameObjects.size(); i++){
                 _Scene->addGameObject(_GameObjects[i]);
             }
@@ -139,11 +148,13 @@ class Application : public be::IApplication{
         }
 
         void runRaytracer(){
-            if(_RenderingMode == RAY_TRACING){
-                _RayTracer->run({0.383f, 0.632f, 0.800f}, true);
+            if(_RenderingMode == RAY_TRACING && !_Hasrun){
+                be::Vector3 backgroundColor = be::Color::toSRGB({0.383f, 0.632f, 0.800f});
+                _RayTracer->run(_CurrentFrame, backgroundColor, true);
                 _RayTracer->getImage()->savePPM("tmp/ray_tracer.ppm");
                 _RaytracingRenderSubSystem->setRenderPass(_Renderer->getSwapChainRenderPass());
                 _RaytracingRenderSubSystem->updateImage(_RayTracer->getImage());
+                _Hasrun = true;
             }
         }
 

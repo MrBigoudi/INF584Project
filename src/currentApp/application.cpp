@@ -61,10 +61,12 @@ void Application::initGameObjects(){
         // new be::Model(_VulkanApp, "resources/models/dragon.off")
         // new be::Model(_VulkanApp, "resources/models/face.off")
         // new be::Model(_VulkanApp, "resources/models/sponza.obj")
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere())
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere(16, 
+            {54.f/255.f, 112.f/255.f, 131.f/255.f})
+        )
         // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle())
         // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle())
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
+        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
     );
 
     be::TransformPtr faceTransform = be::TransformPtr(
@@ -72,7 +74,7 @@ void Application::initGameObjects(){
     );
     // faceTransform->_Scale = {0.01f, 0.01f, 0.01f};
     faceTransform->_Scale = {2.f, 2.f, 2.f};
-    faceTransform->_Position = {-1.f, -1.f, 0.f};
+    // faceTransform->_Position = {-1.f, -1.f, 0.f};
 
     object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
@@ -82,17 +84,114 @@ void Application::initGameObjects(){
     _GameObjects.push_back(object);
 
 
-    // be::TransformPtr transform = be::TransformPtr(
-    //     new be::Transform()
+    // be::ModelPtr roomModel = be::ModelPtr(
+    //     new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRoom())
     // );
-    // transform->_Position = {-1.f, -1.f, 0.f};
-
+    // be::TransformPtr roomTransform = be::TransformPtr(new be::Transform());
+    // roomTransform->_Scale = {15.f, 15.f, 15.f};
     // object = be::RenderSystem::createRenderableObject(
     //     {._RenderSubSystem = _BRDFRenderSubSystem},
-    //     {._Model = faceModel},
-    //     {._Transform = transform}
+    //     {._Model = roomModel},
+    //     {._Transform = roomTransform}
     // );
     // _GameObjects.push_back(object);
+    
+    // create the room by hand for faster raytracing
+    be::ModelPtr floorModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            1.f, 1.f, {0.f, 1.f, 0.f, 1.f}
+        ))
+    );
+    be::TransformPtr floorTransform = be::TransformPtr(new be::Transform());
+    floorTransform->_Scale = {15.f, 15.f, 1.f};
+    floorTransform->_Rotation = {be::radians(-90.f), 0.f, 0.f};
+    floorTransform->_Position = {0.f, -7.5f, 0.f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = floorModel},
+        {._Transform = floorTransform}
+    );
+    _GameObjects.push_back(object);
+
+    be::ModelPtr roofModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            1.f, 1.f, {1.f, 1.f, 1.f, 1.f}
+        ))
+    );
+    be::TransformPtr roofTransform = be::TransformPtr(new be::Transform());
+    roofTransform->_Scale = {15.f, 15.f, 1.f};
+    roofTransform->_Rotation = {be::radians(90.f), 0.f, 0.f};
+    roofTransform->_Position = {0.f, 7.5f, 0.f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = roofModel},
+        {._Transform = roofTransform}
+    );
+    _GameObjects.push_back(object);
+
+    be::ModelPtr frontWallModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            1.f, 1.f, {0.01f, 0.01f, 0.01f, 1.f}
+        ))
+    );
+    be::TransformPtr frontWallTransform = be::TransformPtr(new be::Transform());
+    frontWallTransform->_Scale = {15.f, 15.f, 1.f};
+    frontWallTransform->_Rotation = {0.f, be::radians(180.f), 0.f};
+    frontWallTransform->_Position = {0.f, 0.f, 7.5f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = frontWallModel},
+        {._Transform = frontWallTransform}
+    );
+    _GameObjects.push_back(object);
+
+    be::ModelPtr backWallModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            1.f, 1.f, {0.01f, 0.01f, 0.01f, 1.f}
+        ))
+    );
+    be::TransformPtr backWallTransform = be::TransformPtr(new be::Transform());
+    backWallTransform->_Scale = {15.f, 15.f, 1.f};
+    backWallTransform->_Rotation = {0.f, 0.f, 0.f};
+    backWallTransform->_Position = {0.f, 0.f, -7.5f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = backWallModel},
+        {._Transform = backWallTransform}
+    );
+    _GameObjects.push_back(object);
+
+    be::ModelPtr leftWallModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            1.f, 1.f, {1.f, 0.f, 0.f, 1.f}
+        ))
+    );
+    be::TransformPtr leftWallTransform = be::TransformPtr(new be::Transform());
+    leftWallTransform->_Scale = {15.f, 15.f, 1.f};
+    leftWallTransform->_Rotation = {0.f, be::radians(90.f), 0.f};
+    leftWallTransform->_Position = {-7.5f, 0.f, 0.f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = leftWallModel},
+        {._Transform = leftWallTransform}
+    );
+    _GameObjects.push_back(object);
+
+    be::ModelPtr rightWallModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle(
+            1.f, 1.f, {0.f, 0.f, 1.f, 1.f}
+        ))
+    );
+    be::TransformPtr rightWallTransform = be::TransformPtr(new be::Transform());
+    rightWallTransform->_Scale = {15.f, 15.f, 1.f};
+    rightWallTransform->_Rotation = {0.f, be::radians(-90.f), 0.f};
+    rightWallTransform->_Position = {7.5f, 0.f, 0.f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = rightWallModel},
+        {._Transform = rightWallTransform}
+    );
+    _GameObjects.push_back(object);
 
 }
 void Application::initCamera(){

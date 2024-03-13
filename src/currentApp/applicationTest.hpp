@@ -88,7 +88,7 @@ class Application : public be::IApplication{
                 )
             );
             initGameObjects();
-            _Scene->addGameObject(0);
+            // _Scene->addGameObject(0);
             for(uint32_t i=2; i<_GameObjects.size(); i++){
                 _Scene->addGameObject(_GameObjects[i]);
             }
@@ -150,8 +150,23 @@ class Application : public be::IApplication{
         void runRaytracer(){
             if(_RenderingMode == RAY_TRACING && !_Hasrun){
                 be::Vector3 backgroundColor = be::Color::toSRGB({0.383f, 0.632f, 0.800f});
+                // to match brdf render sub system
+                switch(_BRDFRenderSubSystem->getBRDFModel()){
+                    case COLOR_BRDF:
+                        _RayTracer->enableColorBRDF();
+                        break;
+                    case NORMAL_BRDF:
+                        _RayTracer->enableNormalBRDF();
+                        break;
+                    case LAMBERT_BRDF:
+                        _RayTracer->enableLambertBRDF();
+                        break;
+                    default:
+                        break;
+                }
+
                 _RayTracer->run(_CurrentFrame, backgroundColor, true);
-                _RayTracer->getImage()->savePPM("tmp/ray_tracer.ppm");
+                _RayTracer->getImage()->savePPM("tmp/ray_tracer_bvh.ppm");
                 _RaytracingRenderSubSystem->setRenderPass(_Renderer->getSwapChainRenderPass());
                 _RaytracingRenderSubSystem->updateImage(_RayTracer->getImage());
                 _Hasrun = true;

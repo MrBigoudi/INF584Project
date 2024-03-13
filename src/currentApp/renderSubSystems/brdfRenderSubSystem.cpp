@@ -71,12 +71,12 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
 
     _LightUBO.reset();
     _LightUBO.addPointLight(
-        {-3.f, 0.f, 0.f}, 
-        {1.f, 0.f, 0.f},
+        {-4.f, 0.f, 0.f}, 
+        {1.f, 1.f, 0.2f},
         1.f 
     );
 
-    for(int i=1; i<std::min(10, be::MAX_NB_POINT_LIGHTS); i++){
+    for(int i=0; i<std::min(3, be::MAX_NB_POINT_LIGHTS-1); i++){
         be::Vector3 curPosition = {
             (std::rand() % 1000) / 50.f - 5.f,
             (std::rand() % 1000) / 50.f - 5.f, 
@@ -174,11 +174,11 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
     // init pipelines
     for(uint32_t i=0; i<_NB_PIPELINES; i++){
         _PossiblePipelines[i] = be::PipelinePtr(new be::Pipeline(_VulkanApp));
-        if(i==0) _PossiblePipelines[i]->initDisneyShaders();// 0 = disney brdf
-        if(i==1) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
-        if(i==2) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
-        if(i==3) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
-        if(i==4) _PossiblePipelines[i]->initColorPassThroughShaders();// 4 = colors brdf
+        if(i==COLOR_BRDF) _PossiblePipelines[i]->initColorPassThroughShaders();// 0 = colors brdf
+        if(i==NORMAL_BRDF) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
+        if(i==LAMBERT_BRDF) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
+        if(i==BLINN_PHONG_BRDF) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
+        if(i==MICROFACET_BRDF) _PossiblePipelines[i]->initDisneyShaders();// 4 = disney brdf
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
         pipelineConfig._PipelineLayout = _PipelineLayout;
@@ -197,7 +197,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         _WireframePipelines[i]->init(pipelineConfig);
     }
 
-    _Pipeline = _PossiblePipelines[0];
+    _Pipeline = _PossiblePipelines[COLOR_BRDF];
 }
 
 void BrdfRenderSubSystem::cleanUpPipelineLayout(){

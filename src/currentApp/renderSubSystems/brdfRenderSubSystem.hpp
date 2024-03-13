@@ -7,6 +7,14 @@
 class BrdfRenderSubSystem;
 using BrdfRenderSubSystemPtr = std::shared_ptr<BrdfRenderSubSystem>;
 
+enum BRDFModel{
+    COLOR_BRDF,
+    NORMAL_BRDF,
+    LAMBERT_BRDF,
+    BLINN_PHONG_BRDF,
+    MICROFACET_BRDF,
+};
+
 class BrdfRenderSubSystem : public be::IRenderSubSystem {
     public:
         static const uint32_t _NB_SETS = 3;
@@ -34,7 +42,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
         std::vector<be::PipelinePtr> _PossiblePipelines = std::vector<be::PipelinePtr>(_NB_PIPELINES);
         std::vector<be::PipelinePtr> _WireframePipelines = std::vector<be::PipelinePtr>(_NB_PIPELINES);
 
-        int _PipelineId = 0;
+        int _PipelineId = COLOR_BRDF;
         bool _IsSwitchPipelineKeyPressed = false;
         bool _IsWireframePipelineKeyPressed = false;
         bool _IsWireFrameMode = false;
@@ -81,6 +89,8 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
         std::vector<be::DirectionalLight> getDirectionalLights() const{
             return _LightUBO.getDirectionalLights();
         }
+
+        int getBRDFModel() const {return _PipelineId;}
 
 
     protected:

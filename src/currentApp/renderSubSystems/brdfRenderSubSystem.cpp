@@ -70,37 +70,9 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     _CameraUBO.update(frameIndex);
 
     _LightUBO.reset();
-    _LightUBO.addPointLight(
-        {4.f, 0.f, 0.f}, 
-        {1.f, 0.f, 0.f},
-        1.f 
-    );
-    _LightUBO.addPointLight(
-        {-4.f, 0.f, 0.f}, 
-        {0.f, 1.f, 0.f},
-        1.f 
-    );
-    _LightUBO.addPointLight(
-        {0.f, 4.f, 0.f}, 
-        {0.f, 0.f, 1.f},
-        1.f 
-    );
-    _LightUBO.addPointLight(
-        {0.f, -4.f, 0.f}, 
-        {1.f, 1.f, 0.f},
-        1.f 
-    );
-    _LightUBO.addPointLight(
-        {0.f, 0.f, 4.f}, 
-        {0.f, 1.f, 1.f},
-        1.f 
-    );
-    _LightUBO.addPointLight(
-        {0.f, 0.f, -4.f}, 
-        {1.f, 1.f, 1.f},
-        1.f 
-    );
-
+    for(auto light : _Scene->getPointLights()){
+        _LightUBO.addPointLight(light);
+    }
     _LightUBO.update(frameIndex);
 
     auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);

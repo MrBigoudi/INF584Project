@@ -73,6 +73,9 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     for(auto light : _Scene->getPointLights()){
         _LightUBO.addPointLight(light);
     }
+    for(auto light : _Scene->getDirectionalLights()){
+        _LightUBO.addDirectionalLight(light);
+    }
     _LightUBO.update(frameIndex);
 
     auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);

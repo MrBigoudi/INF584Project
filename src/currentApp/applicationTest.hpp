@@ -57,6 +57,7 @@ class Application : public be::IApplication{
         void initGameObjects();
         void cleanUpGameObjects();
         void initCamera();
+        void initLights();
 
         void initRenderer();
         void cleanUpRenderer();
@@ -79,7 +80,6 @@ class Application : public be::IApplication{
             initRenderSubSystems();
 
             _Scene = be::ScenePtr(new be::Scene(_VulkanApp));
-            // TODO: switch to use swap chain width / height
             _RayTracer = be::RayTracerPtr(
                 new be::RayTracer(
                     _Scene, 
@@ -87,11 +87,14 @@ class Application : public be::IApplication{
                     _Renderer->getSwapChain()->getHeight()
                 )
             );
+            _BRDFRenderSubSystem->setScene(_Scene);
+
             initGameObjects();
             // _Scene->addGameObject(0);
             for(uint32_t i=2; i<_GameObjects.size(); i++){
                 _Scene->addGameObject(_GameObjects[i]);
             }
+            initLights();
 
             MouseInput::setMouseCallback(_Camera, _Window);
             // init imgui after setting up the callbacks

@@ -71,28 +71,36 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
 
     _LightUBO.reset();
     _LightUBO.addPointLight(
+        {4.f, 0.f, 0.f}, 
+        {1.f, 0.f, 0.f},
+        1.f 
+    );
+    _LightUBO.addPointLight(
         {-4.f, 0.f, 0.f}, 
-        {1.f, 1.f, 0.2f},
+        {0.f, 1.f, 0.f},
+        1.f 
+    );
+    _LightUBO.addPointLight(
+        {0.f, 4.f, 0.f}, 
+        {0.f, 0.f, 1.f},
+        1.f 
+    );
+    _LightUBO.addPointLight(
+        {0.f, -4.f, 0.f}, 
+        {1.f, 1.f, 0.f},
+        1.f 
+    );
+    _LightUBO.addPointLight(
+        {0.f, 0.f, 4.f}, 
+        {0.f, 1.f, 1.f},
+        1.f 
+    );
+    _LightUBO.addPointLight(
+        {0.f, 0.f, -4.f}, 
+        {1.f, 1.f, 1.f},
         1.f 
     );
 
-    for(int i=0; i<std::min(3, be::MAX_NB_POINT_LIGHTS-1); i++){
-        be::Vector3 curPosition = {
-            (std::rand() % 1000) / 50.f - 5.f,
-            (std::rand() % 1000) / 50.f - 5.f, 
-            (std::rand() % 1000) / 50.f - 5.f
-        };
-        be::Vector3 curColor = {
-            (std::rand() % 256) / 255.f,
-            (std::rand() % 256) / 255.f, 
-            (std::rand() % 256) / 255.f
-        };
-        _LightUBO.addPointLight(
-            curPosition,
-            curColor,
-            1.f
-        );
-    }
     _LightUBO.update(frameIndex);
 
     auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);
@@ -197,7 +205,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         _WireframePipelines[i]->init(pipelineConfig);
     }
 
-    _Pipeline = _PossiblePipelines[COLOR_BRDF];
+    _Pipeline = _PossiblePipelines[LAMBERT_BRDF];
 }
 
 void BrdfRenderSubSystem::cleanUpPipelineLayout(){

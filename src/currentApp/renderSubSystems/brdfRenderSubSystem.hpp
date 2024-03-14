@@ -42,7 +42,9 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
         std::vector<be::PipelinePtr> _PossiblePipelines = std::vector<be::PipelinePtr>(_NB_PIPELINES);
         std::vector<be::PipelinePtr> _WireframePipelines = std::vector<be::PipelinePtr>(_NB_PIPELINES);
 
-        int _PipelineId = COLOR_BRDF;
+        be::ScenePtr _Scene = nullptr;
+
+        int _PipelineId = LAMBERT_BRDF;
         bool _IsSwitchPipelineKeyPressed = false;
         bool _IsWireframePipelineKeyPressed = false;
         bool _IsWireFrameMode = false;
@@ -82,15 +84,8 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
 
         virtual void cleanUp() override;
 
-        std::vector<be::PointLight> getPointLights() const{
-            return _LightUBO.getPointLights();
-        }
-
-        std::vector<be::DirectionalLight> getDirectionalLights() const{
-            return _LightUBO.getDirectionalLights();
-        }
-
         int getBRDFModel() const {return _PipelineId;}
+        void setScene(be::ScenePtr scene){_Scene = scene;}
 
 
     protected:

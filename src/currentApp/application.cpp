@@ -194,6 +194,34 @@ void Application::initGameObjects(){
     _GameObjects.push_back(object);
 
 }
+
+void Application::initLights(){
+    _Scene->addGamePointLight(
+        {-4.f, 0.f, 0.f}, 
+        {1.f, 0.f, 0.f},
+        1.f 
+    );
+
+    // for(int i=0; i<std::min(3, be::MAX_NB_POINT_LIGHTS-1); i++){
+    //     be::Vector3 curPosition = {
+    //         (std::rand() % 1000) / 50.f - 5.f,
+    //         (std::rand() % 1000) / 50.f - 5.f, 
+    //         (std::rand() % 1000) / 50.f - 5.f
+    //     };
+    //     be::Vector3 curColor = {
+    //         (std::rand() % 256) / 255.f,
+    //         (std::rand() % 256) / 255.f, 
+    //         (std::rand() % 256) / 255.f
+    //     };
+    //     _Scene->addGamePointLight(
+    //         curPosition,
+    //         curColor,
+    //         1.f
+    //     );
+    // }
+    _Scene->buildTree();
+}
+
 void Application::initCamera(){
     _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f,0.f,4.f)));
 }
@@ -372,7 +400,6 @@ void Application::mainLoop(){
                 _Camera->unlock();
                 KeyboardInput::switchPipeline(_Window, _BRDFRenderSubSystem);
                 KeyboardInput::moveCamera(_Window, _Camera);
-                _Scene->setLights(_BRDFRenderSubSystem->getPointLights(), _BRDFRenderSubSystem->getDirectionalLights());
 
                 // IMGUI
                 {

@@ -69,17 +69,35 @@ void Application::initGameObjects(){
         // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
     );
 
+
     be::TransformPtr faceTransform = be::TransformPtr(
         new be::Transform()
     );
     // faceTransform->_Scale = {0.01f, 0.01f, 0.01f};
     faceTransform->_Scale = {2.f, 2.f, 2.f};
     // faceTransform->_Position = {-1.f, -1.f, 0.f};
+    be::MaterialPtr sphereMaterial = be::MaterialPtr(
+        new be::Material()
+    );
 
     object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
         {._Model = faceModel}, 
-        {._Transform = faceTransform}
+        {._Transform = faceTransform},
+        {._Material = sphereMaterial, ._MaterialId = 1}
+    );
+    _GameObjects.push_back(object);
+    
+    
+    be::TransformPtr faceTransform2 = be::TransformPtr(
+        new be::Transform()
+    );
+    faceTransform2->_Scale = {2.f, 2.f, 2.f};
+    faceTransform2->_Position = {3.f, 3.f, 0.f};
+    object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = faceModel}, 
+        {._Transform = faceTransform2}
     );
     _GameObjects.push_back(object);
 
@@ -422,7 +440,9 @@ void Application::mainLoop(){
 
                     // modify materials values
                     ImGui::Begin("Material values");
-                    auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(_GameObjects[1]);
+                    auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(
+                        _GameObjects[2]
+                    );
                     for(uint32_t i=0; i<be::Material::COMPONENT_MATERIAL_NB_ELEMENTS; i++){
                         ImGui::SliderFloat(
                             be::Material::COMPONENT_MATERIAL_NAMES[i].c_str(),

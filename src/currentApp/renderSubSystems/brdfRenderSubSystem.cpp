@@ -45,8 +45,8 @@ void BrdfRenderSubSystem::renderingFunction(be::GameObject object){
     SimplePushConstantData push{};
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
     push._Model = objectTransform._Transform->getModel();
-    auto viewModel = _FrameInfo._Camera->getView() * push._Model;
-    push._NormalMat = be::Matrix4x4::transpose(be::Matrix4x4::inverse(viewModel));
+    auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);
+    push._MaterialId = objectMaterial.getId();
     
     vkCmdPushConstants(
         _FrameInfo._CommandBuffer, 
@@ -79,7 +79,7 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     _LightUBO.update(frameIndex);
 
     auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);
-    _MaterialUBO.setMaterial(objectMaterial._Material);
+    _MaterialUBO.setMaterial(objectMaterial._Material, objectMaterial.getId());
     _MaterialUBO.update(frameIndex);
 
     _DescriptorSets = {

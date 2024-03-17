@@ -161,7 +161,8 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         if(i==NORMAL_BRDF) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
         if(i==LAMBERT_BRDF) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
         if(i==BLINN_PHONG_BRDF) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
-        if(i==MICROFACET_BRDF) _PossiblePipelines[i]->initDisneyShaders();// 4 = disney brdf
+        if(i==MICROFACET_BRDF) _PossiblePipelines[i]->initMicroFacetsShaders();// 4 = microfacet brdf
+        if(i==DISNEY_BSDF) _PossiblePipelines[i]->initDisneyShaders();// 5 = disney bsdf
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
         pipelineConfig._PipelineLayout = _PipelineLayout;
@@ -180,7 +181,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         _WireframePipelines[i]->init(pipelineConfig);
     }
 
-    _Pipeline = _PossiblePipelines[LAMBERT_BRDF];
+    _Pipeline = _PossiblePipelines[DISNEY_BSDF];
 }
 
 void BrdfRenderSubSystem::cleanUpPipelineLayout(){

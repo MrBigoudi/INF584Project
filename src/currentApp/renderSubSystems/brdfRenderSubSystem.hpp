@@ -13,12 +13,13 @@ enum BRDFModel{
     LAMBERT_BRDF,
     BLINN_PHONG_BRDF,
     MICROFACET_BRDF,
+    DISNEY_BSDF,
 };
 
 class BrdfRenderSubSystem : public be::IRenderSubSystem {
     public:
         static const uint32_t _NB_SETS = 3;
-        static const uint32_t _NB_PIPELINES = 5;
+        static const uint32_t _NB_PIPELINES = 6;
 
     protected:
         be::CameraUboContainer _CameraUBO{};
@@ -44,7 +45,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
 
         be::ScenePtr _Scene = nullptr;
 
-        int _PipelineId = LAMBERT_BRDF;
+        int _PipelineId = DISNEY_BSDF;
         bool _IsSwitchPipelineKeyPressed = false;
         bool _IsWireframePipelineKeyPressed = false;
         bool _IsWireFrameMode = false;

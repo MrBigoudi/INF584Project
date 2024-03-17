@@ -45,8 +45,8 @@ void BrdfRenderSubSystem::renderingFunction(be::GameObject object){
     SimplePushConstantData push{};
     auto objectTransform = be::GameCoordinator::getComponent<be::ComponentTransform>(object);
     push._Model = objectTransform._Transform->getModel();
-    auto viewModel = _FrameInfo._Camera->getView() * push._Model;
-    push._NormalMat = be::Matrix4x4::transpose(be::Matrix4x4::inverse(viewModel));
+    auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);
+    push._MaterialId = objectMaterial.getId();
     
     vkCmdPushConstants(
         _FrameInfo._CommandBuffer, 
@@ -70,33 +70,16 @@ void BrdfRenderSubSystem::updateDescriptorSets(be::GameObject object, be::FrameI
     _CameraUBO.update(frameIndex);
 
     _LightUBO.reset();
-    _LightUBO.addPointLight(
-        {-4.f, 0.f, 0.f}, 
-        {1.f, 1.f, 0.2f},
-        1.f 
-    );
-
-    for(int i=0; i<std::min(3, be::MAX_NB_POINT_LIGHTS-1); i++){
-        be::Vector3 curPosition = {
-            (std::rand() % 1000) / 50.f - 5.f,
-            (std::rand() % 1000) / 50.f - 5.f, 
-            (std::rand() % 1000) / 50.f - 5.f
-        };
-        be::Vector3 curColor = {
-            (std::rand() % 256) / 255.f,
-            (std::rand() % 256) / 255.f, 
-            (std::rand() % 256) / 255.f
-        };
-        _LightUBO.addPointLight(
-            curPosition,
-            curColor,
-            1.f
-        );
+    for(auto light : _Scene->getPointLights()){
+        _LightUBO.addPointLight(light);
+    }
+    for(auto light : _Scene->getDirectionalLights()){
+        _LightUBO.addDirectionalLight(light);
     }
     _LightUBO.update(frameIndex);
 
     auto objectMaterial = be::GameCoordinator::getComponent<be::ComponentMaterial>(object);
-    _MaterialUBO.setMaterial(objectMaterial._Material);
+    _MaterialUBO.setMaterial(objectMaterial._Material, objectMaterial.getId());
     _MaterialUBO.update(frameIndex);
 
     _DescriptorSets = {
@@ -178,7 +161,8 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         if(i==NORMAL_BRDF) _PossiblePipelines[i]->initNormalPassThroughShaders();// 1 = normals brdf
         if(i==LAMBERT_BRDF) _PossiblePipelines[i]->initLambertShaders();// 2 = lambert brdf
         if(i==BLINN_PHONG_BRDF) _PossiblePipelines[i]->initBlinnPhongShaders();// 3 = blinn-phong brdf
-        if(i==MICROFACET_BRDF) _PossiblePipelines[i]->initDisneyShaders();// 4 = disney brdf
+        if(i==MICROFACET_BRDF) _PossiblePipelines[i]->initMicroFacetsShaders();// 4 = microfacet brdf
+        if(i==DISNEY_BSDF) _PossiblePipelines[i]->initDisneyShaders();// 5 = disney bsdf
         auto pipelineConfig = be::Pipeline::defaultPipelineConfigInfo();
         pipelineConfig._RenderPass = renderPass;
         pipelineConfig._PipelineLayout = _PipelineLayout;
@@ -197,7 +181,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         _WireframePipelines[i]->init(pipelineConfig);
     }
 
-    _Pipeline = _PossiblePipelines[COLOR_BRDF];
+    _Pipeline = _PossiblePipelines[DISNEY_BSDF];
 }
 
 void BrdfRenderSubSystem::cleanUpPipelineLayout(){

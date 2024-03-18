@@ -212,39 +212,76 @@ void Application::initGameObjects(){
     }
 }
 void Application::initLights(){
-    // _Scene->addGamePointLight(
-    //     {-4.f, 0.f, 0.f}, 
-    //     {1.f, 1.f, 1.f},
-    //     1.f 
-    // );
-
-    _Scene->addGameDirectionalLight(
-        {-1.f, 0.f, 0.f}, 
+    // build the lights
+    _Scene->addGamePointLight(
+        {0.f, 7.f, -1.f}, 
+        {1.f, 1.f, 1.f},
+        1.f 
+    );
+    _Scene->addGamePointLight(
+        {0.f, 7.f, 1.f}, 
         {1.f, 1.f, 1.f},
         1.f 
     );
 
-    // for(int i=0; i<std::min(3, be::MAX_NB_POINT_LIGHTS-1); i++){
-    //     be::Vector3 curPosition = {
-    //         (std::rand() % 1000) / 50.f - 5.f,
-    //         (std::rand() % 1000) / 50.f - 5.f, 
-    //         (std::rand() % 1000) / 50.f - 5.f
-    //     };
-    //     be::Vector3 curColor = {
-    //         (std::rand() % 256) / 255.f,
-    //         (std::rand() % 256) / 255.f, 
-    //         (std::rand() % 256) / 255.f
-    //     };
+    _Scene->addGamePointLight(
+        {7.f, 0.f, -1.f}, 
+        {1.f, 1.f, 1.f},
+        1.f 
+    );
+    _Scene->addGamePointLight(
+        {7.f, 0.f, 1.f}, 
+        {1.f, 1.f, 1.f},
+        1.f 
+    );
+
+    // // light in a circle
+    // float r = 7.f;
+    // int nbLights = 36;
+    // float step = be::radians(360.f / nbLights);
+    // float curAngle = 0.f;
+    // for(int i=0; i<nbLights; i++){
+    //     be::Vector3 pos = {r*std::cos(curAngle), 0.f, r*std::sin(curAngle)};
+    //     be::Vector3 col = be::Vector3::random(0.f, 1.f);//{1.f, 1.f, 1.f};
+    //     float intensity = 1.f;
     //     _Scene->addGamePointLight(
-    //         curPosition,
-    //         curColor,
-    //         1.f
+    //         pos,
+    //         col,
+    //         intensity
     //     );
+    //     curAngle += step;
     // }
+
+    // make the lights visible
+    be::ModelPtr faceModel = be::ModelPtr(
+        new be::Model(_VulkanApp, 
+            be::VertexDataBuilder::primitiveSphere()
+        )
+    );
+    for(auto light: _Scene->getPointLights()){
+        be::TransformPtr faceTransform = be::TransformPtr(
+            new be::Transform()
+        );
+        faceTransform->_Scale = {0.2f, 0.2f, 0.2f};
+        faceTransform->_Position = light->_Position.xyz();
+        be::GameObject object = be::RenderSystem::createRenderableObject(
+            {._RenderSubSystem = _RenderSubSystem},
+            {._Model = faceModel}, 
+            {._Transform = faceTransform}
+        );
+        _GameObjects.push_back(object);
+    }
+
+    // _Scene->addGameDirectionalLight(
+    //     {-1.f, 0.f, 0.f}, 
+    //     {1.f, 1.f, 1.f},
+    //     1.f 
+    // );
+
     _Scene->buildTree();
 }
 void Application::initCamera(){
-    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f,0.f,4.f)));
+    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f, 0.f, 15.f)));
 }
 void Application::initRenderer(){
     if(_Window == nullptr){

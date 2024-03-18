@@ -45,7 +45,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
 
         be::ScenePtr _Scene = nullptr;
 
-        int _PipelineId = DISNEY_BSDF;
+        int _PipelineId = LAMBERT_BRDF;
         bool _IsSwitchPipelineKeyPressed = false;
         bool _IsWireframePipelineKeyPressed = false;
         bool _IsWireFrameMode = false;

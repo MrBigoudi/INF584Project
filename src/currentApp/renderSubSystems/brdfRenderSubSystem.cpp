@@ -181,7 +181,7 @@ void BrdfRenderSubSystem::initPipeline(VkRenderPass renderPass){
         _WireframePipelines[i]->init(pipelineConfig);
     }
 
-    _Pipeline = _PossiblePipelines[DISNEY_BSDF];
+    _Pipeline = _PossiblePipelines[LAMBERT_BRDF];
 }
 
 void BrdfRenderSubSystem::cleanUpPipelineLayout(){

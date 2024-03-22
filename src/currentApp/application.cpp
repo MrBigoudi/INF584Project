@@ -147,51 +147,80 @@ void Application::initGameObjectsRoom(){
     );
     _GameObjects.push_back(object);
 }
-void Application::initGameObjectsEntities(){
-    // load face model
-    be::ModelPtr faceModel = be::ModelPtr(
-        // new be::Model(_VulkanApp, "resources/models/dragon.off")
-        // new be::Model(_VulkanApp, "resources/models/face.off")
-        // new be::Model(_VulkanApp, "resources/models/sponza.obj")
-        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere(16, 
-            {54.f/255.f, 112.f/255.f, 131.f/255.f})
-        )
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveTriangle())
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveRectangle())
-        // new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveCube())
+void Application::initDragonScene(){
+    // load dragon model
+    be::ModelPtr dragonModel = be::ModelPtr(
+        new be::Model(_VulkanApp, "resources/models/dragon.off")
     );
 
 
-    be::TransformPtr faceTransform = be::TransformPtr(
+    be::TransformPtr dragonTransform = be::TransformPtr(
         new be::Transform()
     );
-    // faceTransform->_Scale = {0.01f, 0.01f, 0.01f};
-    faceTransform->_Scale = {2.f, 2.f, 2.f};
-    // faceTransform->_Position = {-1.f, -1.f, 0.f};
+    dragonTransform->_Scale = {10.f, 10.f, 10.f};
     be::MaterialPtr sphereMaterial = be::MaterialPtr(
-        new be::Material()
+        new be::Material(
+            {
+                ._Metallic = 0.788f,
+                ._Subsurface = 0.603f,
+                ._Specular = 0.301f,
+                ._Roughness = 0.180f,
+                ._SpecularTint = 0.042f,
+                ._Anisotropic = 0.199f,
+                ._Sheen = 0.564f,
+                ._SheenTint = 0.795f,
+                ._Clearcoat = 0.269f,
+                ._ClearcoatGloss = 0.737f
+            }
+        )
     );
 
     be::GameObject object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
-        {._Model = faceModel}, 
-        {._Transform = faceTransform},
+        {._Model = dragonModel}, 
+        {._Transform = dragonTransform},
+        {._Material = sphereMaterial, ._MaterialId = 1}
+    );
+    _GameObjects.push_back(object);
+}
+void Application::initSpheresScene(){
+    // load sphere model
+    be::ModelPtr sphereModel = be::ModelPtr(
+        new be::Model(_VulkanApp, be::VertexDataBuilder::primitiveSphere(16, 
+            {54.f/255.f, 112.f/255.f, 131.f/255.f})
+        )
+    );
+
+
+    be::TransformPtr sphereTransform = be::TransformPtr(
+        new be::Transform()
+    );
+    sphereTransform->_Scale = {2.f, 2.f, 2.f};
+    be::MaterialPtr sphereMaterial = be::MaterialPtr(new be::Material());
+
+    be::GameObject object = be::RenderSystem::createRenderableObject(
+        {._RenderSubSystem = _BRDFRenderSubSystem},
+        {._Model = sphereModel}, 
+        {._Transform = sphereTransform},
         {._Material = sphereMaterial, ._MaterialId = 1}
     );
     _GameObjects.push_back(object);
     
-    
-    be::TransformPtr faceTransform2 = be::TransformPtr(
+    be::TransformPtr sphereTransform2 = be::TransformPtr(
         new be::Transform()
     );
-    faceTransform2->_Scale = {2.f, 2.f, 2.f};
-    faceTransform2->_Position = {3.f, 3.f, 0.f};
+    sphereTransform2->_Scale = {2.f, 2.f, 2.f};
+    sphereTransform2->_Position = {3.f, 3.f, 0.f};
     object = be::RenderSystem::createRenderableObject(
         {._RenderSubSystem = _BRDFRenderSubSystem},
-        {._Model = faceModel}, 
-        {._Transform = faceTransform2}
+        {._Model = sphereModel}, 
+        {._Transform = sphereTransform2}
     );
     _GameObjects.push_back(object);
+}
+void Application::initGameObjectsEntities(){
+    initDragonScene();
+    // initSpheresScene();
 }
 void Application::initGameObjects(){
     if(_VulkanApp == nullptr){
@@ -211,77 +240,181 @@ void Application::initGameObjects(){
         _Scene->addGameObject(_GameObjects[i]);
     }
 }
-void Application::initLights(){
+void Application::initLightsBasic(){
     // build the lights
     _Scene->addGamePointLight(
         {0.f, 7.f, -1.f}, 
         {1.f, 1.f, 1.f},
-        1.f 
+        10.f 
     );
     _Scene->addGamePointLight(
         {0.f, 7.f, 1.f}, 
         {1.f, 1.f, 1.f},
-        1.f 
+        10.f 
     );
-
     _Scene->addGamePointLight(
         {7.f, 0.f, -1.f}, 
         {1.f, 1.f, 1.f},
-        1.f 
+        10.f 
     );
     _Scene->addGamePointLight(
         {7.f, 0.f, 1.f}, 
         {1.f, 1.f, 1.f},
-        1.f 
+        10.f 
     );
-
-    // // light in a circle
-    // float r = 7.f;
-    // int nbLights = 36;
-    // float step = be::radians(360.f / nbLights);
-    // float curAngle = 0.f;
-    // for(int i=0; i<nbLights; i++){
-    //     be::Vector3 pos = {r*std::cos(curAngle), 0.f, r*std::sin(curAngle)};
-    //     be::Vector3 col = be::Vector3::random(0.f, 1.f);//{1.f, 1.f, 1.f};
-    //     float intensity = 1.f;
-    //     _Scene->addGamePointLight(
-    //         pos,
-    //         col,
-    //         intensity
-    //     );
-    //     curAngle += step;
-    // }
 
     // make the lights visible
-    be::ModelPtr faceModel = be::ModelPtr(
-        new be::Model(_VulkanApp, 
-            be::VertexDataBuilder::primitiveSphere()
-        )
-    );
     for(auto light: _Scene->getPointLights()){
-        be::TransformPtr faceTransform = be::TransformPtr(
+        be::ModelPtr lightModel = be::ModelPtr(
+            new be::Model(_VulkanApp, 
+                be::VertexDataBuilder::primitiveSphere(16, 
+                    be::Vector4(light->getColor(), 1.f)
+                )
+            )
+        );
+        be::TransformPtr lightTransform = be::TransformPtr(
             new be::Transform()
         );
-        faceTransform->_Scale = {0.2f, 0.2f, 0.2f};
-        faceTransform->_Position = light->_Position.xyz();
+        lightTransform->_Scale = {0.1f, 0.1f, 0.1f};
+        lightTransform->_Position = light->_Position.xyz();
         be::GameObject object = be::RenderSystem::createRenderableObject(
             {._RenderSubSystem = _RenderSubSystem},
-            {._Model = faceModel}, 
-            {._Transform = faceTransform}
+            {._Model = lightModel}, 
+            {._Transform = lightTransform},
+            {},
+            {._IsLight = true}
         );
         _GameObjects.push_back(object);
+        _Scene->addGameObject(object);
+    }
+}
+void Application::initLightsCircle(){
+    // light in a circle
+    float r = 7.f;
+    int nbLights = 36;
+    float step = be::radians(360.f / nbLights);
+    float curAngle = 0.f;
+    for(int i=0; i<nbLights; i++){
+        be::Vector3 pos = {r*std::cos(curAngle), -3.f, r*std::sin(curAngle)};
+        be::Vector3 col = be::Vector3::random(0.f, 1.f);
+        // be::Vector3 col = {1.f, 1.f, 1.f};
+        float intensity = 5.f;
+        _Scene->addGamePointLight(
+            pos,
+            col,
+            intensity
+        );
+        curAngle += step;
     }
 
-    // _Scene->addGameDirectionalLight(
-    //     {-1.f, 0.f, 0.f}, 
-    //     {1.f, 1.f, 1.f},
-    //     1.f 
-    // );
 
-    _Scene->buildTree();
+
+    // make the lights visible
+    for(auto light: _Scene->getPointLights()){
+        be::ModelPtr lightModel = be::ModelPtr(
+            new be::Model(_VulkanApp, 
+                be::VertexDataBuilder::primitiveSphere(16, 
+                    be::Vector4(light->getColor(), 1.f)
+                )
+            )
+        );
+        be::TransformPtr lightTransform = be::TransformPtr(
+            new be::Transform()
+        );
+        lightTransform->_Scale = {0.1f, 0.1f, 0.1f};
+        lightTransform->_Position = light->_Position.xyz();
+        be::GameObject object = be::RenderSystem::createRenderableObject(
+            {._RenderSubSystem = _RenderSubSystem},
+            {._Model = lightModel}, 
+            {._Transform = lightTransform},
+            {},
+            {._IsLight = true}
+        );
+        _GameObjects.push_back(object);
+        _Scene->addGameObject(object);
+    }
+}
+void Application::initLightsBoxes(){
+    float roomHalfSize = 7.5;
+
+    float lightSteps = 0.5;
+
+    // bottom right cube
+    float cube1Length = 4.f;
+    be::Vector3 cube1Center = be::Vector3(5.f, -roomHalfSize+cube1Length/2.f, -5.f);
+    be::Vector3 cube1Rotation = be::Vector3(0.f, be::radians(-15.f), 0.f);
+    be::Vector3 cube1Color = be::Vector3(1.f, 1.f, 0.5f);
+    // be::Vector3 cube1Color = be::Color::WHITE;
+    float cube1Intensity = 0.8f;
+    auto object = _Scene->addCubeOfLight(
+        _RenderSubSystem, 
+        cube1Center,
+        cube1Length, 
+        cube1Color,
+        cube1Intensity,
+        cube1Rotation,
+        lightSteps
+    );
+    _GameObjects.push_back(object);
+
+    // tiny bottom right cube
+    float cube2Length = 2.f;
+    be::Vector3 cube2Center = be::Vector3(4.f, -roomHalfSize+cube2Length/2.f, 3.f);
+    be::Vector3 cube2Rotation = be::Vector3(0.f, be::radians(45.f), 0.f);
+    be::Vector3 cube2Color = be::Vector3(73.f/255.f, 116.f/255.f, 165.f/255.f);
+    // be::Vector3 cube2Color = be::Color::WHITE;
+    float cube2Intensity = 0.2f;
+    object = _Scene->addCubeOfLight(
+        _RenderSubSystem, 
+        cube2Center,
+        cube2Length, 
+        cube2Color,
+        cube2Intensity,
+        cube2Rotation,
+        lightSteps
+    );
+    _GameObjects.push_back(object);
+
+    // bottom left cube
+    float cube3Length = 3.f;
+    be::Vector3 cube3Center = be::Vector3(-5.2f, -roomHalfSize+cube3Length/2.f, 1.5f);
+    be::Vector3 cube3Rotation = be::Vector3(0.f, be::radians(30.f), 0.f);
+    be::Vector3 cube3Color = be::Vector3(122.f/255.f, 73.f/255.f, 165.f/255.f);
+    // be::Vector3 cube3Color = be::Color::WHITE;
+    float cube3Intensity = 0.6f;
+    object = _Scene->addCubeOfLight(
+        _RenderSubSystem, 
+        cube3Center,
+        cube3Length, 
+        cube3Color,
+        cube3Intensity,
+        cube3Rotation,
+        lightSteps
+    );
+    _GameObjects.push_back(object);
+
+
+    // top light
+    be::Vector3 cube4Scale = be::Vector3(3.f, 0.2f, 3.f);
+    be::Vector3 cube4Center = be::Vector3(0.f, roomHalfSize-cube4Scale.y()/2.f, 0.f);
+    be::Vector3 cube4Color = be::Color::WHITE;
+    float cube4Intensity = 0.5f;
+    object = _Scene->addCubeOfLight(
+        _RenderSubSystem, 
+        cube4Center,
+        cube4Scale, 
+        cube4Color,
+        cube4Intensity
+    );
+    _GameObjects.push_back(object);
+}
+void Application::initLights(){
+    // initLightsBasic();
+    // initLightsCircle();
+    initLightsBoxes();
 }
 void Application::initCamera(){
-    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f, 0.f, 15.f)));
+    _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f, 0.f, 20.f)));
 }
 void Application::initRenderer(){
     if(_Window == nullptr){
@@ -453,12 +586,16 @@ void Application::runRaytracer(){
             case LAMBERT_BRDF:
                 _RayTracer->enableLambertBRDF();
                 break;
+            case MICROFACET_BRDF:
+                _RayTracer->enableGgxBRDF();
+                break;
             default:
                 break;
         }
 
-        _RayTracer->run(_CurrentFrame, backgroundColor, true);
-        _RayTracer->getImage()->savePPM("tmp/ray_tracer_bvh.ppm");
+        _RayTracer->run(_CurrentFrame, backgroundColor);
+        // _RayTracer->getImage()->savePPM("tmp/test.ppm");
+        _RayTracer->getImage()->savePPM();
         _RaytracingRenderSubSystem->setRenderPass(_Renderer->getSwapChainRenderPass());
         _RaytracingRenderSubSystem->updateImage(_RayTracer->getImage());
         _Hasrun = true;
@@ -471,6 +608,8 @@ void Application::runRaytracer(){
 /************************* MAIN FUNCTIONS **************************/
 /*******************************************************************/
 void Application::run(){
+    static const uint32_t SEED = 4242;
+    srand(SEED);
     init();
     mainLoop();
     cleanUp();
@@ -516,6 +655,66 @@ void Application::renderRayTracing(float frameTime){
         ImGui::Begin("Render commands");
         ImGui::Text("Switch to Rasterizing: TAB");
         ImGui::Text("Run ray tracer: SPACE");
+
+        // ray tracer parameters
+        ImGui::Text("Raytracer parameters:\n");
+        ImGui::SliderInt(
+            "Samples per pixels", 
+            reinterpret_cast<int*>(&_RayTracer->_SamplesPerPixels), 
+            1, 
+            64
+        );
+
+        ImGui::SliderInt(
+            "Max bounces", 
+            reinterpret_cast<int*>(&_RayTracer->_MaxBounces), 
+            0, 
+            5
+        );
+
+        ImGui::SliderInt(
+            "Samples per bounces", 
+            reinterpret_cast<int*>(&_RayTracer->_SamplesPerBounces), 
+            1, 
+            64
+        );
+
+        ImGui::SliderFloat(
+            "Shading factor for bounces",
+            &_RayTracer->_ShadingFactor,
+            0.f,
+            1.f
+        );
+
+        // lightcuts parameters
+        ImGui::Text("Lightcuts parameters:\n");
+        ImGui::Checkbox(
+            "Use lightcuts", 
+            &_RayTracer->_UseLightCuts
+        );
+
+        ImGui::SliderFloat(
+            "Error threshold",
+            &_RayTracer->_LightcutsErrorThreshold,
+            0.f,
+            2.f
+        );
+
+        ImGui::SliderFloat(
+            "Minimum intensity",
+            &_RayTracer->_LightcutsMinIntensity,
+            0.f,
+            1.f
+        );
+
+        ImGui::SliderInt(
+            "Maximum size of a cut", 
+            reinterpret_cast<int*>(&_RayTracer->_LightcutsMaxClusters), 
+            2, 
+            1024
+        );
+
+
         ImGui::End();
     }
 

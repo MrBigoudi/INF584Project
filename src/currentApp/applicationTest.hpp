@@ -36,7 +36,7 @@ class Application : public be::IApplication{
 
         be::ScenePtr _Scene = nullptr;
         bool _IsSwitchRenderingModeKeyPressed = false;
-        RenderingMode _RenderingMode = RASTERIZING;
+        RenderingMode _RenderingMode = RAY_TRACING;
         be::RayTracerPtr _RayTracer = nullptr;
         be::FrameInfo _CurrentFrame = {};
         bool _Hasrun = false;
@@ -59,8 +59,13 @@ class Application : public be::IApplication{
         void initGameObjectsFrame();
         void initGameObjectsRayTracingViewRectangle();
         void initGameObjectsRoom();
+        void initDragonScene();
+        void initSpheresScene();
         void initGameObjectsEntities();
         void initGameObjects();
+        void initLightsBasic();
+        void initLightsCircle();
+        void initLightsBoxes();
         void initLights();
         void initGUI();
 

@@ -21,9 +21,11 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 find_package(glfw3 REQUIRED)
 find_package(Vulkan REQUIRED)
+find_package(OpenMP REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
 
 add_subdirectory(src)
 add_subdirectory(dep)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan cflags)
-target_link_libraries(${PROJECT_NAME} PRIVATE BigoudiEngine cflags)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan cflags OpenMP::OpenMP_CXX)
+target_link_libraries(${PROJECT_NAME} PRIVATE BigoudiEngine cflags OpenMP::OpenMP_CXX)

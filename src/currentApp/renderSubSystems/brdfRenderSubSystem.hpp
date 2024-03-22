@@ -13,7 +13,7 @@ enum BRDFModel{
     LAMBERT_BRDF,
     BLINN_PHONG_BRDF,
     MICROFACET_BRDF,
-    DISNEY_BSDF,
+    DISNEY_BRDF,
 };
 
 class BrdfRenderSubSystem : public be::IRenderSubSystem {
@@ -45,7 +45,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
 
         be::ScenePtr _Scene = nullptr;
 
-        int _PipelineId = LAMBERT_BRDF;
+        int _PipelineId = DISNEY_BRDF;
         bool _IsSwitchPipelineKeyPressed = false;
         bool _IsWireframePipelineKeyPressed = false;
         bool _IsWireFrameMode = false;

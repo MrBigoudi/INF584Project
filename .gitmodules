@@ -1,3 +1,4 @@
 [submodule "src/engine"]
 	path = src/engine
 	url = https://github.com/MrBigoudi/BigoudiEngine.git
+	clone = --recurse-submodules --remote-submodules

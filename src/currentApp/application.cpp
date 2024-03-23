@@ -219,8 +219,8 @@ void Application::initSpheresScene(){
     _GameObjects.push_back(object);
 }
 void Application::initGameObjectsEntities(){
-    initDragonScene();
-    // initSpheresScene();
+    // initDragonScene();
+    initSpheresScene();
 }
 void Application::initGameObjects(){
     if(_VulkanApp == nullptr){
@@ -245,22 +245,22 @@ void Application::initLightsBasic(){
     _Scene->addGamePointLight(
         {0.f, 7.f, -1.f}, 
         {1.f, 1.f, 1.f},
-        10.f 
+        1.f 
     );
     _Scene->addGamePointLight(
         {0.f, 7.f, 1.f}, 
         {1.f, 1.f, 1.f},
-        10.f 
+        1.f 
     );
     _Scene->addGamePointLight(
         {7.f, 0.f, -1.f}, 
         {1.f, 1.f, 1.f},
-        10.f 
+        1.f 
     );
     _Scene->addGamePointLight(
         {7.f, 0.f, 1.f}, 
         {1.f, 1.f, 1.f},
-        10.f 
+        1.f 
     );
 
     // make the lights visible
@@ -411,9 +411,9 @@ void Application::initLightsBoxes(){
     _GameObjects.push_back(object);
 }
 void Application::initLights(){
-    // initLightsBasic();
+    initLightsBasic();
     // initLightsCircle();
-    initLightsBoxes();
+    // initLightsBoxes();
 }
 void Application::initCamera(){
     _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f, 0.f, 20.f)));
@@ -596,8 +596,9 @@ void Application::runRaytracer(){
         }
 
         _RayTracer->run(_CurrentFrame, backgroundColor);
-        // _RayTracer->getImage()->savePPM("tmp/test.ppm");
-        _RayTracer->getImage()->savePPM();
+        if(_SaveImage){
+            _RayTracer->getImage()->savePPM();
+        }
         _RaytracingRenderSubSystem->setRenderPass(_Renderer->getSwapChainRenderPass());
         _RaytracingRenderSubSystem->updateImage(_RayTracer->getImage());
         _Hasrun = true;
@@ -653,10 +654,15 @@ void Application::renderRayTracing(float frameTime){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // modify materials values
+        // modify raytracer values
         ImGui::Begin("Render commands");
         ImGui::Text("Switch to Rasterizing: TAB");
         ImGui::Text("Run ray tracer: SPACE");
+
+        ImGui::Checkbox(
+            "Save result image", 
+            &_SaveImage
+        );
 
         // ray tracer parameters
         ImGui::Text("Raytracer parameters:\n");
@@ -699,7 +705,7 @@ void Application::renderRayTracing(float frameTime){
             "Error threshold",
             &_RayTracer->_LightcutsErrorThreshold,
             0.f,
-            2.f
+            0.5f
         );
 
         ImGui::SliderFloat(

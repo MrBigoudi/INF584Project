@@ -3,6 +3,14 @@
 #include <cstdint>
 #include "data.hpp"
 
+const std::array<std::string, BrdfRenderSubSystem::_NB_PIPELINES> BrdfRenderSubSystem::_PIPELINE_NAMES = {
+    "color passthrough",
+    "normal passthrough",
+    "Lambert BRDF",
+    "Blinn-Phong BRDF",
+    "Microfacets BRDF",
+    "Disney BRDF"
+};
 
 BrdfRenderSubSystem::BrdfRenderSubSystem(be::VulkanAppPtr vulkanApp, VkRenderPass renderPass, be::DescriptorPoolPtr globalPool)
     : IRenderSubSystem(vulkanApp, renderPass), _GlobalPool(globalPool){

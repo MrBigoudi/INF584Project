@@ -20,6 +20,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
     public:
         static const uint32_t _NB_SETS = 3;
         static const uint32_t _NB_PIPELINES = 6;
+        static const std::array<std::string, _NB_PIPELINES> _PIPELINE_NAMES;
 
     protected:
         be::CameraUboContainer _CameraUBO{};
@@ -101,7 +102,7 @@ class BrdfRenderSubSystem : public be::IRenderSubSystem {
         void switchPipeline(){
             _PipelineId = (_PipelineId + 1) % _PossiblePipelines.size();
             _Pipeline = _PossiblePipelines[_PipelineId];
-            fprintf(stdout, "Pipeline %d\n", _PipelineId);
+            fprintf(stdout, "Pipeline %s\n", _PIPELINE_NAMES[_PipelineId].c_str());
         }
 
         void switchWireframe(){

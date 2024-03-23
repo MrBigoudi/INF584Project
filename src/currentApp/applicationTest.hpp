@@ -40,6 +40,7 @@ class Application : public be::IApplication{
         be::RayTracerPtr _RayTracer = nullptr;
         be::FrameInfo _CurrentFrame = {};
         bool _Hasrun = false;
+        bool _SaveImage = true;
 
         
 

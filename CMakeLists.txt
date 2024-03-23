@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(vulkanTest)
+project(lightcuts)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)

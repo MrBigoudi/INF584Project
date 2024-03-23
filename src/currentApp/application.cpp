@@ -395,16 +395,18 @@ void Application::initLightsBoxes(){
 
 
     // top light
-    be::Vector3 cube4Scale = be::Vector3(3.f, 0.2f, 3.f);
+    be::Vector3 cube4Scale = be::Vector3(6.f, 0.3f, 6.f);
     be::Vector3 cube4Center = be::Vector3(0.f, roomHalfSize-cube4Scale.y()/2.f, 0.f);
     be::Vector3 cube4Color = be::Color::WHITE;
-    float cube4Intensity = 0.5f;
+    float cube4Intensity = 5.f;
     object = _Scene->addCubeOfLight(
         _RenderSubSystem, 
         cube4Center,
         cube4Scale, 
         cube4Color,
-        cube4Intensity
+        cube4Intensity,
+        be::Vector3::zeros(),
+        be::Vector3(lightSteps, 0.1f, lightSteps)
     );
     _GameObjects.push_back(object);
 }

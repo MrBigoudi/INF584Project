@@ -1,6 +1,7 @@
 # Lightcuts
 
-This project is an implementation of the lightcuts algorithm
+This project is an implementation of the lightcuts algorithm.
+A detail report of the project is given in the `report/report.pdf` file.
 
 ## Howto
 

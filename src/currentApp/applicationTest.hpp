@@ -36,7 +36,7 @@ class Application : public be::IApplication{
 
         be::ScenePtr _Scene = nullptr;
         bool _IsSwitchRenderingModeKeyPressed = false;
-        RenderingMode _RenderingMode = RAY_TRACING;
+        RenderingMode _RenderingMode = RASTERIZING;
         be::RayTracerPtr _RayTracer = nullptr;
         be::FrameInfo _CurrentFrame = {};
         bool _Hasrun = false;

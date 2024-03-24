@@ -219,8 +219,8 @@ void Application::initSpheresScene(){
     _GameObjects.push_back(object);
 }
 void Application::initGameObjectsEntities(){
-    // initDragonScene();
-    initSpheresScene();
+    initDragonScene();
+    // initSpheresScene();
 }
 void Application::initGameObjects(){
     if(_VulkanApp == nullptr){
@@ -411,12 +411,13 @@ void Application::initLightsBoxes(){
     _GameObjects.push_back(object);
 }
 void Application::initLights(){
-    initLightsBasic();
-    // initLightsCircle();
-    // initLightsBoxes();
+    // initLightsBasic();
+    initLightsCircle();
+    initLightsBoxes();
 }
 void Application::initCamera(){
     _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f, 0.f, 20.f)));
+    // _Camera = be::CameraPtr(new be::Camera(be::Vector3(0.f, 0.f, 15.f)));
 }
 void Application::initRenderer(){
     if(_Window == nullptr){
@@ -708,18 +709,11 @@ void Application::renderRayTracing(float frameTime){
             0.5f
         );
 
-        ImGui::SliderFloat(
-            "Minimum intensity",
-            &_RayTracer->_LightcutsMinIntensity,
-            0.f,
-            1.f
-        );
-
         ImGui::SliderInt(
             "Maximum size of a cut", 
             reinterpret_cast<int*>(&_RayTracer->_LightcutsMaxClusters), 
-            2, 
-            1024
+            1, 
+            200
         );
 
 
@@ -761,7 +755,12 @@ void Application::renderRasterizer(float frameTime){
         ImGui::NewFrame();
 
         // modify materials values
-        ImGui::Begin("Material values");
+        ImGui::Begin("Render commands");
+        ImGui::Text("Switch to Rasterizing: TAB");
+        ImGui::Text("Switch Pipeline: P (current %s)", 
+            BrdfRenderSubSystem::_PIPELINE_NAMES[_BRDFRenderSubSystem->getBRDFModel()].c_str());
+        ImGui::Text("Toogle Wireframe: F1");
+        ImGui::Text("\nMaterial properties:\n");
         auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(
             _GameObjects[2]
         );

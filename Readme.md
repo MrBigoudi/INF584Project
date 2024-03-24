@@ -52,7 +52,7 @@ make -C build
 ./build/lightcuts
 ```
 
-When the application starts, you see the scene displayed through the rasterizer. The loaded scene contains a small amount of lights to not make the rasterizer too laggy. 
+When the application starts, you see the scene displayed through the rasterizer. 
 However, two rendering modes are available: a Rasterizer and a Raytracer.
 
 Rasterizer:
@@ -62,7 +62,7 @@ Available actions in rasterizer mode are:
 
 - `Mouse`: use your mouse to rotate the camera (only works when the camera mode is on)
 
-- `M`: press `M` to activate or deactivate the camera mode. In camera mode, you can rotate the camera with the mouse. When deactivated the view is locked to make the usage of the ImGui window more convenient
+- `M`: press `M` to activate or deactivate the camera mode. In camera mode, you can rotate the camera with the mouse. When deactivated the cursor appears and the view is locked to make the usage of the ImGui window more convenient
 
 - `F1`: press `F1` to activate the wireframe mode
 
@@ -88,8 +88,12 @@ Available actions in raytracing mode are:
     -Shading factor for bounces: the factor by which the color reponse after each bounce should be multiply by</li>
     -Use lightcuts: use the lightcuts algorithm or not</li>
     -Error threshold: the lightcuts error threshold (default 2%)</li>
-    -Minimum intensity: the minimum intensity for a light (for dark regions)</li>
     -Maximum size of a cut: the maximum number of cluster per cuts</li>
 ```
 
 - `Tab`: press `Tab` to switch to Rasterizer mode
+
+
+You can modify the scene in the `src/currentApp/application.cpp` file. Modify the `initGameObjectsEntities` and `initLights` functions to change the scene. You can either uncomment the init function calls in these 2 functions or take them as inspiration to build your own scene.
+
+`src/engine/src/beCore/gameplay/be_lights.*` contain the lighttree implementation while the cluster errors and estimations are computed in the `src/engine/beRenderer/renderingSubSystems/rayTracing/be_raytracer.*` files.

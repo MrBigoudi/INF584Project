@@ -757,10 +757,11 @@ void Application::renderRasterizer(float frameTime){
         // modify materials values
         ImGui::Begin("Render commands");
         ImGui::Text("Switch to Rasterizing: TAB");
+        ImGui::Text("Display Cursor: M");
         ImGui::Text("Switch Pipeline: P (current %s)", 
             BrdfRenderSubSystem::_PIPELINE_NAMES[_BRDFRenderSubSystem->getBRDFModel()].c_str());
         ImGui::Text("Toogle Wireframe: F1");
-        ImGui::Text("\nMaterial properties:\n");
+        ImGui::Text("\nMaterial Properties:\n");
         auto& material = be::GameCoordinator::getComponent<be::ComponentMaterial>(
             _GameObjects[2]
         );
